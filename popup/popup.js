@@ -37,7 +37,7 @@ const nodes = {
   statRules: document.getElementById("stat-rules"),
   events: document.getElementById("events"),
   eventsEmpty: document.getElementById("events-empty"),
-  eventsLink: document.getElementById("events-link"),
+
   noHostHint: document.getElementById("no-host-hint"),
   liveStatus: document.getElementById("live-status"),
   syncLine: document.getElementById("sync-line"),
@@ -53,6 +53,8 @@ const FINDING_TONE = { danger: "danger", warn: "warn", info: "muted" };
 let view = null;
 let theme = "system";
 let busy = false;
+let loading = false;
+let reloadQueued = false;
 
 function setTheme(themeValue) {
   theme = themeValue;
@@ -189,13 +191,26 @@ function render(data) {
 }
 
 async function load() {
-  showLoading();
-  const result = await send({ type: "getPopup" });
-  if (!result || !result.ok) {
-    showError(result && result.error ? result.error : "Durum okunamadı.");
+  if (loading) {
+    reloadQueued = true;
     return;
   }
-  render(result);
+  loading = true;
+  showLoading();
+  try {
+    const result = await send({ type: "getPopup" });
+    if (!result || !result.ok) {
+      showError(result && result.error ? result.error : "Durum okunamadı.");
+      return;
+    }
+    render(result);
+  } finally {
+    loading = false;
+    if (reloadQueued) {
+      reloadQueued = false;
+      await load();
+    }
+  }
 }
 
 async function act(button, message, successText, failureText) {
@@ -203,13 +218,15 @@ async function act(button, message, successText, failureText) {
   busy = true;
   setBusy(button, true);
   const result = await send(message);
-  busy = false;
-  setBusy(button, false);
   if (!result || !result.ok) {
+    busy = false;
+    setBusy(button, false);
     toast((result && result.error) || failureText, "error");
     return;
   }
   toast(successText, "ok");
+  busy = false;
+  setBusy(button, false);
   await load();
 }
 
@@ -236,13 +253,15 @@ nodes.allowTab.addEventListener("click", () => {
 
 nodes.retry.addEventListener("click", load);
 
-nodes.eventsLink.addEventListener("click", (event) => {
-  event.preventDefault();
-  chrome.runtime.sendMessage({ type: "openDashboard" });
-});
+async function openDashboardFrom() {
+  const result = await send({ type: "openDashboard" });
+  if (!result || !result.ok) {
+    toast((result && result.error) || "Panel açılamadı.", "error");
+  }
+}
 
 nodes.dashboard.addEventListener("click", () => {
-  chrome.runtime.sendMessage({ type: "openDashboard" });
+  openDashboardFrom();
 });
 
 nodes.themeToggle.addEventListener("click", async () => {

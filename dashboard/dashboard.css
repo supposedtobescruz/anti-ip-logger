@@ -122,10 +122,6 @@ body {
   background: var(--safe);
 }
 
-.rail__status-dot[data-tone="danger"] {
-  background: var(--danger);
-}
-
 .rail__status-dot[data-tone="warn"] {
   background: var(--warn);
 }
@@ -200,11 +196,6 @@ body {
 
 .status-band[data-tone="safe"] {
   border-left-color: var(--safe);
-}
-
-.status-band[data-tone="danger"] {
-  border-left-color: var(--danger);
-  background: var(--danger-wash);
 }
 
 .status-band[data-tone="warn"] {
@@ -383,12 +374,6 @@ body {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.domain-item__meta {
-  font-size: 11px;
-  color: var(--ink-faint);
   white-space: nowrap;
 }
 

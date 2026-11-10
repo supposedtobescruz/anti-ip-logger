@@ -96,7 +96,10 @@ async function init() {
   renderTarget();
 
   if (target) {
-    await send({ type: "reportBlock", url: target, host, reason: "Üst düzey gezinme engellendi" });
+    const reported = await send({ type: "reportBlock", url: target, host, reason: "Üst düzey gezinme engellendi" });
+    if (!reported || !reported.ok) {
+      setFeedback("Engel kaydı gönderilemedi. Engel yine uygulandı, panelde sayaç güncellenmeyebilir.", "error");
+    }
     await describeHost();
     nodes.fineprint.textContent = "Engel kaydı panelde tutulur. İzin kararı bu tarayıcıda saklanır, hiçbir sunucuya gönderilmez.";
   }

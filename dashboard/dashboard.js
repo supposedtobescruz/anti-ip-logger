@@ -143,6 +143,7 @@ const state = {
   eventsQuery: "",
   eventsType: "",
   loading: false,
+  reloadQueued: false,
 };
 
 function currentRoute() {
@@ -212,7 +213,8 @@ function renderTheme(settings) {
 function renderOverview(data) {
   const { settings, stats, meta, dnr, lists } = data;
   const enabled = Boolean(settings.enabled);
-  nodes.statusBand.dataset.tone = enabled ? "safe" : "muted";
+  const coreError = Boolean(settings.sync.core && settings.sync.core.error);
+  nodes.statusBand.dataset.tone = enabled ? (coreError ? "warn" : "safe") : "muted";
   nodes.statusLine.textContent = enabled ? "Koruma açık" : "Koruma kapalı";
   const core = settings.sync.core || {};
   nodes.statusDetail.textContent = enabled
@@ -339,9 +341,8 @@ function renderDomainList(kind) {
 }
 
 function filteredEvents() {
-  if (!state.data) return [];
   const query = state.eventsQuery.toLowerCase();
-  return state.data.events.filter((event) => {
+  return (state.data ? state.data.events : []).filter((event) => {
     if (state.eventsType && event.type !== state.eventsType) return false;
     if (!query) return true;
     return `${event.host || ""} ${event.detail || ""}`.toLowerCase().includes(query);
@@ -349,6 +350,7 @@ function filteredEvents() {
 }
 
 function renderEvents() {
+  if (!state.data) return;
   const events = filteredEvents();
   clear(nodes.eventsList);
   nodes.eventsCount.textContent = `${formatNumber(events.length)} olay`;
@@ -356,7 +358,7 @@ function renderEvents() {
   for (const event of events.slice(0, 300)) {
     nodes.eventsList.append(eventRow(event));
   }
-  nodes.eventsClear.disabled = !state.data.events.length;
+  nodes.eventsClear.disabled = state.data.events.length === 0;
 }
 
 function renderSources(data) {
@@ -438,17 +440,27 @@ function render() {
 }
 
 async function load() {
-  if (state.loading) return;
-  state.loading = true;
-  hideError();
-  const result = await send({ type: "getDashboard" });
-  state.loading = false;
-  if (!result || !result.ok) {
-    showError(result && result.error ? result.error : "Panel verisi okunamadı. Uzantıyı yeniden yüklemeyi dene.");
+  if (state.loading) {
+    state.reloadQueued = true;
     return;
   }
-  state.data = result;
-  render();
+  state.loading = true;
+  hideError();
+  try {
+    const result = await send({ type: "getDashboard" });
+    if (!result || !result.ok) {
+      showError(result && result.error ? result.error : "Panel verisi okunamadı. Uzantıyı yeniden yüklemeyi dene.");
+      return;
+    }
+    state.data = result;
+    render();
+  } finally {
+    state.loading = false;
+    if (state.reloadQueued) {
+      state.reloadQueued = false;
+      await load();
+    }
+  }
 }
 
 async function applySetting(key, value) {
@@ -541,7 +553,6 @@ function bind() {
   }
 
   window.addEventListener("hashchange", () => navigate(currentRoute(), false));
-  window.addEventListener("popstate", () => navigate(currentRoute(), false));
 
   nodes.syncButton.addEventListener("click", () => syncTier("core", nodes.syncButton, nodes.syncCoreResult));
 
@@ -557,7 +568,7 @@ function bind() {
     const next = nodes.enabledToggle.checked;
     const ok = await applySetting("enabled", next);
     if (!ok) nodes.enabledToggle.checked = !next;
-    toast(next ? "Koruma açıldı." : "Koruma kapatıldı.", next ? "ok" : "error");
+    toast(next ? "Koruma açıldı." : "Koruma kapatıldı.", "ok");
   });
 
   nodes.coreSearch.addEventListener("input", () => {
