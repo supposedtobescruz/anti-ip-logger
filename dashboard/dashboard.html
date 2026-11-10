@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Anti IP Logger · Panel</title>
+    <link rel="stylesheet" href="../assets/fonts.css" />
+    <link rel="stylesheet" href="../assets/base.css" />
+    <link rel="stylesheet" href="dashboard.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#view">İçeriğe geç</a>
+    <div class="shell">
+      <aside class="rail">
+        <div class="rail__brand">
+          <span class="brand__mark" aria-hidden="true"></span>
+          <span class="rail__title">Anti IP Logger</span>
+        </div>
+
+        <nav class="rail__nav" aria-label="Bölümler">
+          <a href="#genel" data-route="genel" class="rail__link" aria-current="page">Genel Bakış</a>
+          <a href="#listeler" data-route="listeler" class="rail__link">Listeler</a>
+          <a href="#olaylar" data-route="olaylar" class="rail__link">Olaylar</a>
+          <a href="#kaynaklar" data-route="kaynaklar" class="rail__link">Kaynaklar</a>
+          <a href="#ayarlar" data-route="ayarlar" class="rail__link">Ayarlar</a>
+        </nav>
+
+        <div class="rail__foot">
+          <div class="rail__status">
+            <span class="rail__status-dot" id="rail-dot" aria-hidden="true"></span>
+            <span id="rail-status">Yükleniyor</span>
+          </div>
+          <span class="mono rail__version" id="rail-version"></span>
+        </div>
+      </aside>
+
+      <main class="main" id="view" tabindex="-1">
+        <header class="topbar">
+          <div class="topbar__title">
+            <p class="eyebrow" id="page-eyebrow">Kontrol paneli</p>
+            <h1 id="page-title">Genel Bakış</h1>
+          </div>
+          <div class="topbar__actions">
+            <button class="btn btn--quiet btn--small" id="sync-button" type="button">Listeyi güncelle</button>
+            <button class="btn btn--quiet btn--small" id="theme-button" type="button">Tema</button>
+          </div>
+        </header>
+
+        <div id="global-error" class="notice notice--danger" hidden role="alert"></div>
+
+        <section id="section-genel" class="view" aria-labelledby="page-title">
+          <div class="status-band" id="status-band">
+            <div class="status-band__main">
+              <p class="eyebrow">Koruma durumu</p>
+              <p class="status-band__line" id="status-line">Yükleniyor</p>
+              <p class="status-band__detail" id="status-detail"></p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="enabled-toggle" aria-label="Korumayı aç veya kapat" />
+              <span class="switch__track" aria-hidden="true"></span>
+              <span class="switch__label" id="enabled-label">Açık</span>
+            </label>
+          </div>
+
+          <dl class="tiles">
+            <div class="tile">
+              <dt>Engellenen istek</dt>
+              <dd class="mono" id="tile-blocked">0</dd>
+              <p class="tile__note">Bu tarayıcıda toplam</p>
+            </div>
+            <div class="tile">
+              <dt>Tespit edilen sinyal</dt>
+              <dd class="mono" id="tile-detected">0</dd>
+              <p class="tile__note">WebRTC, form, piksel</p>
+            </div>
+            <div class="tile">
+              <dt>Çekirdek liste</dt>
+              <dd class="mono" id="tile-domains">0</dd>
+              <p class="tile__note" id="tile-domains-note">Alan adı</p>
+            </div>
+            <div class="tile">
+              <dt>Aktif kural</dt>
+              <dd class="mono" id="tile-rules">0</dd>
+              <p class="tile__note" id="tile-rules-note">Dinamik ve statik</p>
+            </div>
+          </dl>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card__head">
+                <h2 class="card__title">Son olaylar</h2>
+                <a class="link-quiet" href="#olaylar" data-route="olaylar">Tümü</a>
+              </div>
+              <div class="card__body card__body--flush">
+                <ul class="event-list" id="overview-events"></ul>
+                <p class="empty empty--inline" id="overview-events-empty">Henüz olay yok. Engellenen bağlantılar burada listelenir.</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card__head">
+                <h2 class="card__title">Kapsam</h2>
+                <a class="link-quiet" href="#listeler" data-route="listeler">Listeler</a>
+              </div>
+              <div class="card__body">
+                <dl class="kv">
+                  <div class="kv__row">
+                    <dt>Çekirdek alan adı</dt>
+                    <dd class="mono" id="coverage-core">0</dd>
+                  </div>
+                  <div class="kv__row">
+                    <dt>Uzak güncelleme</dt>
+                    <dd class="mono" id="coverage-remote">0</dd>
+                  </div>
+                  <div class="kv__row">
+                    <dt>Tehdit listesi</dt>
+                    <dd class="mono" id="coverage-extended">kapalı</dd>
+                  </div>
+                  <div class="kv__row">
+                    <dt>İzin listesi</dt>
+                    <dd class="mono" id="coverage-allow">0</dd>
+                  </div>
+                  <div class="kv__row">
+                    <dt>Sekme izni</dt>
+                    <dd class="mono" id="coverage-tab">0</dd>
+                  </div>
+                </dl>
+                <p class="hint" id="coverage-note"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="notice" id="sync-notice" hidden>
+            <span id="sync-notice-text"></span>
+          </div>
+        </section>
+
+        <section id="section-listeler" class="view" hidden aria-labelledby="page-title">
+          <div class="card">
+            <div class="card__head">
+              <h2 class="card__title">Çekirdek liste</h2>
+              <span class="eyebrow" id="core-count"></span>
+            </div>
+            <div class="card__body">
+              <div class="toolbar">
+                <label class="field grow">
+                  <span class="field__label">Ara</span>
+                  <input class="input" id="core-search" type="search" placeholder="alan adı, kategori veya kaynak" autocomplete="off" />
+                </label>
+                <label class="field">
+                  <span class="field__label">Kategori</span>
+                  <select class="select" id="core-category">
+                    <option value="">Tümü</option>
+                  </select>
+                </label>
+              </div>
+              <p class="hint" id="core-summary">Yükleniyor</p>
+              <div class="table-wrap">
+                <table class="table">
+                  <caption class="sr-only">Çekirdek engel listesi</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Alan adı</th>
+                      <th scope="col">Kategori</th>
+                      <th scope="col">Güven</th>
+                      <th scope="col">Kaynak</th>
+                    </tr>
+                  </thead>
+                  <tbody id="core-rows"></tbody>
+                </table>
+              </div>
+              <p class="empty" id="core-empty" hidden>Aramanla eşleşen alan adı yok.</p>
+              <button class="btn btn--quiet btn--small" id="core-more" type="button" hidden>Daha fazla göster</button>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card__head">
+                <h2 class="card__title">İzin listesi</h2>
+                <span class="eyebrow" id="allow-count"></span>
+              </div>
+              <div class="card__body">
+                <form class="toolbar" id="allow-form">
+                  <label class="field grow">
+                    <span class="field__label">Alan adı ekle</span>
+                    <input class="input mono" id="allow-input" type="text" placeholder="ornek.com" autocomplete="off" spellcheck="false" />
+                  </label>
+                  <button class="btn btn--primary" type="submit">Ekle</button>
+                </form>
+                <p class="error-text" id="allow-error" hidden></p>
+                <ul class="domain-list" id="allow-list"></ul>
+                <p class="empty" id="allow-empty" hidden>İzin listesi boş. Engellenen bir siteyi buradan muaf tutabilirsin.</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card__head">
+                <h2 class="card__title">Özel engeller</h2>
+                <span class="eyebrow" id="custom-count"></span>
+              </div>
+              <div class="card__body">
+                <form class="toolbar" id="custom-form">
+                  <label class="field grow">
+                    <span class="field__label">Alan adı ekle</span>
+                    <input class="input mono" id="custom-input" type="text" placeholder="ornek.com" autocomplete="off" spellcheck="false" />
+                  </label>
+                  <button class="btn btn--primary" type="submit">Ekle</button>
+                </form>
+                <p class="error-text" id="custom-error" hidden></p>
+                <ul class="domain-list" id="custom-list"></ul>
+                <p class="empty" id="custom-empty" hidden>Özel engel yok. Listede olmayan bir siteyi buradan ekleyebilirsin.</p>
+              </div>
+            </div>
+          </div>
+
+          <p class="hint">Liste, kaynaklar güncellendiğinde otomatik yenilenir. İzin listesi her zaman engel listesinden önce gelir.</p>
+        </section>
+
+        <section id="section-olaylar" class="view" hidden aria-labelledby="page-title">
+          <div class="card">
+            <div class="card__head">
+              <h2 class="card__title">Olay kaydı</h2>
+              <span class="eyebrow" id="events-count"></span>
+            </div>
+            <div class="card__body">
+              <div class="toolbar">
+                <label class="field grow">
+                  <span class="field__label">Ara</span>
+                  <input class="input" id="events-search" type="search" placeholder="alan adı veya açıklama" autocomplete="off" />
+                </label>
+                <label class="field">
+                  <span class="field__label">Tür</span>
+                  <select class="select" id="events-type">
+                    <option value="">Tümü</option>
+                    <option value="blocked">Engel</option>
+                    <option value="detected">Tespit</option>
+                    <option value="allowed">İzin</option>
+                    <option value="custom">Kural</option>
+                    <option value="sync">Güncelleme</option>
+                  </select>
+                </label>
+                <button class="btn btn--quiet" id="events-clear" type="button">Kaydı temizle</button>
+              </div>
+              <ul class="event-list event-list--roomy" id="events-list"></ul>
+              <p class="empty" id="events-empty" hidden>Bu filtreyle eşleşen olay yok.</p>
+            </div>
+          </div>
+          <p class="hint">Kayıt en son 500 olayı tutar, sayfa yeniden başlatıldığında silinmez. Sekmeler kapandığında geçici izinler temizlenir.</p>
+        </section>
+
+        <section id="section-kaynaklar" class="view" hidden aria-labelledby="page-title">
+          <div class="card">
+            <div class="card__head">
+              <h2 class="card__title">Kaynak sağlığı</h2>
+              <span class="eyebrow" id="sources-count"></span>
+            </div>
+            <div class="card__body">
+              <div class="table-wrap">
+                <table class="table">
+                  <caption class="sr-only">Liste kaynakları ve son güncelleme durumu</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Kaynak</th>
+                      <th scope="col">Katman</th>
+                      <th scope="col">Lisans</th>
+                      <th scope="col">Son durum</th>
+                      <th scope="col">Alan adı</th>
+                    </tr>
+                  </thead>
+                  <tbody id="source-rows"></tbody>
+                </table>
+              </div>
+              <p class="hint" id="sources-note"></p>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card__head">
+                <h2 class="card__title">Çekirdek güncelleme</h2>
+              </div>
+              <div class="card__body stack">
+                <p class="hint">Kaynaklar başarısız olursa mevcut liste korunur, boş liste yazılmaz.</p>
+                <button class="btn btn--primary" id="sync-core" type="button">Şimdi güncelle</button>
+                <p class="hint mono" id="sync-core-result"></p>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card__head">
+                <h2 class="card__title">Tehdit listesi</h2>
+                <span class="badge badge--muted" id="extended-badge">Kapalı</span>
+              </div>
+              <div class="card__body stack">
+                <p class="hint">İsteğe bağlı geniş liste. Açıldığında çok sayıda alan adı eklenir ve daha fazla yanlış pozitif üretebilir.</p>
+                <button class="btn btn--quiet" id="sync-extended" type="button">Listeyi güncelle</button>
+                <p class="hint mono" id="sync-extended-result"></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="section-ayarlar" class="view" hidden aria-labelledby="page-title">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card__head">
+                <h2 class="card__title">Koruma</h2>
+              </div>
+              <div class="card__body stack">
+                <label class="row spread setting-row">
+                  <span class="setting-row__text">
+                    <span class="setting-row__title">Koruma açık</span>
+                    <span class="setting-row__hint">Tüm engelleme ve uyarıları açar veya kapatır.</span>
+                  </span>
+                  <span class="switch">
+                    <input type="checkbox" id="set-enabled" />
+                    <span class="switch__track" aria-hidden="true"></span>
+                  </span>
+                </label>
+                <label class="row spread setting-row">
+                  <span class="setting-row__text">
+                    <span class="setting-row__title">Çekirdek liste</span>
+                    <span class="setting-row__hint">Grabify, IPLogger ve benzeri servisler.</span>
+                  </span>
+                  <span class="switch">
+                    <input type="checkbox" id="set-core" />
+                    <span class="switch__track" aria-hidden="true"></span>
+                  </span>
+                </label>
+                <label class="row spread setting-row">
+                  <span class="setting-row__text">
+                    <span class="setting-row__title">Tehdit listesi</span>
+                    <span class="setting-row__hint">İsteğe bağlı geniş liste, varsayılan kapalı.</span>
+                  </span>
+                  <span class="switch">
+                    <input type="checkbox" id="set-extended" />
+                    <span class="switch__track" aria-hidden="true"></span>
+                  </span>
+                </label>
+                <label class="row spread setting-row">
+                  <span class="setting-row__text">
+                    <span class="setting-row__title">Engel sayfası</span>
+                    <span class="setting-row__hint">Engellenen adres yerine uyarı sayfası göster.</span>
+                  </span>
+                  <span class="switch">
+                    <input type="checkbox" id="set-blocked-page" />
+                    <span class="switch__track" aria-hidden="true"></span>
+                  </span>
+                </label>
+                <label class="row spread setting-row">
+                  <span class="setting-row__text">
+                    <span class="setting-row__title">Sayfa içi uyarı</span>
+                    <span class="setting-row__hint">Şüpheli davranışta sayfada uyarı bandı göster.</span>
+                  </span>
+                  <span class="switch">
+                    <input type="checkbox" id="set-warnings" />
+                    <span class="switch__track" aria-hidden="true"></span>
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card__head">
+                <h2 class="card__title">Gizlilik ve görünüm</h2>
+              </div>
+              <div class="card__body stack">
+                <div class="field">
+                  <label class="field__label" for="set-webrtc">WebRTC IP politikası</label>
+                  <select class="select" id="set-webrtc">
+                    <option value="default">Tarayıcı varsayılanı</option>
+                    <option value="disable_non_proxied_udp">Yerel IP paylaşımını kapat</option>
+                    <option value="disable_udp">UDP üzerinden WebRTC bağlantısını kapat</option>
+                  </select>
+                  <p class="hint">Bu ayar tarayıcı genelinde geçerlidir. Kapatıldığında bazı görüntülü görüşmeler çalışmayabilir.</p>
+                </div>
+                <div class="field">
+                  <label class="field__label" for="set-theme">Tema</label>
+                  <select class="select" id="set-theme">
+                    <option value="system">Sistem</option>
+                    <option value="light">Açık</option>
+                    <option value="dark">Koyu</option>
+                  </select>
+                </div>
+                <p class="hint" id="webrtc-note"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card__head">
+              <h2 class="card__title">Veri</h2>
+            </div>
+            <div class="card__body">
+              <div class="row wrap gap-8">
+                <button class="btn btn--quiet" id="export-button" type="button">Yedeği indir</button>
+                <button class="btn btn--quiet" id="import-button" type="button">Yedekten yükle</button>
+                <input class="sr-only" id="import-file" type="file" accept="application/json,.json" aria-label="Yedek dosyası seç" />
+                <button class="btn btn--danger" id="reset-button" type="button">Tüm verileri sıfırla</button>
+              </div>
+              <p class="hint" id="data-note">Yedek; ayarları, sayaçları ve olay kaydını içerir. Yükleme yalnızca ayarları değiştirir.</p>
+              <div class="confirm" id="reset-confirm" hidden>
+                <p class="confirm__text">Bu işlem izin listesini, özel engelleri ve olay kaydını siler. Geri alınamaz.</p>
+                <div class="row gap-8">
+                  <button class="btn btn--danger" id="reset-confirm-button" type="button">Sıfırlamayı onayla</button>
+                  <button class="btn btn--quiet" id="reset-cancel" type="button">Vazgeç</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card__head">
+              <h2 class="card__title">Hakkında</h2>
+            </div>
+            <div class="card__body stack">
+              <p class="hint" id="about-version">Sürüm</p>
+              <p class="hint">Liste kaynakları ve lisansları <span class="mono">THIRD-PARTY-LICENSES.md</span> dosyasında. Veriler yalnızca bu tarayıcıda saklanır, hiçbir sunucuya gönderilmez.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="dashboard.js"></script>
+  </body>
+</html>

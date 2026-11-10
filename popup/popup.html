@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Anti IP Logger</title>
+    <link rel="stylesheet" href="../assets/fonts.css" />
+    <link rel="stylesheet" href="../assets/base.css" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="popup" id="app" aria-busy="true">
+      <header class="popup__head">
+        <div class="brand">
+          <span class="brand__mark" aria-hidden="true"></span>
+          <span class="brand__name">Anti IP Logger</span>
+        </div>
+        <div class="row">
+          <button class="btn btn--quiet btn--icon" id="theme-toggle" type="button" aria-label="Temayı değiştir" title="Temayı değiştir">
+            <span class="mono" aria-hidden="true" id="theme-glyph">A</span>
+          </button>
+          <button class="btn btn--quiet btn--icon" id="open-dashboard" type="button" aria-label="Paneli aç" title="Paneli aç">
+            <span aria-hidden="true">&#9776;</span>
+          </button>
+        </div>
+      </header>
+
+      <div id="loading" class="stack" aria-hidden="true">
+        <div class="skeleton skeleton--hero"></div>
+        <div class="skeleton skeleton--line"></div>
+        <div class="skeleton skeleton--line short"></div>
+      </div>
+
+      <div id="error-state" class="stack" hidden>
+        <p class="notice notice--danger" id="error-text">Durum okunamadı.</p>
+        <button class="btn" id="retry" type="button">Tekrar dene</button>
+      </div>
+
+      <p class="sr-only" id="live-status" role="status" aria-live="polite"></p>
+
+      <main id="content" hidden>
+        <section class="hero" id="hero" aria-labelledby="verdict-headline">
+          <div class="hero__top">
+            <span class="badge" id="verdict-badge">Bekliyor</span>
+            <span class="hero__host mono truncate" id="hero-host"></span>
+          </div>
+          <h1 class="hero__headline" id="verdict-headline"></h1>
+          <p class="hero__detail" id="verdict-detail"></p>
+          <div class="hero__actions">
+            <button class="btn btn--primary" id="block-site" type="button">Siteyi engelle</button>
+            <button class="btn btn--quiet" id="allow-site" type="button">İzin listesine ekle</button>
+            <button class="btn btn--quiet btn--small" id="allow-tab" type="button" hidden>Bu sekmede izin ver</button>
+            <p class="hint" id="no-host-hint" hidden>Bir web sayfası açınca seçenekler burada görünür.</p>
+          </div>
+        </section>
+
+        <section class="section" id="findings-section" hidden aria-labelledby="findings-title">
+          <div class="section__head">
+            <h2 class="section__title" id="findings-title">Sinyaller</h2>
+            <span class="eyebrow" id="findings-count"></span>
+          </div>
+          <ul class="findings" id="findings"></ul>
+        </section>
+
+        <section class="section" aria-labelledby="stats-title">
+          <div class="section__head">
+            <h2 class="section__title" id="stats-title">Sayaçlar</h2>
+            <span class="eyebrow" id="stats-window">Bu tarayıcı</span>
+          </div>
+          <dl class="stats">
+            <div class="stat">
+              <dt>Engellenen</dt>
+              <dd class="mono" id="stat-blocked">0</dd>
+            </div>
+            <div class="stat">
+              <dt>Tespit</dt>
+              <dd class="mono" id="stat-detected">0</dd>
+            </div>
+            <div class="stat">
+              <dt>Liste</dt>
+              <dd class="mono" id="stat-domains">0</dd>
+            </div>
+            <div class="stat">
+              <dt>Kural</dt>
+              <dd class="mono" id="stat-rules">0</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="section" aria-labelledby="events-title">
+          <div class="section__head">
+            <h2 class="section__title" id="events-title">Son olaylar</h2>
+            <a class="section__link" id="events-link" href="#" role="button">Tümü</a>
+          </div>
+          <ul class="events" id="events"></ul>
+          <p class="empty" id="events-empty" hidden>Henüz kayıt yok. Bir IP logger bağlantısı engellendiğinde burada görünür.</p>
+        </section>
+      </main>
+
+      <footer class="popup__foot">
+        <span class="mono" id="sync-line">Liste hazır</span>
+        <span class="mono" id="version-line"></span>
+      </footer>
+    </div>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

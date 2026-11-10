@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bağlantı engellendi · Anti IP Logger</title>
+    <link rel="stylesheet" href="../assets/fonts.css" />
+    <link rel="stylesheet" href="../assets/base.css" />
+    <link rel="stylesheet" href="blocked.css" />
+  </head>
+  <body>
+    <main class="sheet" id="sheet" aria-busy="true">
+      <header class="sheet__head">
+        <div class="sheet__brand">
+          <span class="brand__mark" aria-hidden="true"></span>
+          <span class="mono">ANTI IP LOGGER</span>
+        </div>
+        <span class="mono sheet__case" id="case-number">DOSYA: BEKLENİYOR</span>
+      </header>
+
+      <div class="sheet__body">
+        <p class="stamp" id="stamp">ENGELLENDİ</p>
+
+        <h1 class="sheet__title" id="title">Bu bağlantı IP logger listesinde.</h1>
+        <p class="sheet__lead" id="lead">
+          Sayfa açılmadı. Adres, IP adresi toplayan servisler listesinde bulunduğu için istek tarayıcıda durduruldu.
+        </p>
+
+        <div class="target">
+          <p class="eyebrow">Hedef adres</p>
+          <p class="target__url mono" id="target-url">Adres okunuyor</p>
+          <p class="target__meta" id="target-meta"></p>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn--primary" id="allow-tab" type="button" disabled>Bu sekmede izin ver ve aç</button>
+          <button class="btn btn--quiet" id="allow-site" type="button" disabled>Siteyi kalıcı olarak izin ver</button>
+          <button class="btn btn--quiet" id="go-back" type="button">Geri dön</button>
+          <a class="btn btn--quiet" href="../dashboard/dashboard.html#listeler" target="_blank" rel="noreferrer" id="open-lists">Listeyi aç</a>
+        </div>
+
+        <p class="feedback" id="feedback" role="status" aria-live="polite"></p>
+
+        <section class="note" aria-labelledby="note-title">
+          <h2 class="note__title" id="note-title">Bu engel ne yapar</h2>
+          <ul class="note__list">
+            <li>Üst düzey gezinme durdurulur, hedef sunucuya istek gitmez.</li>
+            <li>Bu sekmede izin verirsen kural yalnızca bu sekme için geçerli olur ve sekme kapanınca silinir.</li>
+            <li>Kalıcı izin, alan adını tüm sekmelerde engel listesinden çıkarır.</li>
+          </ul>
+        </section>
+
+        <p class="fineprint mono" id="fineprint">İzin listesi panelden yönetilir. Karar vermeden önce adresi kontrol et.</p>
+      </div>
+    </main>
+
+    <script type="module" src="blocked.js"></script>
+  </body>
+</html>

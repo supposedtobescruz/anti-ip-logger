@@ -1,0 +1,708 @@
+import {
+  applyTheme,
+  clear,
+  el,
+  formatRelative,
+  formatNumber,
+  send,
+  setBusy,
+  toast,
+  toggleTheme,
+  resolvedTheme,
+} from "../assets/ui.js";
+
+const ROUTES = {
+  genel: { title: "Genel Bakış", eyebrow: "Kontrol paneli" },
+  listeler: { title: "Listeler", eyebrow: "Engel ve izin" },
+  olaylar: { title: "Olaylar", eyebrow: "Kayıt" },
+  kaynaklar: { title: "Kaynaklar", eyebrow: "Liste sağlığı" },
+  ayarlar: { title: "Ayarlar", eyebrow: "Davranış" },
+};
+
+const CATEGORY_LABELS = {
+  grabify: "Grabify",
+  iplogger: "IPLogger",
+  other: "Diğer",
+  tracker: "İzleyici",
+  threat: "Tehdit",
+  custom: "Özel",
+};
+
+const CONFIDENCE_LABELS = { confirmed: "Doğrulanmış", single: "Tek kaynak" };
+
+const EVENT_TONES = {
+  blocked: "danger",
+  detected: "warn",
+  allowed: "safe",
+  custom: "plain",
+  sync: "muted",
+  info: "muted",
+};
+
+const EVENT_LABELS = {
+  blocked: "Engel",
+  detected: "Tespit",
+  allowed: "İzin",
+  custom: "Kural",
+  sync: "Güncelleme",
+  info: "Bilgi",
+};
+
+const PAGE_SIZE = 40;
+
+const nodes = {
+  railStatus: document.getElementById("rail-status"),
+  railDot: document.getElementById("rail-dot"),
+  railVersion: document.getElementById("rail-version"),
+  pageTitle: document.getElementById("page-title"),
+  pageEyebrow: document.getElementById("page-eyebrow"),
+  globalError: document.getElementById("global-error"),
+  syncButton: document.getElementById("sync-button"),
+  themeButton: document.getElementById("theme-button"),
+  views: [...document.querySelectorAll(".view")],
+  navLinks: [...document.querySelectorAll(".rail__link")],
+  statusBand: document.getElementById("status-band"),
+  statusLine: document.getElementById("status-line"),
+  statusDetail: document.getElementById("status-detail"),
+  enabledToggle: document.getElementById("enabled-toggle"),
+  enabledLabel: document.getElementById("enabled-label"),
+  tileBlocked: document.getElementById("tile-blocked"),
+  tileDetected: document.getElementById("tile-detected"),
+  tileDomains: document.getElementById("tile-domains"),
+  tileDomainsNote: document.getElementById("tile-domains-note"),
+  tileRules: document.getElementById("tile-rules"),
+  tileRulesNote: document.getElementById("tile-rules-note"),
+  overviewEvents: document.getElementById("overview-events"),
+  overviewEventsEmpty: document.getElementById("overview-events-empty"),
+  coverageCore: document.getElementById("coverage-core"),
+  coverageRemote: document.getElementById("coverage-remote"),
+  coverageExtended: document.getElementById("coverage-extended"),
+  coverageAllow: document.getElementById("coverage-allow"),
+  coverageTab: document.getElementById("coverage-tab"),
+  coverageNote: document.getElementById("coverage-note"),
+  syncNotice: document.getElementById("sync-notice"),
+  syncNoticeText: document.getElementById("sync-notice-text"),
+  coreSearch: document.getElementById("core-search"),
+  coreCategory: document.getElementById("core-category"),
+  coreCount: document.getElementById("core-count"),
+  coreSummary: document.getElementById("core-summary"),
+  coreRows: document.getElementById("core-rows"),
+  coreEmpty: document.getElementById("core-empty"),
+  coreMore: document.getElementById("core-more"),
+  allowForm: document.getElementById("allow-form"),
+  allowInput: document.getElementById("allow-input"),
+  allowError: document.getElementById("allow-error"),
+  allowList: document.getElementById("allow-list"),
+  allowEmpty: document.getElementById("allow-empty"),
+  allowCount: document.getElementById("allow-count"),
+  customForm: document.getElementById("custom-form"),
+  customInput: document.getElementById("custom-input"),
+  customError: document.getElementById("custom-error"),
+  customList: document.getElementById("custom-list"),
+  customEmpty: document.getElementById("custom-empty"),
+  customCount: document.getElementById("custom-count"),
+  eventsSearch: document.getElementById("events-search"),
+  eventsType: document.getElementById("events-type"),
+  eventsClear: document.getElementById("events-clear"),
+  eventsList: document.getElementById("events-list"),
+  eventsEmpty: document.getElementById("events-empty"),
+  eventsCount: document.getElementById("events-count"),
+  sourceRows: document.getElementById("source-rows"),
+  sourcesCount: document.getElementById("sources-count"),
+  sourcesNote: document.getElementById("sources-note"),
+  syncCore: document.getElementById("sync-core"),
+  syncCoreResult: document.getElementById("sync-core-result"),
+  syncExtended: document.getElementById("sync-extended"),
+  syncExtendedResult: document.getElementById("sync-extended-result"),
+  extendedBadge: document.getElementById("extended-badge"),
+  setEnabled: document.getElementById("set-enabled"),
+  setCore: document.getElementById("set-core"),
+  setExtended: document.getElementById("set-extended"),
+  setBlockedPage: document.getElementById("set-blocked-page"),
+  setWarnings: document.getElementById("set-warnings"),
+  setWebrtc: document.getElementById("set-webrtc"),
+  setTheme: document.getElementById("set-theme"),
+  webrtcNote: document.getElementById("webrtc-note"),
+  exportButton: document.getElementById("export-button"),
+  importButton: document.getElementById("import-button"),
+  importFile: document.getElementById("import-file"),
+  resetButton: document.getElementById("reset-button"),
+  resetConfirm: document.getElementById("reset-confirm"),
+  resetConfirmButton: document.getElementById("reset-confirm-button"),
+  resetCancel: document.getElementById("reset-cancel"),
+  dataNote: document.getElementById("data-note"),
+  aboutVersion: document.getElementById("about-version"),
+};
+
+const state = {
+  data: null,
+  route: "genel",
+  corePage: 1,
+  coreQuery: "",
+  coreCategory: "",
+  eventsQuery: "",
+  eventsType: "",
+  loading: false,
+};
+
+function currentRoute() {
+  const hash = location.hash.replace(/^#/, "");
+  return Object.prototype.hasOwnProperty.call(ROUTES, hash) ? hash : "genel";
+}
+
+function navigate(route, push = true) {
+  state.route = route;
+  if (push && location.hash !== `#${route}`) {
+    history.pushState(null, "", `#${route}`);
+  }
+  for (const view of nodes.views) {
+    view.hidden = view.id !== `section-${route}`;
+  }
+  for (const link of nodes.navLinks) {
+    if (link.dataset.route === route) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  }
+  nodes.pageTitle.textContent = ROUTES[route].title;
+  nodes.pageEyebrow.textContent = ROUTES[route].eyebrow;
+  document.title = `Anti IP Logger · ${ROUTES[route].title}`;
+  document.getElementById("view").focus({ preventScroll: true });
+  window.scrollTo({ top: 0, behavior: "auto" });
+}
+
+function showError(message) {
+  nodes.globalError.hidden = false;
+  nodes.globalError.textContent = message;
+}
+
+function hideError() {
+  nodes.globalError.hidden = true;
+  nodes.globalError.textContent = "";
+}
+
+function setRailStatus(settings) {
+  if (!settings) {
+    nodes.railStatus.textContent = "Yükleniyor";
+    nodes.railDot.dataset.tone = "muted";
+    return;
+  }
+  if (!settings.enabled) {
+    nodes.railStatus.textContent = "Koruma kapalı";
+    nodes.railDot.dataset.tone = "muted";
+    return;
+  }
+  const core = settings.sync && settings.sync.core ? settings.sync.core : {};
+  if (core.error) {
+    nodes.railStatus.textContent = "Kısmi liste";
+    nodes.railDot.dataset.tone = "warn";
+    return;
+  }
+  nodes.railStatus.textContent = "Koruma açık";
+  nodes.railDot.dataset.tone = "safe";
+}
+
+function renderTheme(settings) {
+  const theme = settings && settings.theme ? settings.theme : "system";
+  applyTheme(theme);
+  nodes.setTheme.value = theme;
+  const resolved = resolvedTheme();
+  nodes.themeButton.textContent = resolved === "dark" ? "Açık tema" : "Koyu tema";
+  nodes.themeButton.setAttribute("aria-label", `Temayı değiştir, şu anda ${resolved === "dark" ? "koyu" : "açık"}`);
+}
+
+function renderOverview(data) {
+  const { settings, stats, meta, dnr, lists } = data;
+  const enabled = Boolean(settings.enabled);
+  nodes.statusBand.dataset.tone = enabled ? "safe" : "muted";
+  nodes.statusLine.textContent = enabled ? "Koruma açık" : "Koruma kapalı";
+  const core = settings.sync.core || {};
+  nodes.statusDetail.textContent = enabled
+    ? core.error
+      ? "Liste kısmen güncel. Son güncellemede bazı kaynaklar yanıt vermedi, mevcut alan adları korundu."
+      : `Çekirdek liste ${formatNumber(meta.counts.domains)} alan adı ve ${formatNumber(dnr.dynamicRules)} dinamik kural ile çalışıyor.`
+    : "Engelleme ve sayfa içi uyarılar devre dışı. Açtığında önceki ayarlar geri gelir.";
+  nodes.enabledToggle.checked = enabled;
+  nodes.enabledLabel.textContent = enabled ? "Açık" : "Kapalı";
+
+  nodes.tileBlocked.textContent = formatNumber(stats.blocked);
+  nodes.tileDetected.textContent = formatNumber(stats.detected);
+  nodes.tileDomains.textContent = formatNumber(meta.counts.domains);
+  nodes.tileDomainsNote.textContent = `${formatNumber(meta.counts.confirmed)} doğrulanmış, ${formatNumber(meta.counts.single)} tek kaynak`;
+  nodes.tileRules.textContent = formatNumber(dnr.dynamicRules + (dnr.staticRulesetEnabled ? meta.counts.rules : 0));
+  nodes.tileRulesNote.textContent = dnr.staticRulesetEnabled ? "Statik kural etkin" : "Yalnızca dinamik kural";
+
+  nodes.coverageCore.textContent = formatNumber(lists.packaged.length);
+  nodes.coverageRemote.textContent = formatNumber(lists.remoteCoreCount);
+  nodes.coverageExtended.textContent = settings.tiers.extended ? formatNumber(lists.extendedCount) : "kapalı";
+  nodes.coverageAllow.textContent = formatNumber(lists.allowlist.length);
+  nodes.coverageTab.textContent = formatNumber(data.tabAllowCount);
+  const lastSync = settings.sync.core && settings.sync.core.at ? settings.sync.core.at : 0;
+  nodes.coverageNote.textContent = lastSync ? `Son çekirdek güncelleme ${formatRelative(lastSync)}.` : "Uzak güncelleme henüz çalışmadı, yerel liste kullanılıyor.";
+
+  const events = data.events.slice(0, 6);
+  clear(nodes.overviewEvents);
+  nodes.overviewEventsEmpty.hidden = events.length > 0;
+  for (const event of events) {
+    nodes.overviewEvents.append(eventRow(event));
+  }
+
+  const syncError = (settings.sync.core && settings.sync.core.error) || (settings.sync.extended && settings.sync.extended.error);
+  nodes.syncNotice.hidden = !syncError;
+  nodes.syncNoticeText.textContent = syncError || "";
+}
+
+function eventRow(event) {
+  const row = el("li", "event-row");
+  row.append(el("span", "event-row__time mono", formatRelative(event.ts)));
+  const main = el("div", "event-row__main");
+  main.append(el("p", "event-row__host mono truncate", event.host || "genel"));
+  main.append(el("p", "event-row__detail truncate", event.detail || ""));
+  row.append(main);
+  const meta = el("span", "event-row__meta");
+  meta.append(el("span", `badge badge--${EVENT_TONES[event.type] || "plain"}`, EVENT_LABELS[event.type] || event.type));
+  row.append(meta);
+  row.title = `${new Date(event.ts).toLocaleString("tr-TR")} - ${event.detail || ""}`;
+  return row;
+}
+
+function renderCategoryOptions(entries) {
+  if (nodes.coreCategory.options.length > 1) return;
+  const seen = new Set(entries.map((entry) => entry.category));
+  for (const key of Object.keys(CATEGORY_LABELS)) {
+    if (!seen.has(key)) continue;
+    const option = document.createElement("option");
+    option.value = key;
+    option.textContent = CATEGORY_LABELS[key];
+    nodes.coreCategory.append(option);
+  }
+}
+
+function filteredCore() {
+  const entries = state.data ? state.data.lists.packaged : [];
+  const query = state.coreQuery.toLowerCase();
+  return entries.filter((entry) => {
+    if (state.coreCategory && entry.category !== state.coreCategory) return false;
+    if (!query) return true;
+    const haystack = [entry.domain, entry.category, ...(entry.sources || [])].join(" ").toLowerCase();
+    return haystack.includes(query);
+  });
+}
+
+function renderCore() {
+  if (!state.data) return;
+  const entries = state.data.lists.packaged;
+  renderCategoryOptions(entries);
+  const filtered = filteredCore();
+  const visible = filtered.slice(0, state.corePage * PAGE_SIZE);
+  nodes.coreCount.textContent = `${formatNumber(entries.length)} alan adı`;
+  nodes.coreSummary.textContent = filtered.length === entries.length
+    ? `${formatNumber(entries.length)} alan adı listeleniyor. Kategori ve güven etiketi derleme sırasında üretilir.`
+    : `${formatNumber(filtered.length)} sonuç, toplam ${formatNumber(entries.length)} alan adı.`;
+
+  clear(nodes.coreRows);
+  for (const entry of visible) {
+    const row = document.createElement("tr");
+    const domainCell = el("td", "mono", entry.domain);
+    const categoryCell = el("td", "", CATEGORY_LABELS[entry.category] || entry.category || "Diğer");
+    const confidenceCell = document.createElement("td");
+    confidenceCell.append(el("span", `badge badge--${entry.confidence === "confirmed" ? "safe" : "muted"}`, CONFIDENCE_LABELS[entry.confidence] || "Tek kaynak"));
+    const sourceCell = el("td", "mono", (entry.sources || []).join(", "));
+    row.append(domainCell, categoryCell, confidenceCell, sourceCell);
+    nodes.coreRows.append(row);
+  }
+
+  nodes.coreEmpty.hidden = filtered.length > 0;
+  nodes.coreMore.hidden = visible.length >= filtered.length;
+}
+
+function renderDomainList(kind) {
+  const settings = state.data.settings;
+  const items = kind === "allow" ? settings.allowlist : settings.customBlocks;
+  const list = kind === "allow" ? nodes.allowList : nodes.customList;
+  const empty = kind === "allow" ? nodes.allowEmpty : nodes.customEmpty;
+  const count = kind === "allow" ? nodes.allowCount : nodes.customCount;
+
+  clear(list);
+  count.textContent = `${formatNumber(items.length)} kayıt`;
+  empty.hidden = items.length > 0;
+
+  for (const domain of items) {
+    const item = el("li", "domain-item");
+    item.append(el("span", "domain-item__name mono", domain));
+    const action = el("button", "btn btn--quiet btn--small", "Kaldır");
+    action.type = "button";
+    action.dataset.kind = kind;
+    action.dataset.domain = domain;
+    action.setAttribute("aria-label", `${domain} kaydını ${kind === "allow" ? "izin listesinden" : "özel engellerden"} kaldır`);
+    item.append(action);
+    list.append(item);
+  }
+}
+
+function filteredEvents() {
+  if (!state.data) return [];
+  const query = state.eventsQuery.toLowerCase();
+  return state.data.events.filter((event) => {
+    if (state.eventsType && event.type !== state.eventsType) return false;
+    if (!query) return true;
+    return `${event.host || ""} ${event.detail || ""}`.toLowerCase().includes(query);
+  });
+}
+
+function renderEvents() {
+  const events = filteredEvents();
+  clear(nodes.eventsList);
+  nodes.eventsCount.textContent = `${formatNumber(events.length)} olay`;
+  nodes.eventsEmpty.hidden = events.length > 0;
+  for (const event of events.slice(0, 300)) {
+    nodes.eventsList.append(eventRow(event));
+  }
+  nodes.eventsClear.disabled = !state.data.events.length;
+}
+
+function renderSources(data) {
+  clear(nodes.sourceRows);
+  const health = new Map();
+  for (const tier of ["core", "extended"]) {
+    for (const report of (data.settings.sync[tier] && data.settings.sync[tier].sources) || []) {
+      health.set(report.id, report);
+    }
+  }
+
+  for (const source of data.sources) {
+    const row = document.createElement("tr");
+    const nameCell = document.createElement("td");
+    const name = el("span", "", source.name);
+    nameCell.append(name);
+    row.append(nameCell);
+    row.append(el("td", "", source.tier === "core" ? "Çekirdek" : "Tehdit"));
+    row.append(el("td", "mono", source.license || "belirtilmemiş"));
+
+    const statusCell = document.createElement("td");
+    const report = health.get(source.id);
+    if (report) {
+      statusCell.append(el("span", `badge badge--${report.ok ? "safe" : "danger"}`, report.ok ? "Yanıt verdi" : "Hata"));
+      if (!report.ok && report.error) statusCell.append(el("p", "hint", report.error));
+    } else {
+      statusCell.append(el("span", "badge badge--muted", "Bekliyor"));
+    }
+    row.append(statusCell);
+    row.append(el("td", "mono", report ? formatNumber(report.count) : "-"));
+    nodes.sourceRows.append(row);
+  }
+
+  nodes.sourcesCount.textContent = `${formatNumber(data.sources.length)} kaynak`;
+  const coreCount = data.sources.filter((source) => source.tier === "core").length;
+  nodes.sourcesNote.textContent = `${formatNumber(coreCount)} çekirdek kaynak her güncellemede çekilir. Tehdit listesi yalnızca açıkken güncellenir.`;
+
+  const extendedOn = Boolean(data.settings.tiers.extended);
+  nodes.extendedBadge.textContent = extendedOn ? "Açık" : "Kapalı";
+  nodes.extendedBadge.className = `badge badge--${extendedOn ? "safe" : "muted"}`;
+  nodes.syncCoreResult.textContent = data.settings.sync.core && data.settings.sync.core.at
+    ? `Son güncelleme: ${formatRelative(data.settings.sync.core.at)}`
+    : "";
+  nodes.syncExtendedResult.textContent = data.settings.sync.extended && data.settings.sync.extended.at
+    ? `Son güncelleme: ${formatRelative(data.settings.sync.extended.at)}`
+    : "";
+}
+
+function renderSettings(data) {
+  const settings = data.settings;
+  nodes.setEnabled.checked = Boolean(settings.enabled);
+  nodes.setCore.checked = Boolean(settings.tiers.core);
+  nodes.setExtended.checked = Boolean(settings.tiers.extended);
+  nodes.setBlockedPage.checked = Boolean(settings.showBlockedPage);
+  nodes.setWarnings.checked = Boolean(settings.warnings);
+  nodes.setWebrtc.value = settings.webrtcPolicy || "default";
+  nodes.setTheme.value = settings.theme || "system";
+  nodes.webrtcNote.textContent = settings.webrtcPolicy === "default"
+    ? "WebRTC politikası tarayıcı varsayılanında. Yerel IP sızıntısı için sinyal izleme yine çalışır."
+    : "WebRTC politikası bu tarayıcıda değiştirildi. Ayar kaldırıldığında tarayıcı varsayılanına döner.";
+
+  nodes.aboutVersion.textContent = `Sürüm ${data.version}`;
+  nodes.railVersion.textContent = `v${data.version}`;
+  nodes.dataNote.textContent = `Yedek; ayarları, sayaçları ve ${formatNumber(data.events.length)} olay kaydını içerir. Yükleme yalnızca ayarları değiştirir.`;
+}
+
+function render() {
+  if (!state.data) return;
+  const data = state.data;
+  renderTheme(data.settings);
+  setRailStatus(data.settings);
+  renderOverview(data);
+  renderCore();
+  renderDomainList("allow");
+  renderDomainList("custom");
+  renderEvents();
+  renderSources(data);
+  renderSettings(data);
+}
+
+async function load() {
+  if (state.loading) return;
+  state.loading = true;
+  hideError();
+  const result = await send({ type: "getDashboard" });
+  state.loading = false;
+  if (!result || !result.ok) {
+    showError(result && result.error ? result.error : "Panel verisi okunamadı. Uzantıyı yeniden yüklemeyi dene.");
+    return;
+  }
+  state.data = result;
+  render();
+}
+
+async function applySetting(key, value) {
+  const result = await send({ type: "setSetting", key, value });
+  if (!result || !result.ok) {
+    toast(result && result.error ? result.error : "Ayar kaydedilemedi.", "error");
+    await load();
+    return false;
+  }
+  await load();
+  return true;
+}
+
+async function syncTier(tier, button, resultNode) {
+  const target = tier === "extended" ? "extended" : "core";
+  setBusy(button, true, "Güncelleniyor");
+  resultNode.textContent = "Kaynaklar çekiliyor...";
+  const result = await send({ type: "syncNow", tier: target });
+  setBusy(button, false);
+  if (!result || !result.ok) {
+    resultNode.textContent = "";
+    toast(result && result.error ? result.error : "Güncelleme başarısız.", "error");
+    return;
+  }
+  const sync = result.result || {};
+  if (sync.allOk) {
+    resultNode.textContent = `${formatNumber(sync.count)} yeni alan adı eklendi.`;
+    toast(`Liste güncellendi: ${formatNumber(sync.count)} yeni alan adı.`, "ok");
+  } else if (sync.ok) {
+    resultNode.textContent = "Bazı kaynaklar yanıt vermedi, mevcut liste korundu.";
+    toast("Kısmi güncelleme: bazı kaynaklar yanıt vermedi.", "error");
+  } else {
+    resultNode.textContent = "Hiçbir kaynak yanıt vermedi. Liste değişmedi.";
+    toast("Güncelleme başarısız: hiçbir kaynak yanıt vermedi.", "error");
+  }
+  await load();
+}
+
+function download(filename, payload) {
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+async function exportData() {
+  const result = await send({ type: "exportData" });
+  if (!result || !result.ok) {
+    toast("Yedek oluşturulamadı.", "error");
+    return;
+  }
+  const stamp = new Date().toISOString().slice(0, 10);
+  download(`anti-ip-logger-yedek-${stamp}.json`, result);
+  toast("Yedek indirildi.", "ok");
+}
+
+function importData(file) {
+  const reader = new FileReader();
+  reader.onload = async () => {
+    let payload;
+    try {
+      payload = JSON.parse(String(reader.result));
+    } catch {
+      toast("Dosya geçerli JSON değil.", "error");
+      return;
+    }
+    const result = await send({ type: "importData", payload });
+    if (!result || !result.ok) {
+      toast(result && result.error ? result.error : "Yedek yüklenemedi.", "error");
+      return;
+    }
+    toast("Ayarlar yedekten yüklendi.", "ok");
+    await load();
+  };
+  reader.onerror = () => toast("Dosya okunamadı.", "error");
+  reader.readAsText(file);
+}
+
+function bind() {
+  for (const link of document.querySelectorAll("[data-route]")) {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      navigate(link.dataset.route);
+    });
+  }
+
+  window.addEventListener("hashchange", () => navigate(currentRoute(), false));
+  window.addEventListener("popstate", () => navigate(currentRoute(), false));
+
+  nodes.syncButton.addEventListener("click", () => syncTier("core", nodes.syncButton, nodes.syncCoreResult));
+
+  nodes.themeButton.addEventListener("click", async () => {
+    if (!state.data) return;
+    const next = toggleTheme(resolvedTheme());
+    applyTheme(next);
+    renderTheme({ ...state.data.settings, theme: next });
+    await applySetting("theme", next);
+  });
+
+  nodes.enabledToggle.addEventListener("change", async () => {
+    const next = nodes.enabledToggle.checked;
+    const ok = await applySetting("enabled", next);
+    if (!ok) nodes.enabledToggle.checked = !next;
+    toast(next ? "Koruma açıldı." : "Koruma kapatıldı.", next ? "ok" : "error");
+  });
+
+  nodes.coreSearch.addEventListener("input", () => {
+    state.coreQuery = nodes.coreSearch.value.trim();
+    state.corePage = 1;
+    renderCore();
+  });
+
+  nodes.coreCategory.addEventListener("change", () => {
+    state.coreCategory = nodes.coreCategory.value;
+    state.corePage = 1;
+    renderCore();
+  });
+
+  nodes.coreMore.addEventListener("click", () => {
+    state.corePage += 1;
+    renderCore();
+  });
+
+  nodes.allowForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const value = nodes.allowInput.value.trim();
+    nodes.allowError.hidden = true;
+    if (!value) {
+      nodes.allowError.hidden = false;
+      nodes.allowError.textContent = "Bir alan adı gir.";
+      nodes.allowInput.focus();
+      return;
+    }
+    const result = await send({ type: "allowDomain", domain: value });
+    if (!result || !result.ok) {
+      nodes.allowError.hidden = false;
+      nodes.allowError.textContent = (result && result.error) || "Alan adı eklenemedi.";
+      return;
+    }
+    nodes.allowInput.value = "";
+    toast(`${result.domain} izin listesine eklendi.`, "ok");
+    await load();
+  });
+
+  nodes.customForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const value = nodes.customInput.value.trim();
+    nodes.customError.hidden = true;
+    if (!value) {
+      nodes.customError.hidden = false;
+      nodes.customError.textContent = "Bir alan adı gir.";
+      nodes.customInput.focus();
+      return;
+    }
+    const result = await send({ type: "addCustomDomain", domain: value });
+    if (!result || !result.ok) {
+      nodes.customError.hidden = false;
+      nodes.customError.textContent = (result && result.error) || "Alan adı eklenemedi.";
+      return;
+    }
+    nodes.customInput.value = "";
+    toast(`${result.domain} engel listesine eklendi.`, "ok");
+    await load();
+  });
+
+  for (const list of [nodes.allowList, nodes.customList]) {
+    list.addEventListener("click", async (event) => {
+      const button = event.target.closest("button[data-domain]");
+      if (!button) return;
+      const { kind, domain } = button.dataset;
+      const message = kind === "allow" ? { type: "removeAllowedDomain", domain } : { type: "removeCustomDomain", domain };
+      const result = await send(message);
+      if (!result || !result.ok) {
+        toast((result && result.error) || "Kayıt kaldırılamadı.", "error");
+        return;
+      }
+      toast(`${domain} kaldırıldı.`, "ok");
+      await load();
+    });
+  }
+
+  nodes.eventsSearch.addEventListener("input", () => {
+    state.eventsQuery = nodes.eventsSearch.value.trim();
+    renderEvents();
+  });
+
+  nodes.eventsType.addEventListener("change", () => {
+    state.eventsType = nodes.eventsType.value;
+    renderEvents();
+  });
+
+  nodes.eventsClear.addEventListener("click", async () => {
+    const result = await send({ type: "clearEvents" });
+    if (!result || !result.ok) {
+      toast("Olay kaydı temizlenemedi.", "error");
+      return;
+    }
+    toast("Olay kaydı temizlendi.", "ok");
+    await load();
+  });
+
+  nodes.syncCore.addEventListener("click", () => syncTier("core", nodes.syncCore, nodes.syncCoreResult));
+  nodes.syncExtended.addEventListener("click", () => syncTier("extended", nodes.syncExtended, nodes.syncExtendedResult));
+
+  nodes.setEnabled.addEventListener("change", () => applySetting("enabled", nodes.setEnabled.checked));
+  nodes.setCore.addEventListener("change", () => applySetting("tiers", { core: nodes.setCore.checked }));
+  nodes.setExtended.addEventListener("change", () => applySetting("tiers", { extended: nodes.setExtended.checked }));
+  nodes.setBlockedPage.addEventListener("change", () => applySetting("showBlockedPage", nodes.setBlockedPage.checked));
+  nodes.setWarnings.addEventListener("change", () => applySetting("warnings", nodes.setWarnings.checked));
+  nodes.setWebrtc.addEventListener("change", () => applySetting("webrtcPolicy", nodes.setWebrtc.value));
+  nodes.setTheme.addEventListener("change", () => applySetting("theme", nodes.setTheme.value));
+
+  nodes.exportButton.addEventListener("click", exportData);
+  nodes.importButton.addEventListener("click", () => nodes.importFile.click());
+  nodes.importFile.addEventListener("change", () => {
+    const file = nodes.importFile.files && nodes.importFile.files[0];
+    if (file) importData(file);
+    nodes.importFile.value = "";
+  });
+
+  nodes.resetButton.addEventListener("click", () => {
+    nodes.resetConfirm.hidden = false;
+    nodes.resetConfirmButton.focus();
+  });
+
+  nodes.resetCancel.addEventListener("click", () => {
+    nodes.resetConfirm.hidden = true;
+    nodes.resetButton.focus();
+  });
+
+  nodes.resetConfirmButton.addEventListener("click", async () => {
+    setBusy(nodes.resetConfirmButton, true, "Sıfırlanıyor");
+    const result = await send({ type: "resetAll" });
+    setBusy(nodes.resetConfirmButton, false);
+    nodes.resetConfirm.hidden = true;
+    if (!result || !result.ok) {
+      toast("Sıfırlama başarısız.", "error");
+      return;
+    }
+    toast("Tüm veriler sıfırlandı.", "ok");
+    await load();
+  });
+}
+
+navigate(currentRoute(), false);
+bind();
+load();
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== "local") return;
+  if (changes.settings || changes.events || changes.stats || changes.remoteCache) load();
+});
