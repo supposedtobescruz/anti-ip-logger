@@ -344,6 +344,78 @@ async function run() {
     check("liste bölümü görünür", listState.allowVisible);
     await screenshot(dash, "dashboard-lists.png", 1280, 900, "light");
 
+    await evaluate(
+      dash,
+      `const input = document.getElementById('core-search');
+       input.value = 'zzzz-yok';
+       input.dispatchEvent(new Event('input', { bubbles: true }));
+       return true;`,
+    );
+    await sleep(300);
+    const searchState = await evaluate(
+      dash,
+      `const rows = document.querySelectorAll('#core-rows tr').length;
+       const summary = document.getElementById('core-summary').textContent.trim();
+       const empty = !document.getElementById('core-empty').hidden;
+       return { rows, summary, empty };`,
+    );
+    check("liste araması sonuçsuz durumu gösterir", searchState.rows === 0 && searchState.empty === true, searchState.summary);
+    await evaluate(
+      dash,
+      `const input = document.getElementById('core-search');
+       input.value = '';
+       input.dispatchEvent(new Event('input', { bubbles: true }));
+       return true;`,
+    );
+
+    await evaluate(
+      dash,
+      `document.getElementById('allow-input').value = 'example.com';
+       document.getElementById('allow-form').requestSubmit();
+       return true;`,
+    );
+    const allowAdded = await waitFor(
+      () => evaluate(dash, "return document.querySelectorAll('#allow-list .domain-item').length === 1;").catch(() => false),
+      5000,
+      "izin listesine ekleme",
+    );
+    check("izin listesi formu çalışır", allowAdded === true);
+    await evaluate(dash, "document.querySelector('#allow-list .domain-item button').click(); return true;");
+    const allowRemoved = await waitFor(
+      () => evaluate(dash, "return document.querySelectorAll('#allow-list .domain-item').length === 0;").catch(() => false),
+      5000,
+      "izin listesinden kaldırma",
+    );
+    check("izin listesi kaydı kaldırılır", allowRemoved === true);
+
+    await evaluate(
+      dash,
+      `document.getElementById('custom-input').value = 'ornek-test.com';
+       document.getElementById('custom-form').requestSubmit();
+       return true;`,
+    );
+    const customAdded = await waitFor(
+      () => evaluate(dash, "return document.querySelectorAll('#custom-list .domain-item').length === 1;").catch(() => false),
+      5000,
+      "özel engel ekleme",
+    );
+    check("özel engel formu çalışır", customAdded === true);
+    await evaluate(dash, "document.querySelector('#custom-list .domain-item button').click(); return true;");
+    const customRemoved = await waitFor(
+      () => evaluate(dash, "return document.querySelectorAll('#custom-list .domain-item').length === 0;").catch(() => false),
+      5000,
+      "özel engel kaldırma",
+    );
+    check("özel engel kaydı kaldırılır", customRemoved === true);
+
+    await dash.send("Emulation.setDeviceMetricsOverride", { width: 360, height: 780, deviceScaleFactor: 2, mobile: true });
+    await sleep(400);
+    const mobileDash = await evaluate(
+      dash,
+      `return { scroll: document.documentElement.scrollWidth, view: window.innerWidth };`,
+    );
+    check("panel mobilde yatay taşmıyor", mobileDash.scroll <= mobileDash.view + 1, `${mobileDash.scroll} / ${mobileDash.view}`);
+
     await evaluate(dash, "location.hash = '#ayarlar'; return true;");
     await sleep(500);
     const settingsState = await evaluate(
@@ -357,6 +429,18 @@ async function run() {
     );
     check("ayarlar forma yansıdı", settingsState.enabled === true && settingsState.core === true, JSON.stringify(settingsState));
     await screenshot(dash, "dashboard-settings.png", 1280, 900, "light");
+
+    await evaluate(dash, "document.documentElement.setAttribute('data-theme','dark'); return true;");
+    await sleep(250);
+    const dashDark = await evaluate(
+      dash,
+      `const style = getComputedStyle(document.body);
+       const rail = getComputedStyle(document.querySelector('.rail')).backgroundColor;
+       return { background: style.backgroundColor, color: style.color, rail };`,
+    );
+    check("panel koyu temada okunur", dashDark.background !== dashDark.color && !dashDark.rail.includes("251, 248, 241"), JSON.stringify(dashDark));
+    await screenshot(dash, "dashboard-dark.png", 1280, 900, "dark");
+    await evaluate(dash, "document.documentElement.setAttribute('data-theme','light'); return true;");
 
     const testTarget = await openTab(port, "https://grabify.link/test-verify");
     const test = await connect(testTarget);
@@ -390,6 +474,14 @@ async function run() {
       check("engel sayfası hedef adresi gösterir", blocked.target.includes("grabify.link"), blocked.target);
       check("engel sayfası izin düğmesi etkin", blocked.allowEnabled === true);
       await screenshot(test, "blocked.png", 900, 760, "light");
+      await test.send("Emulation.setDeviceMetricsOverride", { width: 360, height: 780, deviceScaleFactor: 2, mobile: true });
+      await sleep(350);
+      const blockedMobile = await evaluate(
+        test,
+        `return { scroll: document.documentElement.scrollWidth, view: window.innerWidth };`,
+      );
+      check("engel sayfası mobilde yatay taşmıyor", blockedMobile.scroll <= blockedMobile.view + 1, `${blockedMobile.scroll} / ${blockedMobile.view}`);
+      await screenshot(test, "blocked-mobile.png", 360, 780, "light");
     } catch (error) {
       check("grabify isteği engel sayfasına yönlendi", false, error.message);
     }
