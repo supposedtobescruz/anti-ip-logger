@@ -126,6 +126,15 @@ Rule priority ladder: tab allow 110 > allowlist 100 > custom block 50 > blocked 
 - `host_permissions` covers `http://*/*` and `https://*/*`, the same scope as the content scripts. `webNavigation` exposes the URL of the navigation being judged. The extension makes no network requests beyond the defined list sources.
 - Signals are collected in every frame (iframes included) and attached to the top tab. The banner only shows in the top frame.
 
+## Chrome Web Store
+
+The listing is prepared but not submitted yet, by deliberate decision. What is ready:
+
+- `npm run package` builds `dist/anti-ip-logger-2.0.0-cws.zip` (runtime files only; the extracted zip passes all browser checks).
+- Store kit in `store/`: English and Turkish listings, permission justifications, five 1280×800 screenshots each, and promotional tiles (440×280 and 1400×560).
+- The privacy policy lives in `PRIVACY.md` and a standalone `docs/privacy.html`. It must be served from a public URL to submit; the repository is private, see `store/README.md` for the options.
+- A submission checklist, the developer registration fee note and the rollout steps are in `store/README.md`.
+
 ## Adding a language
 
 The extension interface is in English (default) and Turkish. UI strings live in `_locales/en/messages.json` and `_locales/tr/messages.json`; adding a third UI language means a new `_locales/<code>/messages.json` and the same key set.

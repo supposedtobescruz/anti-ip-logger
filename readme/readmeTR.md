@@ -126,6 +126,15 @@ Kural öncelik merdiveni: sekme izni 110 > izin listesi 100 > özel engel 50 > e
 - `host_permissions`, içerik betikleriyle aynı kapsam olan `http://*/*` ve `https://*/*` değerlerini kapsar. `webNavigation`, değerlendirilen gezinmenin URL'sini açığa çıkarmak için kullanılır. Uzantı, tanımlı liste kaynakları dışında ağ isteği yapmaz.
 - Sinyaller her karede (iframe'ler dahil) toplanır ve üst sekmeye bağlanır. Banner yalnızca üst karede görünür.
 
+## Chrome Web Store
+
+Liste hazır ama bilinçli bir kararla henüz gönderilmedi. Hazır olanlar:
+
+- `npm run package`, `dist/anti-ip-logger-2.0.0-cws.zip` üretir (yalnızca çalışma zamanı dosyaları; çıkarılan zip tüm tarayıcı kontrollerinden geçer).
+- `store/` klasöründe mağaza kiti: İngilizce ve Türkçe başlık metinleri, izin gerekçeleri, her dil için beşer 1280×800 ekran görüntüsü ve tanıtım karoları (440×280 ve 1400×560).
+- Gizlilik politikası `PRIVACY.md` içinde ve bağımsız `docs/privacy.html` sayfasında durur. Gönderim için herkese açık bir URL gerekir; depo şu an gizli, seçenekler için `store/README.md`'ye bakın.
+- Başvuru kontrol listesi, geliştirici kayıt ücreti notu ve yayın adımları `store/README.md` içinde.
+
 ## Dil eklemek
 
 Uzantının arayüzü İngilizce (varsayılan) ve Türkçedir. Arayüz metinleri `_locales/en/messages.json` ve `_locales/tr/messages.json` içinde yaşar; üçüncü bir arayüz dili, aynı anahtar kümesiyle yeni bir `_locales/<code>/messages.json` demektir.

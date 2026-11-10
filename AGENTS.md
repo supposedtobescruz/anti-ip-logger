@@ -11,6 +11,7 @@ Anti IP Logger, Manifest V3 Chrome uzantısıdır. Derleme adımı yoktur: kayna
 - Arayüz: `popup/`, `dashboard/`, `blocked/`
 - Ortak kod: `lib/`, `assets/`
 - Üretilen veri: `data/core-domains.json`, `data/core-exceptions.json`, `data/meta.json`, `rules/core.json`
+- Mağaza kiti: `store/` (listing, izin gerekçeleri, ekran görüntüleri), `PRIVACY.md`, `docs/privacy.html`
 
 ## Komutlar
 
@@ -26,6 +27,7 @@ npm run verify:ui       # kontrast, etiket, odak, hareket, kırılım
 npm run verify:browser  # Brave/Chrome ile gerçek yükleme ve ekran görüntüsü
 npm run verify:all      # check + test + verify + verify:ui
 npm run icons           # simgeleri yeniden üret
+npm run package         # mağaza zip'i üret: dist/anti-ip-logger-<sürüm>-cws.zip
 ```
 
 Değişiklik teslim etmeden önce `npm run verify:all` çalışmalı. Arayüz değiştiyse `npm run verify:browser` de çalışmalı ve `verify-output/` görüntüleri gözle kontrol edilmeli.
