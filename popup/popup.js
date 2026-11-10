@@ -13,7 +13,7 @@ import {
   toast,
   toggleTheme,
 } from "../assets/ui.js";
-import { t, applyI18n } from "../assets/i18n.js";
+import { t, applyI18n, initLanguage } from "../assets/i18n.js";
 
 const nodes = {
   app: document.getElementById("app"),
@@ -279,9 +279,11 @@ nodes.themeToggle.addEventListener("click", async () => {
   await send({ type: "setSetting", key: "theme", value: next });
 });
 
-applyI18n();
-onThemeChange(syncThemeButton);
-load();
+initLanguage().then(() => {
+  applyI18n();
+  onThemeChange(syncThemeButton);
+  load();
+});
 
 if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.onChanged) {
   chrome.storage.onChanged.addListener((changes, area) => {

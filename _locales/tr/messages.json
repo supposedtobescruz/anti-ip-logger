@@ -1374,5 +1374,121 @@
   "rulesClipped": {
     "message": "$4 kural sınırına ulaşıldı: $1 alan adı düşürüldü ($2 çekirdek, $3 tehdit listesi).",
     "description": "Event when dynamic rules are clipped to the limit."
+  },
+  "settingLanguageTitle": {
+    "message": "Arayüz dili",
+    "description": "Settings row title."
+  },
+  "settingLanguageHint": {
+    "message": "Varsayılan tarayıcı dilidir. Birini seçerseniz tüm uzantı sayfalarında geçerli olur.",
+    "description": "Settings row hint."
+  },
+  "languageSystem": {
+    "message": "Tarayıcıyla aynı",
+    "description": "Language select option."
+  },
+  "languageEnglish": {
+    "message": "English",
+    "description": "Language select option."
+  },
+  "languageTurkish": {
+    "message": "Türkçe",
+    "description": "Language select option."
+  },
+  "replayTourButton": {
+    "message": "Hoşgeldin turunu tekrarla",
+    "description": "Settings button to reopen the welcome tour."
+  },
+  "replayTourHint": {
+    "message": "Altı adım, yaklaşık bir dakika.",
+    "description": "Settings hint under the replay button."
+  },
+  "mascotCornerLabel": {
+    "message": "Scruize (geliştiricinin GitHub profilini açar)",
+    "description": "Accessible name for the corner mascot button."
+  },
+  "welcomeTitle": {
+    "message": "Anti IP Logger'a hoş geldin",
+    "description": "Welcome page headline."
+  },
+  "welcomeSubtitle": {
+    "message": "Altı adım. Bir dakika. Maskot anlatıyor.",
+    "description": "Welcome page subtitle."
+  },
+  "welcomeSkip": {
+    "message": "Turu atla",
+    "description": "Skip button on the welcome tour."
+  },
+  "welcomeBack": {
+    "message": "Geri",
+    "description": "Back button on the welcome tour."
+  },
+  "welcomeNext": {
+    "message": "İleri",
+    "description": "Next button on the welcome tour."
+  },
+  "welcomeFinish": {
+    "message": "Paneli aç",
+    "description": "Finish button, opens the panel."
+  },
+  "welcomeClose": {
+    "message": "Bitir",
+    "description": "Finish button on the last step."
+  },
+  "welcomeStepOf": {
+    "message": "Adım $1 / 6",
+    "description": "Step counter, substitutions: current, total."
+  },
+  "welcomeMascotAlt": {
+    "message": "Scruize, Anti IP Logger maskotu",
+    "description": "Alt text for the mascot image."
+  },
+  "welcomeStep1Title": {
+    "message": "Tuzakları ben engellerim",
+    "description": "Welcome step 1 title."
+  },
+  "welcomeStep1Body": {
+    "message": "IP logger ve link grabber alan adları, istek ağa ulaşmadan durdurulur. Bugün 125 bilinen servis; herkese açık kaynaklardan güncellenir.",
+    "description": "Welcome step 1 body."
+  },
+  "welcomeStep2Title": {
+    "message": "Bir sayfa, hayalet değil",
+    "description": "Welcome step 2 title."
+  },
+  "welcomeStep2Body": {
+    "message": "Bu sekmede bir bağlantı engellendiğinde engel sayfası hedef adresi, kanıtı ve seçeneklerini gösterir: bu sekme için izin, siteye izin ya da geri dön.",
+    "description": "Welcome step 2 body."
+  },
+  "welcomeStep3Title": {
+    "message": "Sadece gerekinde konuşurum",
+    "description": "Welcome step 3 title."
+  },
+  "welcomeStep3Body": {
+    "message": "Uyarı bandı yalnızca tehlike seviyesinde bir bulgu veya aynı anda iki uyarı kategorisi için görünür. Tek zayıf sinyal, popup'ta sessiz bir rozet olarak kalır.",
+    "description": "Welcome step 3 body."
+  },
+  "welcomeStep4Title": {
+    "message": "Kontroller senin",
+    "description": "Welcome step 4 title."
+  },
+  "welcomeStep4Body": {
+    "message": "Araç çubuğu ikonuna istediğinde tıklayın: sekmenin canlı durumu, yakalanan sinyaller, sayaclar. Oradan engelleyin ya da izin verin. İzin listesi her zaman engel listesini yener.",
+    "description": "Welcome step 4 body."
+  },
+  "welcomeStep5Title": {
+    "message": "Panel",
+    "description": "Welcome step 5 title."
+  },
+  "welcomeStep5Body": {
+    "message": "Aranabilir listeler, filtrelenebilir olay kaydı, kaynak sağlığı, ayarlar ve yedekleme. Her şey klavyeyle erişilebilir; okuduğun tur da burada yaşar.",
+    "description": "Welcome step 5 body."
+  },
+  "welcomeStep6Title": {
+    "message": "Yerel. Her zaman.",
+    "description": "Welcome step 6 title."
+  },
+  "welcomeStep6Body": {
+    "message": "Telemetri yok, analitik yok, hesap yok. Ayarlar, sayaclar ve 500 kayıtlık olay kaydı yalnızca bu tarayıcıda kalır. WebRTC politikası isteğe bağlıdır ve tarayıcı genelindedir.",
+    "description": "Welcome step 6 body."
   }
 }

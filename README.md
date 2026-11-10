@@ -4,7 +4,7 @@
 
 Anti IP Logger is a Chrome extension that blocks known IP logger and link grabber domains, then reports IP leak attempts it finds on the page. Manifest V3, vanilla JavaScript, no build step.
 
-Version 1.0.0. The bundled list ships 125 domains in 2 static rules, with 61 exceptions.
+Version 1.1.0. The bundled list ships 125 domains in 2 static rules, with 61 exceptions.
 
 ## What it does
 
@@ -15,6 +15,8 @@ Version 1.0.0. The bundled list ships 125 domains in 2 static rules, with 61 exc
 - Keeps an event log and lifetime counters in the panel, capped at the last 500 events.
 - Lets you allowlist domains, block custom domains, and grant one-tab temporary fixes.
 - Refreshes the core list from maintained sources. If sources fail, the previous list is kept; it never writes an empty list over a good one.
+- Opens a six-step welcome tour on first install, with Scruize, the mascot. Replay it any time from Settings → About.
+- The interface is in English by default, with full Turkish support. Override it (Same as browser, English, Türkçe) from Settings → Privacy and appearance.
 
 ## What it does not do
 
@@ -91,11 +93,12 @@ lib/parser.js          list parsing, host normalization, subdomain dedup
 lib/domains.js         registrable domain and matching helpers
 lib/rules.js           dynamic DNR rule generation
 lib/dnr.js             rule apply, static ruleset, WebRTC policy, badge
-lib/risk.js            signal scoring, verdicts and Turkish copy
+lib/risk.js            signal scoring, verdicts and i18n copy
 lib/store.js           storage wrappers, session tab state
 content/probe.js       MAIN world: WebRTC, media, geolocation, network hooks
 content/guard.js       isolated world: DOM scan, reporting, shadow DOM banner
-popup/ dashboard/ blocked/   interface pages
+popup/ dashboard/ blocked/ welcome/   interface pages
+assets/mascot-scruize.svg Welcome tour mascot (DiceBear avataaars)
 data/                  source definitions, curated entries, exceptions, generated list
 rules/core.json        static DNR rules
 tools/                 build and verification scripts
@@ -130,7 +133,7 @@ Rule priority ladder: tab allow 110 > allowlist 100 > custom block 50 > blocked 
 
 The listing is prepared but not submitted yet, by deliberate decision. What is ready:
 
-- `npm run package` builds `dist/anti-ip-logger-1.0.0-cws.zip` (runtime files only; the extracted zip passes all browser checks).
+- `npm run package` builds `dist/anti-ip-logger-1.1.0-cws.zip` (runtime files only; the extracted zip passes all browser checks).
 - Store kit in `store/`: English and Turkish listings, permission justifications, five 1280×800 screenshots each, and promotional tiles (440×280 and 1400×560).
 - The privacy policy lives in `PRIVACY.md` and a standalone `docs/privacy.html`. It must be served from a public URL to submit; the repository is private, see `store/README.md` for the options.
 - A submission checklist, the developer registration fee note and the rollout steps are in `store/README.md`.

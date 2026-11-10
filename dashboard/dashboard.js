@@ -11,7 +11,7 @@ import {
   toggleTheme,
   resolvedTheme,
 } from "../assets/ui.js";
-import { t, applyI18n } from "../assets/i18n.js";
+import { t, applyI18n, initLanguage } from "../assets/i18n.js";
 
 const ROUTES = {
   overview: { titleKey: "routeOverviewTitle", eyebrowKey: "routeOverviewEyebrow" },
@@ -124,6 +124,10 @@ const nodes = {
   setWarnings: document.getElementById("set-warnings"),
   setWebrtc: document.getElementById("set-webrtc"),
   setTheme: document.getElementById("set-theme"),
+  setLanguage: document.getElementById("set-language"),
+  languageNote: document.getElementById("language-note"),
+  replayTour: document.getElementById("replay-tour"),
+  mascotCorner: document.getElementById("mascot-corner"),
   webrtcNote: document.getElementById("webrtc-note"),
   exportButton: document.getElementById("export-button"),
   importButton: document.getElementById("import-button"),
@@ -422,6 +426,7 @@ function renderSettings(data) {
   nodes.setWarnings.checked = Boolean(settings.warnings);
   nodes.setWebrtc.value = settings.webrtcPolicy || "default";
   nodes.setTheme.value = settings.theme || "system";
+  nodes.setLanguage.value = settings.language || "system";
   nodes.webrtcNote.textContent = settings.webrtcPolicy === "default" ? t("webrtcNoteDefault") : t("webrtcNoteCustom");
 
   nodes.aboutVersion.textContent = t("versionLine", [data.version]);
@@ -679,6 +684,18 @@ function bind() {
   nodes.setWarnings.addEventListener("change", () => applySetting("warnings", nodes.setWarnings.checked));
   nodes.setWebrtc.addEventListener("change", () => applySetting("webrtcPolicy", nodes.setWebrtc.value));
   nodes.setTheme.addEventListener("change", () => applySetting("theme", nodes.setTheme.value));
+  nodes.setLanguage.addEventListener("change", async () => {
+    await applySetting("language", nodes.setLanguage.value);
+    window.location.reload();
+  });
+
+  nodes.replayTour.addEventListener("click", async () => {
+    await send({ type: "openWelcome" });
+  });
+
+  nodes.mascotCorner.addEventListener("click", () => {
+    chrome.tabs.create({ url: "https://github.com/supposedtobescruz" });
+  });
 
   nodes.exportButton.addEventListener("click", exportData);
   nodes.importButton.addEventListener("click", () => nodes.importFile.click());
@@ -712,11 +729,13 @@ function bind() {
   });
 }
 
-applyI18n();
-onThemeChange(syncThemeLabel);
-navigate(currentRoute(), false);
-bind();
-load();
+initLanguage().then(() => {
+  applyI18n();
+  onThemeChange(syncThemeLabel);
+  navigate(currentRoute(), false);
+  bind();
+  load();
+});
 
 if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.onChanged) {
   chrome.storage.onChanged.addListener((changes, area) => {

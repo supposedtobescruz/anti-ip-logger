@@ -382,6 +382,15 @@
                     <option value="dark" data-i18n="themeDark">Dark</option>
                   </select>
                 </div>
+                <div class="field">
+                  <label class="field__label" for="set-language" data-i18n="settingLanguageTitle">Interface language</label>
+                  <select class="select" id="set-language">
+                    <option value="system" data-i18n="languageSystem">Same as browser</option>
+                    <option value="en" data-i18n="languageEnglish">English</option>
+                    <option value="tr" data-i18n="languageTurkish">Türkçe</option>
+                  </select>
+                  <p class="hint" id="language-note" data-i18n="settingLanguageHint">Defaults to your browser's language.</p>
+                </div>
                 <p class="hint" id="webrtc-note"></p>
               </div>
             </div>
@@ -416,11 +425,17 @@
             <div class="card__body stack">
               <p class="hint" id="about-version">Version</p>
               <p class="hint"><span data-i18n="aboutLine">List sources and licenses are in</span> <span class="mono">THIRD-PARTY-LICENSES.md</span><span data-i18n="aboutLineEnd">. Data stays on this browser and is never sent to a server.</span></p>
+              <button class="btn btn--quiet btn--small" id="replay-tour" type="button" data-i18n="replayTourButton">Replay the welcome tour</button>
+              <p class="hint" id="replay-tour-note" data-i18n="replayTourHint">Six steps, about a minute.</p>
             </div>
           </div>
         </section>
       </main>
     </div>
+
+    <button class="mascot-corner" id="mascot-corner" type="button" data-i18n-aria-label="mascotCornerLabel" aria-label="Scruize (opens the developer's GitHub profile)">
+      <img src="../assets/mascot-scruize.svg" alt="" width="88" height="88" />
+    </button>
 
     <script type="module" src="dashboard.js"></script>
   </body>

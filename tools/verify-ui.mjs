@@ -77,6 +77,7 @@ const html = [
   ["popup", join(ROOT, "popup", "popup.html")],
   ["dashboard", join(ROOT, "dashboard", "dashboard.html")],
   ["blocked", join(ROOT, "blocked", "blocked.html")],
+  ["welcome", join(ROOT, "welcome", "welcome.html")],
 ];
 
 for (const [name, file] of html) {
@@ -84,7 +85,7 @@ for (const [name, file] of html) {
   check(`${name}: lang en`, /<html lang="en">/.test(text));
   check(`${name}: single h1`, (text.match(/<h1[\s>]/g) || []).length === 1);
   check(`${name}: buttons have type`, [...text.matchAll(/<button\b[^>]*>/g)].every((match) => /type="(button|submit)"/.test(match[0])));
-  check(`${name}: no images`, !/<img\b/.test(text));
+  check(`${name}: no external images`, !/<img\b[^>]*\ssrc="(?:https?:)?\/\//i.test(text));
   check(`${name}: no inline style`, !/<(div|p|span|main|section|header|footer)[^>]+style="/.test(text));
 
   const controls = [...text.matchAll(/<(input|select|textarea)\b[^>]*>/g)];

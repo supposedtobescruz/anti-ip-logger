@@ -1374,5 +1374,121 @@
   "rulesClipped": {
     "message": "Rule limit of $4 reached: dropped $1 domains ($2 core feed, $3 threat list).",
     "description": "Event when dynamic rules are clipped to the limit."
+  },
+  "settingLanguageTitle": {
+    "message": "Interface language",
+    "description": "Settings row title."
+  },
+  "settingLanguageHint": {
+    "message": "Defaults to your browser's language. Pick one to force it on every extension page.",
+    "description": "Settings row hint."
+  },
+  "languageSystem": {
+    "message": "Same as browser",
+    "description": "Language select option."
+  },
+  "languageEnglish": {
+    "message": "English",
+    "description": "Language select option."
+  },
+  "languageTurkish": {
+    "message": "Türkçe",
+    "description": "Language select option."
+  },
+  "replayTourButton": {
+    "message": "Replay the welcome tour",
+    "description": "Settings button to reopen the welcome tour."
+  },
+  "replayTourHint": {
+    "message": "Six steps, about a minute.",
+    "description": "Settings hint under the replay button."
+  },
+  "mascotCornerLabel": {
+    "message": "Scruize (opens the developer's GitHub profile)",
+    "description": "Accessible name for the corner mascot button."
+  },
+  "welcomeTitle": {
+    "message": "Welcome to Anti IP Logger",
+    "description": "Welcome page headline."
+  },
+  "welcomeSubtitle": {
+    "message": "Six steps. One minute. The mascot does the talking.",
+    "description": "Welcome page subtitle."
+  },
+  "welcomeSkip": {
+    "message": "Skip the tour",
+    "description": "Skip button on the welcome tour."
+  },
+  "welcomeBack": {
+    "message": "Back",
+    "description": "Back button on the welcome tour."
+  },
+  "welcomeNext": {
+    "message": "Next",
+    "description": "Next button on the welcome tour."
+  },
+  "welcomeFinish": {
+    "message": "Open the panel",
+    "description": "Finish button, opens the panel."
+  },
+  "welcomeClose": {
+    "message": "Finish",
+    "description": "Finish button on the last step."
+  },
+  "welcomeStepOf": {
+    "message": "Step $1 of 6",
+    "description": "Step counter, substitutions: current, total."
+  },
+  "welcomeMascotAlt": {
+    "message": "Scruize, the Anti IP Logger mascot",
+    "description": "Alt text for the mascot image."
+  },
+  "welcomeStep1Title": {
+    "message": "I block the traps",
+    "description": "Welcome step 1 title."
+  },
+  "welcomeStep1Body": {
+    "message": "IP logger and link grabber domains, stopped before the request reaches the network. 125 known services today, refreshed from public sources.",
+    "description": "Welcome step 1 body."
+  },
+  "welcomeStep2Title": {
+    "message": "A page, not a ghost",
+    "description": "Welcome step 2 title."
+  },
+  "welcomeStep2Body": {
+    "message": "When a link is blocked in this tab, the block page shows the target address, the evidence and your options: allow once for this tab, allow the site, or go back.",
+    "description": "Welcome step 2 body."
+  },
+  "welcomeStep3Title": {
+    "message": "I talk when it counts",
+    "description": "Welcome step 3 title."
+  },
+  "welcomeStep3Body": {
+    "message": "A banner appears only for a danger finding or two warning categories at once. A single weak signal stays a quiet badge in the popup.",
+    "description": "Welcome step 3 body."
+  },
+  "welcomeStep4Title": {
+    "message": "Your controls",
+    "description": "Welcome step 4 title."
+  },
+  "welcomeStep4Body": {
+    "message": "Click the toolbar icon any time: the tab's live verdict, caught signals, counters. Block or allow right from there. The allowlist always wins over the blocklist.",
+    "description": "Welcome step 4 body."
+  },
+  "welcomeStep5Title": {
+    "message": "The panel",
+    "description": "Welcome step 5 title."
+  },
+  "welcomeStep5Body": {
+    "message": "Lists with search, events with filter, source health, settings and backups. Everything is keyboard reachable, and the tour you are reading lives here too.",
+    "description": "Welcome step 5 body."
+  },
+  "welcomeStep6Title": {
+    "message": "Local. Always.",
+    "description": "Welcome step 6 title."
+  },
+  "welcomeStep6Body": {
+    "message": "No telemetry, no analytics, no accounts. Settings, counters and the 500-entry event log stay in this browser. The WebRTC policy is optional and browser-wide.",
+    "description": "Welcome step 6 body."
   }
 }

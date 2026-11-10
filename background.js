@@ -239,6 +239,7 @@ function publicSettings() {
     warnings: s.warnings,
     webrtcPolicy: s.webrtcPolicy,
     theme: s.theme,
+    language: s.language,
     allowlist: s.allowlist,
     customBlocks: s.customBlocks,
     onboardingSeen: s.onboardingSeen,
@@ -765,11 +766,12 @@ async function setSetting(key, value) {
     webrtcPolicy: (v) => ["default", "disable_non_proxied_udp", "disable_udp"].includes(v),
     theme: (v) => ["system", "light", "dark"].includes(v),
     onboardingSeen: (v) => typeof v === "boolean",
+    language: (v) => ["system", "en", "tr"].includes(v),
   };
   if (!allowed[key] || !allowed[key](value)) return { ok: false, error: t("errorInvalidSetting") };
 
   state.settings = await updateSettings({ [key]: value });
-  if (key !== "theme" && key !== "onboardingSeen" && key !== "warnings") {
+  if (key !== "theme" && key !== "onboardingSeen" && key !== "warnings" && key !== "language") {
     await applyState(true);
   }
   return { ok: true, settings: publicSettings() };
@@ -852,6 +854,7 @@ async function handleMessage(message, sender) {
     "resetAll",
     "importData",
     "exportData",
+    "openWelcome",
   ]);
   const SELF_ONLY = new Set(["addCustomDomain", "removeCustomDomain", "allowDomain", "removeAllowedDomain"]);
   if (PRIVILEGED.has(type) && !isExtensionPage) {
@@ -943,6 +946,9 @@ async function handleMessage(message, sender) {
     case "openDashboard":
       await chrome.runtime.openOptionsPage();
       return { ok: true };
+    case "openWelcome":
+      await chrome.tabs.create({ url: chrome.runtime.getURL("welcome/welcome.html") });
+      return { ok: true };
     default:
       return { ok: false, error: t("errorUnknownMessage") };
   }
@@ -966,8 +972,8 @@ chrome.runtime.onInstalled.addListener((details) => {
     await applyState(true);
     chrome.alarms.create(SYNC_ALARM, { periodInMinutes: SYNC_ALARM_MINUTES });
     chrome.alarms.create(CLEANUP_ALARM, { periodInMinutes: CLEANUP_ALARM_MINUTES });
-    if (details.reason === "install") {
-      chrome.tabs.create({ url: chrome.runtime.getURL("dashboard/dashboard.html?welcome=1") });
+    if (details.reason === "install" && state.settings.onboardingSeen !== true) {
+      chrome.tabs.create({ url: chrome.runtime.getURL("welcome/welcome.html") });
     }
   })().catch((error) => reportBackgroundError("install", error));
 });

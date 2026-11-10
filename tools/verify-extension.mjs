@@ -63,6 +63,7 @@ const jsFiles = [
   ...(await listFiles(join(ROOT, "popup"), ".js")),
   ...(await listFiles(join(ROOT, "dashboard"), ".js")),
   ...(await listFiles(join(ROOT, "blocked"), ".js")),
+  ...(await listFiles(join(ROOT, "welcome"), ".js")),
   ...(await listFiles(join(ROOT, "assets"), ".js")),
   ...(await listFiles(join(ROOT, "content"), ".js")),
   ...(await listFiles(join(ROOT, "tools"), ".mjs")),
@@ -116,6 +117,7 @@ const htmlFiles = [
   join(ROOT, "popup", "popup.html"),
   join(ROOT, "dashboard", "dashboard.html"),
   join(ROOT, "blocked", "blocked.html"),
+  join(ROOT, "welcome", "welcome.html"),
 ];
 
 for (const file of htmlFiles) {

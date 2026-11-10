@@ -8,7 +8,7 @@ Anti IP Logger, Manifest V3 Chrome uzantısıdır. Derleme adımı yoktur: kayna
 
 - Girdi noktası: `manifest.json`
 - Servis çalışanı: `background.js`
-- Arayüz: `popup/`, `dashboard/`, `blocked/`
+- Arayüz: `popup/`, `dashboard/`, `blocked/`, `welcome/` (hoşgeldin turu, `assets/mascot-scruize.svg` ile)
 - Ortak kod: `lib/`, `assets/`
 - Üretilen veri: `data/core-domains.json`, `data/core-exceptions.json`, `data/meta.json`, `rules/core.json`
 - Mağaza kiti: `store/` (listing, izin gerekçeleri, ekran görüntüleri), `PRIVACY.md`, `docs/privacy.html`

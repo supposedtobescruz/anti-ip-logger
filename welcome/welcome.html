@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Anti IP Logger · Welcome</title>
+    <link rel="stylesheet" href="../assets/fonts.css" />
+    <link rel="stylesheet" href="../assets/base.css" />
+    <link rel="stylesheet" href="welcome.css" />
+  </head>
+  <body>
+    <main class="welcome" id="welcome">
+      <header class="welcome__brand">
+        <span class="brand__mark" aria-hidden="true"></span>
+        <span class="mono welcome__name">ANTI IP LOGGER</span>
+        <button class="btn btn--quiet btn--small skip-button" id="skip" type="button" data-i18n="welcomeSkip">Skip the tour</button>
+      </header>
+
+      <div class="welcome__stage">
+        <div class="welcome__mascot">
+          <img src="../assets/mascot-scruize.svg" alt="" width="224" height="224" data-i18n-alt="welcomeMascotAlt" id="mascot-img" />
+          <p class="welcome__name mono" aria-hidden="true">SCRIUZE</p>
+        </div>
+        <div class="welcome__bubble" role="group" aria-labelledby="step-title">
+          <p class="eyebrow"><span id="step-counter" data-i18n="welcomeStepOf">Step 1 of 6</span></p>
+          <h1 class="welcome__headline" id="step-title" tabindex="-1"></h1>
+          <p class="welcome__body" id="step-body"></p>
+        </div>
+      </div>
+
+      <ol class="welcome__dots" id="dots" aria-hidden="true"></ol>
+
+      <p class="sr-only" role="status" aria-live="polite" id="step-announcer"></p>
+
+      <footer class="welcome__foot">
+        <button class="btn btn--quiet" id="back" type="button" data-i18n="welcomeBack">Back</button>
+        <button class="btn btn--primary" id="next" type="button" data-i18n="welcomeNext">Next</button>
+      </footer>
+    </main>
+
+    <script type="module" src="welcome.js"></script>
+  </body>
+</html>

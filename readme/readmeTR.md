@@ -4,7 +4,7 @@
 
 Anti IP Logger, bilinen IP logger ve link grabber alan adlarını engelleyen, ardından sayfada bulduğu IP sızıntısı girişimlerini raporlayan bir Chrome uzantısıdır. Manifest V3, vanilla JavaScript, derleme adımı yok.
 
-Sürüm 1.0.0. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisna içerir.
+Sürüm 1.1.0. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisna içerir.
 
 ## Ne yapar
 
@@ -15,6 +15,8 @@ Sürüm 1.0.0. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisn
 - Panelde olay kaydı ve toplam sayaçlar tutulur, son 500 olayla sınırlıdır.
 - Alan adlarını izin listesine eklemenize, özel alan adlarını engellemenize ve tek sekmeye geçici geçiş izni vermenize olanak tanır.
 - Çekirdek listeyi bakımı yapılan kaynaklardan yeniler. Kaynaklar başarısız olursa önceki liste korunur; hiçbir zaman iyi bir listenin üstüne boş liste yazmaz.
+- İlk kurulumda altı adımlık bir hoşgeldin turu açar; Scruize, maskot. Ayarlar → Hakkında bölümünden istediğinizde yineleyebilirsiniz.
+- Arayüz varsayılanı İngilizcedir, tam Türkçe desteği vardır. Tarayıcıyla aynı / English / Türkçe seçimini Ayarlar → Gizlilik ve görünüm bölümünden yapabilirsiniz.
 
 ## Ne yapmaz
 
@@ -91,11 +93,12 @@ lib/parser.js          liste ayrıştırma, host normalizasyonu, alt alan adı t
 lib/domains.js         registrable alan adı ve eşleştirme yardımcıları
 lib/rules.js           dinamik DNR kural üretimi
 lib/dnr.js             kural uygulama, statik kural seti, WebRTC politikası, rozet
-lib/risk.js            sinyal puanlama, kararlar ve Türkçe metinler
+lib/risk.js            sinyal puanlama, kararlar ve i18n metinleri
 lib/store.js           depolama sarmalayıcıları, oturum sekme durumu
 content/probe.js       MAIN world: WebRTC, medya, coğrafi konum, ağ kancaları
 content/guard.js       yalıtılmış dünya: DOM taraması, raporlama, gölge DOM banner'ı
-popup/ dashboard/ blocked/   arayüz sayfaları
+popup/ dashboard/ blocked/ welcome/   arayüz sayfaları
+assets/mascot-scruize.svg Hoşgeldin turu maskotu (DiceBear avataaars)
 data/                  kaynak tanımları, küratörlü kayıtlar, istisnalar, üretilen liste
 rules/core.json        statik DNR kuralları
 tools/                 derleme ve doğrulama betikleri
@@ -130,7 +133,7 @@ Kural öncelik merdiveni: sekme izni 110 > izin listesi 100 > özel engel 50 > e
 
 Liste hazır ama bilinçli bir kararla henüz gönderilmedi. Hazır olanlar:
 
-- `npm run package`, `dist/anti-ip-logger-1.0.0-cws.zip` üretir (yalnızca çalışma zamanı dosyaları; çıkarılan zip tüm tarayıcı kontrollerinden geçer).
+- `npm run package`, `dist/anti-ip-logger-1.1.0-cws.zip` üretir (yalnızca çalışma zamanı dosyaları; çıkarılan zip tüm tarayıcı kontrollerinden geçer).
 - `store/` klasöründe mağaza kiti: İngilizce ve Türkçe başlık metinleri, izin gerekçeleri, her dil için beşer 1280×800 ekran görüntüsü ve tanıtım karoları (440×280 ve 1400×560).
 - Gizlilik politikası `PRIVACY.md` içinde ve bağımsız `docs/privacy.html` sayfasında durur. Gönderim için herkese açık bir URL gerekir; depo şu an gizli, seçenekler için `store/README.md`'ye bakın.
 - Başvuru kontrol listesi, geliştirici kayıt ücreti notu ve yayın adımları `store/README.md` içinde.

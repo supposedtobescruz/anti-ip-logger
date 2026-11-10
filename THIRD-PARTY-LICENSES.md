@@ -99,6 +99,10 @@ Tam lisans metni: `assets/fonts/OFL.txt`. Özet ve SSS: https://openfontlicense.
 
 Yazı tipleri değiştirilmemiş WOFF2 dosyaları olarak gömülüdür. Alt kümeleme sırasında glifler azaltılmıştır; bu, OFL kapsamında izin verilen bir değişikliktir ve dosya adları korunmuştur.
 
+## Maskot
+
+`assets/mascot-scruize.svg` bir DiceBear avataaars üretimi (v10), `seed=corrupted` ile üretilmiştir. Avataaars tarzı Pablo Stanley tarafından oluşturulmuş, kişisel ve ticari kullanımda ücretsizdir. Stil kaynağı: https://www.avataaars.com/ ; üretim: https://www.dicebear.com/ . SVG, kişisel kullanıma uygun olarak yerel dosyaya dondurulmuştur; uzantı çalışma zamanında dicebear.com'a istekte bulunmaz. Bireysel değiştirilmemiş kopyası `assets/mascot-scruize.svg` içindedir.
+
 ## Araçlar
 
 ### antislop (MIT)

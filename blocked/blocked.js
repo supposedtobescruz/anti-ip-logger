@@ -1,5 +1,5 @@
 import { send, setBusy, toast } from "../assets/ui.js";
-import { t, applyI18n } from "../assets/i18n.js";
+import { t, applyI18n, initLanguage } from "../assets/i18n.js";
 
 const nodes = {
   sheet: document.getElementById("sheet"),
@@ -143,8 +143,10 @@ nodes.goBack.addEventListener("click", () => {
   else location.href = "../dashboard/dashboard.html#lists";
 });
 
-applyI18n();
-init().catch((error) => {
-  nodes.sheet.setAttribute("aria-busy", "false");
-  setFeedback(error instanceof Error ? error.message : String(error), "error");
+initLanguage().then(() => {
+  applyI18n();
+  init().catch((error) => {
+    nodes.sheet.setAttribute("aria-busy", "false");
+    setFeedback(error instanceof Error ? error.message : String(error), "error");
+  });
 });

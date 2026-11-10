@@ -1,6 +1,6 @@
 {
   "name": "anti-ip-logger",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "description": "Chrome extension that blocks IP logger and link grabber domains and reports in-page IP leak attempts.",
