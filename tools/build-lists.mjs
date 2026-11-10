@@ -2,8 +2,8 @@ import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { parseList, parseDnrJson, dedupeSubdomains } from "../lib/parser.js";
-import { RESOURCE_TYPES, MAX_DOMAINS_PER_RULE, MAX_DYNAMIC_RULES } from "../lib/constants.js";
+import { parseList, parseDnrJson, dedupeSubdomains, normalizeHost } from "../lib/parser.js";
+import { RESOURCE_TYPES, MAX_DOMAINS_PER_RULE, MAX_STATIC_RULES_PER_RULESET } from "../lib/constants.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = join(ROOT, "data");
@@ -44,7 +44,7 @@ async function fetchText(source) {
   try {
     const response = await fetch(source.url, {
       signal: controller.signal,
-      headers: { "user-agent": "anti-ip-logger/2.0 (+https://github.com/)" },
+      headers: { "user-agent": "anti-ip-logger/2.0 (+https://github.com/supposedtobescruz/anti-ip-logger)" },
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const text = await response.text();
@@ -83,6 +83,7 @@ async function loadSourceEntries() {
   const entries = [];
   const reports = [];
 
+  const remoteExceptions = new Set();
   for (const source of sources) {
     const report = {
       id: source.id,
@@ -100,6 +101,9 @@ async function loadSourceEntries() {
     try {
       const text = await fetchText(source);
       const parsed = source.format === "dnr-json" ? parseDnrJson(text) : parseList(text);
+      if (parsed.domains.length === 0 && text.trim().length > 0) {
+        throw new Error("source parsed to zero domains");
+      }
       for (const domain of parsed.domains) {
         entries.push({
           domain,
@@ -108,6 +112,7 @@ async function loadSourceEntries() {
           confidence: "source",
         });
       }
+      for (const exception of parsed.exceptions || []) remoteExceptions.add(exception);
       report.ok = true;
       report.count = parsed.domains.length;
       report.lines = parsed.stats.lines || 0;
@@ -123,7 +128,31 @@ async function loadSourceEntries() {
     }
   }
 
-  return { entries, reports };
+  return { entries, reports, exceptions: [...remoteExceptions].sort() };
+}
+
+function validateHosts(items, label) {
+  return items.map((item) => {
+    const normalized = normalizeHost(item);
+    if (!normalized) throw new Error(`${label}: invalid host "${item}"`);
+    return normalized;
+  });
+}
+
+function validateCurated(curated) {
+  if (!curated || !Array.isArray(curated.domains)) throw new Error("curated.json: domains array is missing");
+  for (const item of curated.domains) {
+    if (!item || typeof item !== "object") throw new Error("curated.json: entry must be an object");
+    const normalized = normalizeHost(item.domain);
+    if (!normalized) throw new Error(`curated.json: invalid host "${item.domain}"`);
+    if (!(item.category in CATEGORY_RANK) && item.category !== "custom") {
+      throw new Error(`curated.json: invalid category "${item.category}" for ${item.domain}`);
+    }
+    if (!["confirmed", "single"].includes(item.confidence)) {
+      throw new Error(`curated.json: invalid confidence "${item.confidence}" for ${item.domain}`);
+    }
+    item.domain = normalized;
+  }
 }
 
 function mergeEntries(rawEntries, curated, exceptions) {
@@ -196,7 +225,7 @@ function buildRules(domains) {
       resourceTypes: RESOURCE_TYPES,
     },
   }));
-  if (rules.length > MAX_DYNAMIC_RULES) {
+  if (rules.length > MAX_STATIC_RULES_PER_RULESET) {
     throw new Error(`Static rule limit exceeded: ${rules.length}`);
   }
   return rules;
@@ -215,18 +244,24 @@ async function main() {
   log(OFFLINE ? "Building from the committed offline dataset." : "Fetching core sources.");
   const curated = await readJson(join(DATA, "curated.json"));
   const exceptionConfig = await readJson(join(DATA, "exceptions.json"));
-  const exceptions = [...new Set(exceptionConfig.domains)].sort();
+  validateCurated(curated);
+  if (!Array.isArray(exceptionConfig.domains)) {
+    throw new Error("exceptions.json: domains array is missing");
+  }
+  const exceptions = [...new Set(validateHosts(exceptionConfig.domains, "exceptions.json"))].sort();
 
   let entries;
   let reports;
   if (OFFLINE) {
     const existing = await readJson(join(DATA, "core-domains.json"));
-    entries = existing.domains;
+    const exceptionSet = new Set(exceptions);
+    entries = (existing.domains || []).filter((entry) => removeExceptions([entry.domain], exceptionSet).length > 0);
     reports = existing.sources || [];
   } else {
     const loaded = await loadSourceEntries();
     reports = loaded.reports;
-    entries = mergeEntries(loaded.entries, curated, new Set(exceptions));
+    const allExceptions = new Set([...exceptions, ...loaded.exceptions]);
+    entries = mergeEntries(loaded.entries, curated, allExceptions);
   }
 
   const domains = entries.map((entry) => entry.domain).sort();

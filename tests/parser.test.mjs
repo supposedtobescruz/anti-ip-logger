@@ -57,10 +57,8 @@ test("parseDnrJson urlFilter ve requestDomains alanlarını okur", () => {
   assert.deepEqual(parsed.exceptions, ["example.com"]);
 });
 
-test("parseDnrJson bozuk JSON için boş sonuç döner", () => {
-  const parsed = parseDnrJson("{bozuk");
-  assert.deepEqual(parsed.domains, []);
-  assert.deepEqual(parsed.exceptions, []);
+test("parseDnrJson bozuk JSON için hata fırlatır", () => {
+  assert.throws(() => parseDnrJson("{bozuk"), /Invalid DNR JSON/);
 });
 
 test("mergeLists istisnaları engel listesinden çıkarır", () => {
