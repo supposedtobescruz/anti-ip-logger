@@ -52,7 +52,7 @@
       <p>None. The extension has no accounts, no analytics, no telemetry, no crash reporting and no remote logging. Nothing you do with it is sent anywhere by the extension itself.</p>
 
       <h2>Network requests</h2>
-      <p>The extension makes network requests only to refresh the built-in domain list. These requests go exclusively to the list source URLs published in the source tree (<code>data/sources.json</code>), over HTTPS, at most every six hours and when you press a refresh button. No other network requests are made. There are no cookies and no fingerprinting.</p>
+      <p>The extension makes network requests only to refresh the built-in domain list and to check for newer versions. List refresh requests go exclusively to the list source URLs published in the source tree (<code>data/sources.json</code>), over HTTPS, at most every six hours and when you press a refresh button. A daily version check fetches a single version string from a public gist (<code>https://gist.githubusercontent.com/supposedtobescruz/24839c62c646644124a1f0b76492c75f/raw/anti-ip-logger-version.json</code>) with no identifiers, no payload and no query data. No other network requests are made. There are no cookies and no fingerprinting.</p>
 
       <h2>What is stored, and where</h2>
       <p>Everything stays on your device.</p>
@@ -73,7 +73,7 @@
 
       <div class="tr" lang="tr">
         <h2>Türkçe özet</h2>
-        <p>Anti IP Logger hiçbir kişisel veri toplamaz. Hesap, analitik, telemetri yoktur. Uzantı yalnızca liste kaynakları üzerinden, HTTPS ile, liste tazelemek için ağ isteği yapar. Ayarlar, sayaçlar ve en fazla 500 kayıtlık olay kaydı (alan adı + kısa açıklama, asla tam URL yok) cihazda kalır. Engellenen gezinmenin tam URL'si sekme kapanana kadar <code>chrome.storage.session</code> içinde tutulur. WebRTC politikası uzantı kaldırılsa bile yerinde kalabilir; önce "Tarayıcı varsayılanı"nı seçip sonra kaldırın. Dilediğinizde panelden olay kaydını temizleyebilir, yedek alabilir ve tüm verileri sıfırlayabilirsiniz.</p>
+        <p>Anti IP Logger hiçbir kişisel veri toplamaz. Hesap, analitik, telemetri yoktur. Uzantı yalnızca iki amaçla ağ isteği yapar: liste tazeleme (<code>data/sources.json</code>, HTTPS) ve resmi bir gist'e günlük sürüm kontrolü (kimlik bilgisi içermeyen tek satır sürüm metni). Başka ağ isteği yoktur. Ayarlar, sayaçlar ve en fazla 500 kayıtlık olay kaydı (alan adı + kısa açıklama, asla tam URL yok) cihazda kalır. Engellenen gezinmenin tam URL'si sekme kapanana kadar <code>chrome.storage.session</code> içinde tutulur. WebRTC politikası uzantı kaldırılsa bile yerinde kalabilir; önce "Tarayıcı varsayılanı"nı seçip sonra kaldırın. Dilediğinizde panelden olay kaydını temizleyebilir, yedek alabilir ve tüm verileri sıfırlayabilirsiniz.</p>
       </div>
     </main>
   </body>

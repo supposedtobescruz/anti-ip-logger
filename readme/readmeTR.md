@@ -116,7 +116,7 @@ Kural öncelik merdiveni: sekme izni 110 > izin listesi 100 > özel engel 50 > e
 
 - Ayarlar, sayaçlar ve olay kaydı yalnızca `chrome.storage.local` içinde yaşar.
 - Sekme durumu `chrome.storage.session` içinde yaşar ve tarayıcı kapandığında silinir.
-- Liste güncellemeleri dışında ağ isteği yapılmaz; güncellemeler doğrudan tanımlı kaynaklara gider. Aracı sunucu yoktur.
+- Liste güncellemeleri dışında ağ isteği yapılmaz; güncellemeler doğrudan tanımlı kaynaklara gider. Buna ek olarak günlük bir sürüm kontrolü public gist'e gider ve tek satırlık sürüm metni döner. Aracı sunucu yoktur.
 - Olay kaydı en fazla 500 kayıt tutar: alan adı ve kısa bir açıklama; asla tam URL veya kişisel veri değil.
 
 ## Bilinen sınırlar
@@ -132,7 +132,7 @@ Kural öncelik merdiveni: sekme izni 110 > izin listesi 100 > özel engel 50 > e
 - Bilinen reklam, analitik, rıza (consent) yönetimi ve sosyal yerleştirme alan adları gizli iframe ve piksel taraması tarafından gürültü olarak kabul edilir. Bunlar bulgu üretmez. Liste `content/guard.js` içindedir ve genişletilebilir.
 - Banner, sayfa tarafından CSS veya JavaScript ile gizlenebilir veya kaldırılabilir. Engel listesi bundan etkilenmez; panel ve açılır pencere gerçeği göstermeye devam eder.
 - İçerik betiği MAIN world'de çalışır, bu yüzden sayfa JavaScript'i sinyal kanalını taklit edebilir. Engel listesi (DNR) yolu bundan etkilenmez; banner ve olay kaydı etkilenir.
-- `host_permissions`, içerik betikleriyle aynı kapsam olan `http://*/*` ve `https://*/*` değerlerini kapsar. `webNavigation`, değerlendirilen gezinmenin URL'sini açığa çıkarmak için kullanılır. Uzantı, tanımlı liste kaynakları dışında ağ isteği yapmaz.
+- `host_permissions`, içerik betikleriyle aynı kapsam olan `http://*/*` ve `https://*/*` değerlerini kapsar. `webNavigation`, değerlendirilen gezinmenin URL'sini açığa çıkarmak için kullanılır. Uzantı, tanımlı liste kaynakları ve günlük sürüm kontrolü dışında ağ isteği yapmaz.
 - Sinyaller her karede (iframe'ler dahil) toplanır ve üst sekmeye bağlanır. Banner yalnızca üst karede görünür.
 
 ## Chrome Web Store

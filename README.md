@@ -116,7 +116,7 @@ Rule priority ladder: tab allow 110 > allowlist 100 > custom block 50 > blocked 
 
 - Settings, counters and the event log live in `chrome.storage.local` only.
 - Tab state lives in `chrome.storage.session` and is wiped when the browser closes.
-- No network requests are made except list updates, which go directly to the defined sources. No intermediary server.
+- No network requests are made except list updates (which go directly to the defined sources) and a daily version check against a public gist that returns a single version string. No intermediary server.
 - The event log keeps at most 500 entries: host and a short detail, never full URLs or personal data.
 
 ## Known limits
@@ -132,7 +132,7 @@ Rule priority ladder: tab allow 110 > allowlist 100 > custom block 50 > blocked 
 - Known ad, analytics, consent and social embed domains are treated as noise by the hidden iframe and pixel scan. They produce no findings. The list lives in `content/guard.js` and is extensible.
 - The banner can be hidden or removed by the page via CSS or JavaScript. The blocklist is not affected; the panel and popup still show the truth.
 - The content script runs in the MAIN world, so page JavaScript can forge the signal channel. The blocklist (DNR) path is not affected; the banner and event log are.
-- `host_permissions` covers `http://*/*` and `https://*/*`, the same scope as the content scripts. `webNavigation` exposes the URL of the navigation being judged. The extension makes no network requests beyond the defined list sources.
+- `host_permissions` covers `http://*/*` and `https://*/*`, the same scope as the content scripts. `webNavigation` exposes the URL of the navigation being judged. The extension makes no network requests beyond the defined list sources and the daily version check.
 - Signals are collected in every frame (iframes included) and attached to the top tab. The banner only shows in the top frame.
 
 ## Chrome Web Store
