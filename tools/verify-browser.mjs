@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const EXTENSION_PATH = process.env.EXTENSION_PATH || ROOT;
 const OUT = join(ROOT, "verify-output");
 const PROFILE = join(tmpdir(), `anti-ip-logger-verify-${Date.now()}`);
 const PORT_FILE = join(PROFILE, "DevToolsActivePort");
@@ -193,10 +194,10 @@ async function run() {
       "--no-default-browser-check",
       "--disable-background-networking",
       `--user-data-dir=${PROFILE}`,
-      `--load-extension=${ROOT}`,
-      `--disable-extensions-except=${ROOT}`,
+      `--load-extension=${EXTENSION_PATH}`,
+      `--disable-extensions-except=${EXTENSION_PATH}`,
       "--remote-debugging-port=0",
-      "--lang=en-US",
+      `--lang=${process.env.BROWSER_LANG || "en-US"}`,
       "about:blank",
     ],
     { stdio: "ignore", windowsHide: true },

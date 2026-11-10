@@ -14,7 +14,8 @@
     "verify:browser": "node tools/verify-browser.mjs",
     "icons": "node tools/make-icons.mjs",
     "verify:all": "npm run check && npm test && npm run verify && npm run verify:ui",
-    "i18n:fallback": "node tools/build-i18n-fallback.mjs"
+    "i18n:fallback": "node tools/build-i18n-fallback.mjs",
+    "package": "node tools/package.mjs"
   },
   "engines": {
     "node": ">=20.12"
