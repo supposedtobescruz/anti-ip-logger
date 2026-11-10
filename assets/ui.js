@@ -29,6 +29,19 @@ export function resolvedTheme() {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
+export function onThemeChange(callback) {
+  const root = document.documentElement;
+  const observer = new MutationObserver(() => callback());
+  observer.observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+  const media = window.matchMedia("(prefers-color-scheme: dark)");
+  const mediaListener = () => callback();
+  if (typeof media.addEventListener === "function") media.addEventListener("change", mediaListener);
+  return () => {
+    observer.disconnect();
+    if (typeof media.removeEventListener === "function") media.removeEventListener("change", mediaListener);
+  };
+}
+
 export function toggleTheme(current) {
   return current === "dark" ? "light" : "dark";
 }

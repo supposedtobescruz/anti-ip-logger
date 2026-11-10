@@ -4,6 +4,7 @@ import {
   el,
   formatRelative,
   formatNumber,
+  onThemeChange,
   send,
   setBusy,
   toast,
@@ -202,13 +203,18 @@ function setRailStatus(settings) {
   nodes.railDot.dataset.tone = "safe";
 }
 
+function syncThemeLabel() {
+  const resolved = resolvedTheme();
+  const dark = resolved === "dark";
+  nodes.themeButton.textContent = t(dark ? "themeSwitchToLight" : "themeSwitchToDark");
+  nodes.themeButton.setAttribute("aria-label", t(dark ? "themeSwitchToLight" : "themeSwitchToDark"));
+}
+
 function renderTheme(settings) {
   const themeValue = settings && settings.theme ? settings.theme : "system";
   applyTheme(themeValue);
   nodes.setTheme.value = themeValue;
-  const resolved = resolvedTheme();
-  nodes.themeButton.textContent = resolved === "dark" ? t("themeSwitchToLight") : t("themeSwitchToDark");
-  nodes.themeButton.setAttribute("aria-label", t(resolved === "dark" ? "themeSwitchToLight" : "themeSwitchToDark"));
+  syncThemeLabel();
 }
 
 function renderOverview(data) {
@@ -707,6 +713,7 @@ function bind() {
 }
 
 applyI18n();
+onThemeChange(syncThemeLabel);
 navigate(currentRoute(), false);
 bind();
 load();

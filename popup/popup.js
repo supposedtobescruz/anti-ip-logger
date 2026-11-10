@@ -6,6 +6,7 @@ import {
   formatClock,
   formatNumber,
   formatRelative,
+  onThemeChange,
   resolvedTheme,
   send,
   setBusy,
@@ -57,14 +58,18 @@ let busy = false;
 let loading = false;
 let reloadQueued = false;
 
-function setTheme(themeValue) {
-  theme = themeValue;
-  applyTheme(themeValue);
+function syncThemeButton() {
   const resolved = resolvedTheme();
   nodes.themeGlyph.textContent = resolved === "dark" ? "☾" : "☀";
   const labelKey = resolved === "dark" ? "themeSwitchToLight" : "themeSwitchToDark";
   nodes.themeToggle.setAttribute("aria-label", t(labelKey));
   nodes.themeToggle.title = t(labelKey);
+}
+
+function setTheme(themeValue) {
+  theme = themeValue;
+  applyTheme(themeValue);
+  syncThemeButton();
 }
 
 function showLoading() {
@@ -275,6 +280,7 @@ nodes.themeToggle.addEventListener("click", async () => {
 });
 
 applyI18n();
+onThemeChange(syncThemeButton);
 load();
 
 if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.onChanged) {
