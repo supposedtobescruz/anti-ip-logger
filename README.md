@@ -1,114 +1,141 @@
 # Anti IP Logger
 
-IP logger ve link grabber alan adlarını engelleyen, sayfa içinde IP sızıntısı denemelerini raporlayan Chrome uzantısı. Manifest V3, derleme adımı gerektirmeyen vanilla JavaScript.
+**Languages:** English | [Türkçe](readme/readmeTR.md)
 
-Sürüm 2.0.0. Yerel liste 125 alan adı, 2 statik kural ve 61 istisna içerir.
+Anti IP Logger is a Chrome extension that blocks known IP logger and link grabber domains, then reports IP leak attempts it finds on the page. Manifest V3, vanilla JavaScript, no build step.
 
-## Ne yapar
+Version 2.0.0. The bundled list ships 125 domains in 2 static rules, with 61 exceptions.
 
-- Bilinen IP logger ve Grabify alan adlarına yapılan üst düzey gezinmeyi engeller.
-- Engellenen adres yerine ne olduğunu açıklayan bir sayfa gösterir; hedef sunucuya istek gitmez.
-- Sayfa içinde WebRTC ile IP sızıntısı, tıklamasız form gönderimi, gizli iframe, meta refresh ve takip pikseli sinyallerini izler.
-- Şüpheli davranışta sayfada uyarı bandı gösterir, panelde olay kaydı tutar.
-- Alan adı bazında izin listesi, özel engel listesi ve sekmeye özel geçici izin sunar.
-- Çekirdek listeyi kaynaklardan günceller; kaynaklar başarısız olursa mevcut listeyi korur.
+## What it does
 
-## Ne yapmaz
+- Blocks top-level navigation to known IP logger and Grabify-style domains before the request reaches the network stack.
+- Shows an explanation page instead of the blocked address. Nothing is sent to the target server.
+- Watches the page for IP leak signals: WebRTC candidate dumps, click-less form submits, hidden iframes and tracking pixels, meta refresh redirects, and pre-gesture third-party requests.
+- Shows an in-page warning banner only when the evidence justifies it (a danger-level finding, or two distinct warning categories at once). A single weak signal stays a badge in the popup.
+- Keeps an event log and lifetime counters in the panel, capped at the last 500 events.
+- Lets you allowlist domains, block custom domains, and grant one-tab temporary fixes.
+- Refreshes the core list from maintained sources. If sources fail, the previous list is kept; it never writes an empty list over a good one.
 
-- VPN değildir, IP adresini gizlemez.
-- DNS, e-posta veya tarayıcı dışı trafiği engellemez.
-- Görsel doğrulama yapmaz. Liste kaydı yanlış pozitif olabilir; izin listesi bunun için var.
-- Hiçbir veriyi uzak bir sunucuya göndermez. Liste güncellemesi dışında ağ isteği yapmaz.
+## What it does not do
 
-## Kurulum
+- It is not a VPN. It does not hide your IP address.
+- It does not filter DNS, email, or non-browser traffic.
+- It does not do visual inspection. A list entry can be a false positive; the allowlist exists for that.
+- It does not send anything to a remote server. No telemetry, no analytics, no crash reporting.
 
-1. Bu depoyu indir veya klonla.
-2. Chrome veya Brave'de `chrome://extensions` sayfasını aç.
-3. Sağ üstten "Geliştirici modu"nu aç.
-4. "Paketlenmemiş öğe yükle" ile depo kökünü seç.
-5. Kurulumdan sonra panel açılır. Araç çubuğundaki simge popup'ı açar.
+## Screenshots
 
-Depo kökünde `manifest.json` bulunmalıdır. Alt klasörü seçme.
+<img src="readme/assets/popup.png" alt="Popup showing the tab verdict, signal list and counters" width="360" />
+<img src="readme/assets/dashboard.png" alt="Dashboard overview with status band, tiles and recent events" width="720" />
 
-## Kullanım
+<img src="readme/assets/lists.png" alt="Dashboard lists view with searchable core list and allowlist management" width="720" />
+<img src="readme/assets/blocked.png" alt="Blocked page for a Grabify link with target URL and decision buttons" width="520" />
 
-- **Popup:** aktif sekmenin durumu, risk sinyalleri, sayaçlar ve son olaylar. "Siteyi engelle" özel listeye ekler, "İzin listesine ekle" alan adını muaf tutar, "Bu sekmede izin ver" yalnızca o sekme için geçerlidir.
-- **Panel:** Genel Bakış, Listeler, Olaylar, Kaynaklar, Ayarlar. Liste arama, özel ve izin listesi yönetimi, kaynak sağlığı, yedekleme, sıfırlama.
-- **Engel sayfası:** hedef adres, kayıt kaynağı ve üç karar: bu sekmede izin ver, kalıcı izin ver, geri dön.
+## Install
 
-## Veri ve kaynaklar
+1. Download or clone this repository.
+2. Open `chrome://extensions` in Chrome or Brave.
+3. Enable **Developer mode** (top right).
+4. Click **Load unpacked** and pick the repository root.
+5. The panel opens on install. The toolbar icon opens the popup.
 
-Çekirdek liste derleme sırasında üretilir:
+`manifest.json` must be in the directory you pick. Do not select a subfolder.
 
-| Kaynak | Lisans | Kullanım |
+## Usage
+
+- **Popup:** the verdict for the active tab, risk signals, counters, recent events. "Siteyi engelle" adds the host to your custom blocklist, "İzin listesine ekle" allowlists it, "Bu sekmede izin ver" grants a one-tab pass.
+- **Panel** (options page): Overview, Lists, Events, Sources, Settings. Search the core list, manage allow/custom lists, check source health, back up and reset your data.
+- **Blocked page:** the target URL, which list entry matched, and three decisions: allow once in this tab, allow the site permanently, or go back.
+
+The UI is in Turkish for now. English UI copy is planned; the language framework for this file exists already (see "Adding a language").
+
+## Data sources
+
+The core list is generated at build time. Nothing is fetched at install time.
+
+| Source | License | What it provides |
 |---|---|---|
-| TMAFE anti-grabify | MPL-2.0 | Grabify, IPLogger ve diğer servis alan adları |
-| PhishIndex IP logger listesi | MIT | IP logger alan adları |
-| DeGrabify düz alan adı listesi | Açık lisans belirtilmemiş, atıf verildi | Güncel Grabify alan adları |
-| Elle gözden geçirilmiş kayıtlar | Bu depo | Eksik kalan servisler ve istisnalar |
+| TMAFE anti-grabify | MPL-2.0 | Grabify, IPLogger and other service domains |
+| PhishIndex IP logger list | MIT | IP logger domains |
+| DeGrabify plain domain list | No explicit license, attribution given | Current Grabify domains |
+| Hand-reviewed entries | This repository | Services and exceptions the feeds miss |
 
-- İstisnalar derleme sırasında engel listesinden çıkarılır, varsayılan izin listesine yazılmaz. Kullanıcı izin listesi boş başlar.
-- Tehdit listesi isteğe bağlıdır ve varsayılan kapalıdır.
-- Ayrıntılar ve lisans metinleri: [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md).
+- Exceptions are removed at build time, not written into the default allowlist. The user allowlist starts empty.
+- The threat list is optional and off by default.
+- Source health is reported in the Sources tab; failures keep the previous list.
+- Details and full license texts: [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md).
 
-## Geliştirme
+## Development
 
-Node 20.12 veya üzeri gerekir. Bağımlılık yoktur.
+Node 20.12 or later. There are no dependencies and no build step.
 
 ```powershell
-npm run build           # kaynaklardan listeyi üret
-npm run build:offline   # kayıtlı veriden yeniden üret
-npm run check           # kayıtlı veri güncel mi
-npm test                # birim testleri
-npm run verify          # manifest, dosya, kural ve veri kontrolleri
-npm run verify:ui       # erişilebilirlik, kontrast ve arayüz kontrolleri
-npm run verify:browser  # Brave/Chrome ile gerçek yükleme ve ekran görüntüsü
-npm run verify:all      # check + test + statik doğrulamalar
+npm run build           # fetch sources and regenerate the list
+npm run build:offline   # regenerate from the committed dataset
+npm run check           # verify the committed dataset is in sync
+npm test                # unit tests
+npm run verify          # manifest, files, rules, data and em dash checks
+npm run verify:ui       # accessibility, contrast and interface checks
+npm run verify:browser  # load in Brave/Chrome and capture screenshots
+npm run verify:all      # check + test + verify + verify:ui
 ```
 
-Tarayıcı doğrulaması `verify-output/` altına ekran görüntüleri ve `report.json` yazar. Brave varsayılan yolunda yoksa `BRAVE_PATH` ortam değişkeni ile yol verilebilir.
+`verify:browser` writes screenshots and `report.json` into `verify-output/`. If Brave or Chrome is not in its default location, set `BRAVE_PATH` to the browser executable.
 
-### Mimari
+### Architecture
 
 ```
-background.js          servis çalışanı, mesaj yolu, DNR uygulama, senkronizasyon
-lib/constants.js       izinler, öncelikler, varsayılan ayarlar
-lib/parser.js          liste ayrıştırma, alan adı doğrulama, alt alan adı sadeleştirme
-lib/domains.js         kayıtlı alan adı ve eşleştirme yardımcıları
-lib/rules.js           dinamik DNR kuralı üretimi
-lib/dnr.js             kural uygulama, statik set, WebRTC politikası, rozet
-lib/risk.js            sinyal puanlama, karar ve Türkçe metinler
-lib/store.js           storage sarmalayıcıları, oturum durumu
-content/probe.js       MAIN dünyası: WebRTC, medya, konum, ağ, jest kancaları
-content/guard.js       izole dünya: DOM taraması, raporlama, shadow DOM bandı
-popup/ dashboard/ blocked/   arayüz sayfaları
-data/                  kaynak tanımı, özel kayıtlar, istisnalar, üretilen liste
-rules/core.json        statik DNR kuralları
-tools/                 derleme ve doğrulama betikleri
+background.js          service worker, message bus, DNR apply, sync
+lib/constants.js       permissions, priorities, default settings
+lib/parser.js          list parsing, host normalization, subdomain dedup
+lib/domains.js         registrable domain and matching helpers
+lib/rules.js           dynamic DNR rule generation
+lib/dnr.js             rule apply, static ruleset, WebRTC policy, badge
+lib/risk.js            signal scoring, verdicts and Turkish copy
+lib/store.js           storage wrappers, session tab state
+content/probe.js       MAIN world: WebRTC, media, geolocation, network hooks
+content/guard.js       isolated world: DOM scan, reporting, shadow DOM banner
+popup/ dashboard/ blocked/   interface pages
+data/                  source definitions, curated entries, exceptions, generated list
+rules/core.json        static DNR rules
+tools/                 build and verification scripts
 ```
 
-Kural önceliği: sekme izni 110 > izin listesi 100 > özel engel 50 > engel sayfası 40 > tehdit listesi 20 > çekirdek 10.
+Rule priority ladder: tab allow 110 > allowlist 100 > custom block 50 > blocked page 40 > threat list 20 > core 10.
 
-## Gizlilik
+## Privacy
 
-- Ayarlar, sayaçlar ve olay kaydı yalnızca `chrome.storage.local` içinde tutulur.
-- Sekme durumu `chrome.storage.session` içinde tutulur ve tarayıcı kapanınca silinir.
-- Liste güncellemesi dışında hiçbir ağ isteği yapılmaz. Güncelleme doğrudan kaynak adreslerine gider, aracı sunucu yoktur.
-- Olay kaydı en fazla 500 kayıt tutar, alan adı ve kısa açıklama içerir.
+- Settings, counters and the event log live in `chrome.storage.local` only.
+- Tab state lives in `chrome.storage.session` and is wiped when the browser closes.
+- No network requests are made except list updates, which go directly to the defined sources. No intermediary server.
+- The event log keeps at most 500 entries: host and a short detail, never full URLs or personal data.
 
-## Bilinen sınırlar
+## Known limits
 
-- WebRTC politikası tarayıcı genelinde geçerlidir. "Tarayıcı varsayılanı" seçildiğinde uzantı, daha önce kendisi değiştirmediyse ayara dokunmaz.
-- Liste güncellemesi internet erişimi gerektirir. Çevrimdışıyken yerel liste kullanılır.
-- Kaynaklar kısmen yanıt verdiğinde uzantı, önceki senkronizasyonun alan adlarını korur ve yeni kayıtları üzerine ekler; boş liste yazmaz.
-- Alan adı listesi zamanla eskir. Grabify benzeri servisler sık sık yeni alan adı açar.
-- Uyarı bandı yalnızca danger seviyesinde ya da en az iki farklı warn kategorisi aynı anda tespit edildiğinde gösterilir. Tek zayıf sinyal (tek piksel, tek gizli iframe, tek erken istek) sayfada band açmaz, popup'ta rozet ve bulgu listesinde görünür.
-- Bilinen reklam, ölçüm, consent ve sosyal embed alan adları gizli iframe/piksel taramasında gürültü olarak işaretlenir; bunlar sinyal üretmez. Liste `content/guard.js` içindedir ve genişletilebilir.
-- Uyarı bandı sayfa tarafından CSS veya JavaScript ile gizlenebilir ya da DOM'dan kaldırılabilir. Engel listesi bu durumdan etkilenmez; panel ve popup her zaman doğru durumu gösterir.
-- İçerik betiği MAIN dünyada çalışır ve sayfa JavaScript'i sinyal kuyruğuna sahte sinyal yazabilir. Engelleme yolu (DNR) bundan etkilenmez; uyarı bandı ve olay kaydı etkilenebilir.
-- `host_permissions <all_urls>` gereklidir: `webNavigation` olaylarının URL alanının okunması ve içerik betiklerinin tüm sayfalarda çalışması buna bağlıdır. Uzantı, tanımlı liste kaynakları dışında hiçbir ağ isteği yapmaz ve hiçbir veriyi dışarı göndermez.
-- Sinyaller tüm alt çerçevelerde (iframe) toplanır ve üst sayfaya bağlanır; uyarı bandı yalnızca üst çerçevede gösterilir.
+- The WebRTC policy is browser-wide. "Browser default" leaves the policy untouched unless the extension changed it earlier and recorded a marker for it.
+- List updates need network access. Offline, the bundled list is used.
+- If a source partially fails, the extension keeps entries from the previous sync and adds new ones on top. It never writes an empty list over a good one.
+- The domain list ages. Grabify-style services rotate domains regularly.
+- The warning banner appears only for a danger finding or two distinct warning categories at once. A single weak signal (one pixel, one hidden iframe, one early request) does not raise the banner; it shows as a badge and a finding in the popup.
+- Known ad, analytics, consent and social embed domains are treated as noise by the hidden iframe and pixel scan. They produce no findings. The list lives in `content/guard.js` and is extensible.
+- The banner can be hidden or removed by the page via CSS or JavaScript. The blocklist is not affected; the panel and popup still show the truth.
+- The content script runs in the MAIN world, so page JavaScript can forge the signal channel. The blocklist (DNR) path is not affected; the banner and event log are.
+- `host_permissions <all_urls>` is required: `webNavigation` needs it to expose the URL of the navigation being judged, and content scripts must match every page. The extension makes no network requests beyond the defined list sources.
+- Signals are collected in every frame (iframes included) and attached to the top tab. The banner only shows in the top frame.
 
-## Lisans
+## Adding a language
 
-Kod MIT lisansı ile yayınlanır. Üçüncü taraf veri ve yazı tiplerinin lisansları ayrıdır, [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md) dosyasına bak.
+This file is the English source of truth. Translations live in the `readme/` folder and follow the same structure, so a translator can work section by section:
+
+1. Copy `readme/readmeTR.md` to `readme/readme<CODE>.md` (uppercase ISO 639-1, for example `readme/readmeDE.md`).
+2. Translate the text. Keep file paths, commands, code blocks, URLs and brand names unchanged.
+3. Add the new language to the language line at the top of this file and at the top of the translated file.
+4. Open a pull request. A native speaker review is appreciated.
+
+Available translations:
+
+- [Türkçe](readme/readmeTR.md)
+
+## License
+
+The code is MIT licensed. Third-party data and fonts have their own licenses; see [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md).
