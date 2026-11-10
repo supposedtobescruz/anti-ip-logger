@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { assessRisk, describeVerdict, emptySignals, mergeSignals, verdictFor } from "../lib/risk.js";
 
 test("no signal returns risk none", () => {
@@ -99,9 +100,28 @@ test("verdict order prioritizes allow, logger and risk", () => {
 });
 
 test("every verdict has localized text", () => {
+  const en = JSON.parse(readFileSync(new URL("../_locales/en/messages.json", import.meta.url), "utf8"));
+  const tEn = (key) => en[key] && en[key].message;
+  const required = [
+    "verdictOffLabel", "verdictOffHeadline", "verdictOffDetail",
+    "verdictAllowedLabel", "verdictAllowedHeadline", "verdictAllowedDetail",
+    "verdictLoggerLabel", "verdictLoggerHeadline", "verdictLoggerDetail",
+    "verdictBlockedLabel", "verdictBlockedHeadline", "verdictBlockedDetail",
+    "verdictDangerLabel", "verdictDangerHeadline", "verdictDangerDetail",
+    "verdictWarnLabel", "verdictWarnHeadline", "verdictWarnDetail",
+    "verdictInfoLabel", "verdictInfoHeadline", "verdictInfoDetail",
+    "verdictCleanLabel", "verdictCleanHeadline", "verdictCleanDetail",
+    "verdictIdleLabel", "verdictIdleHeadline", "verdictIdleDetail",
+  ];
+  for (const key of required) assert.ok(tEn(key) && tEn(key).length > 0, `missing ${key}`);
   for (const verdict of ["off", "allowed", "logger", "blocked", "danger", "warn", "info", "clean", "idle"]) {
-    const copy = describeVerdict(verdict);
+    const copy = describeVerdict(verdict, tEn);
+    assert.ok(copy.label.length > 0);
     assert.ok(copy.headline.length > 5);
     assert.ok(["muted", "info", "danger", "warn", "safe"].includes(copy.tone));
   }
+});
+
+test("translate is required for describeVerdict", () => {
+  assert.throws(() => describeVerdict("idle"), /translate/);
 });
