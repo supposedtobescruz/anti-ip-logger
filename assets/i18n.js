@@ -1,8 +1,20 @@
+import { EN_FALLBACK } from "./i18n-en.js";
+
+function interpolate(message, substitutions) {
+  if (!substitutions || substitutions.length === 0) return message;
+  return message.replace(/\$(\d)/g, (match, index) => {
+    const value = substitutions[Number(index) - 1];
+    return value === undefined ? match : String(value);
+  });
+}
+
 export function t(key, substitutions) {
   if (typeof chrome !== "undefined" && chrome.i18n && typeof chrome.i18n.getMessage === "function") {
     const value = chrome.i18n.getMessage(key, substitutions || []);
     if (value) return value;
   }
+  const fallback = EN_FALLBACK[key];
+  if (fallback !== undefined) return interpolate(fallback, substitutions);
   return key;
 }
 

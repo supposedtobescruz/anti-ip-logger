@@ -5,15 +5,16 @@
   "type": "module",
   "description": "Chrome extension that blocks IP logger and link grabber domains and reports in-page IP leak attempts.",
   "scripts": {
-    "build": "node tools/build-lists.mjs",
-    "build:offline": "node tools/build-lists.mjs --offline",
+    "build": "node tools/build-lists.mjs && node tools/build-i18n-fallback.mjs",
+    "build:offline": "node tools/build-lists.mjs --offline && node tools/build-i18n-fallback.mjs",
     "check": "node tools/build-lists.mjs --offline --check",
     "test": "node --test \"tests/*.test.mjs\"",
     "verify": "node tools/verify-extension.mjs",
     "verify:ui": "node tools/verify-ui.mjs",
     "verify:browser": "node tools/verify-browser.mjs",
     "icons": "node tools/make-icons.mjs",
-    "verify:all": "npm run check && npm test && npm run verify && npm run verify:ui"
+    "verify:all": "npm run check && npm test && npm run verify && npm run verify:ui",
+    "i18n:fallback": "node tools/build-i18n-fallback.mjs"
   },
   "engines": {
     "node": ">=20.12"
