@@ -1,0 +1,91 @@
+{
+  "version": 2,
+  "counts": {
+    "domains": 125,
+    "rules": 2,
+    "exceptions": 61,
+    "grabify": 75,
+    "iplogger": 34,
+    "other": 16,
+    "tracker": 0,
+    "threat": 0,
+    "custom": 0,
+    "confirmed": 91,
+    "single": 34
+  },
+  "categories": {
+    "grabify": "Grabify ve benzeri link grabber servisleri",
+    "iplogger": "IPLogger ailesi ve benzeri servisler",
+    "other": "Diğer IP toplama ve kısa bağlantı servisleri",
+    "tracker": "İzleyici altyapısı",
+    "threat": "İsteğe bağlı tehdit listesi",
+    "custom": "Kullanıcı kuralı"
+  },
+  "sources": [
+    {
+      "id": "tmafe-grabify",
+      "name": "TMAFE anti-grabify, Grabify domains",
+      "tier": "core",
+      "category": "grabify",
+      "license": "MPL-2.0",
+      "project": "https://github.com/TMAFE/anti-grabify",
+      "url": "https://raw.githubusercontent.com/TMAFE/anti-grabify/master/chrome/grabify-urls.json",
+      "ok": true,
+      "count": 48,
+      "lines": 48,
+      "error": ""
+    },
+    {
+      "id": "tmafe-iplogger",
+      "name": "TMAFE anti-grabify, IPLogger domains",
+      "tier": "core",
+      "category": "iplogger",
+      "license": "MPL-2.0",
+      "project": "https://github.com/TMAFE/anti-grabify",
+      "url": "https://raw.githubusercontent.com/TMAFE/anti-grabify/master/chrome/iplogger-urls.json",
+      "ok": true,
+      "count": 19,
+      "lines": 19,
+      "error": ""
+    },
+    {
+      "id": "tmafe-other",
+      "name": "TMAFE anti-grabify, other services",
+      "tier": "core",
+      "category": "other",
+      "license": "MPL-2.0",
+      "project": "https://github.com/TMAFE/anti-grabify",
+      "url": "https://raw.githubusercontent.com/TMAFE/anti-grabify/master/chrome/other-urls.json",
+      "ok": true,
+      "count": 9,
+      "lines": 9,
+      "error": ""
+    },
+    {
+      "id": "degrabify",
+      "name": "DeGrabify plain domain list",
+      "tier": "core",
+      "category": "grabify",
+      "license": "Atıf, açık lisans belirtilmemiş",
+      "project": "https://github.com/JonasLong/DeGrabify",
+      "url": "https://gist.githubusercontent.com/JonasLong/82e98e4072ba592f130edc53cdaa386d/raw/DeGrabify%20Plain%20Domain%20Blocklist",
+      "ok": true,
+      "count": 67,
+      "lines": 67,
+      "error": ""
+    },
+    {
+      "id": "phishindex-iplogger",
+      "name": "PhishIndex IP logger domains",
+      "tier": "core",
+      "category": "iplogger",
+      "license": "MIT",
+      "project": "https://github.com/PhishIndex/phishindex-blocklist",
+      "url": "https://raw.githubusercontent.com/PhishIndex/phishindex-blocklist/main/Data/IP%20Logger%20Domains/ip_logger_domains.txt",
+      "ok": true,
+      "count": 51,
+      "lines": 52,
+      "error": ""
+    }
+  ]
+}

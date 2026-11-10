@@ -1,0 +1,1196 @@
+{
+  "version": 2,
+  "domains": [
+    {
+      "domain": "02ip.ru",
+      "category": "iplogger",
+      "sources": [
+        "tmafe-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "2no.co",
+      "category": "iplogger",
+      "sources": [
+        "tmafe-iplogger",
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "account.beauty",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify",
+        "phishindex-iplogger"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "barefoot.pics",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "bathtub.pics",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "bc.ax",
+      "category": "iplogger",
+      "sources": [
+        "tmafe-iplogger",
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "bitly.soon.it",
+      "category": "iplogger",
+      "sources": [
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "blasze.com",
+      "category": "other",
+      "sources": [
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "blasze.tk",
+      "category": "other",
+      "sources": [
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "catsnthing.com",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "catsnthings.fun",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "cheapcinema.club",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "clickthis.photo",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "cliinp.net",
+      "category": "other",
+      "sources": [
+        "curated"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "cliip.net",
+      "category": "iplogger",
+      "sources": [
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "cob.soy",
+      "category": "other",
+      "sources": [
+        "tmafe-other",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "cryp-o.online",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify",
+        "phishindex-iplogger"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "crypto-o.click",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify",
+        "phishindex-iplogger"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "customer.autos",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "customersupport.click",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "dateing.club",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "ed.tc",
+      "category": "iplogger",
+      "sources": [
+        "tmafe-iplogger",
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "ezstat.ru",
+      "category": "iplogger",
+      "sources": [
+        "tmafe-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "foot.wiki",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify",
+        "phishindex-iplogger"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "fortnight.space",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "fortnitechat.site",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "gamer.hair",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "gamer.tattoo",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "gamergirl.pro",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "gamingfun.me",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify",
+        "phishindex-iplogger"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "goo.by",
+      "category": "other",
+      "sources": [
+        "tmafe-other",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "googl.root.sx",
+      "category": "iplogger",
+      "sources": [
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "grabb.site",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "grabify.icu",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "grabify.link",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify",
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "grabify.org",
+      "category": "grabify",
+      "sources": [
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "grabify.world",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "grabifyicu.com",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "gyazo.nl",
+      "category": "other",
+      "sources": [
+        "tmafe-other",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "hd.gd",
+      "category": "iplogger",
+      "sources": [
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "headshot.monster",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "ikwyd.com",
+      "category": "other",
+      "sources": [
+        "tmafe-other",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "imagehost.pics",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "imagehub.fun",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify",
+        "phishindex-iplogger"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "imagestash.pics",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "imagevault.cloud",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "imghost.pics",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "ip-trap.com",
+      "category": "other",
+      "sources": [
+        "tmafe-other",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "ipgrabber.ru",
+      "category": "iplogger",
+      "sources": [
+        "tmafe-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "ipgraber.ru",
+      "category": "iplogger",
+      "sources": [
+        "tmafe-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "iplis.ru",
+      "category": "iplogger",
+      "sources": [
+        "tmafe-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "iplist.ru",
+      "category": "iplogger",
+      "sources": [
+        "tmafe-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "iplog.co",
+      "category": "iplogger",
+      "sources": [
+        "tmafe-iplogger",
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "iplogger.cn",
+      "category": "iplogger",
+      "sources": [
+        "tmafe-iplogger",
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "iplogger.co",
+      "category": "iplogger",
+      "sources": [
+        "tmafe-iplogger",
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "iplogger.com",
+      "category": "iplogger",
+      "sources": [
+        "tmafe-iplogger",
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "iplogger.icu",
+      "category": "iplogger",
+      "sources": [
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "iplogger.info",
+      "category": "iplogger",
+      "sources": [
+        "tmafe-iplogger",
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "iplogger.org",
+      "category": "iplogger",
+      "sources": [
+        "tmafe-iplogger",
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "iplogger.ru",
+      "category": "iplogger",
+      "sources": [
+        "tmafe-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "iplogger.site",
+      "category": "iplogger",
+      "sources": [
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "joinmy.site",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "lnkto.mine.bz",
+      "category": "iplogger",
+      "sources": [
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "location.cyou",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify",
+        "phishindex-iplogger"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "map-s.online",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify",
+        "phishindex-iplogger"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "maper.info",
+      "category": "iplogger",
+      "sources": [
+        "tmafe-iplogger",
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "mapss.icu",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "massive.boats",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "massive.mom",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "mymap.icu",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify",
+        "phishindex-iplogger"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "mymap.quest",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify",
+        "phishindex-iplogger"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "mymassive.pics",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "mymassive.store",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "mymassive.top",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "mymassive.yachts",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "mypicparade.pics",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "myprivate.pics",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify",
+        "phishindex-iplogger"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "myprivate.yachts",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "noodshare.pics",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "onbit.pro",
+      "category": "iplogger",
+      "sources": [
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "owly.home.kg",
+      "category": "iplogger",
+      "sources": [
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "photospace.life",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify",
+        "phishindex-iplogger"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "photovault.pics",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "photovault.store",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify",
+        "phishindex-iplogger"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "pichost.pics",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "picshare.hair",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "picshare.mom",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "picshost.pics",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "picturestash.mom",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "plz.life",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "progaming.monster",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "ps3cfw.co",
+      "category": "other",
+      "sources": [
+        "curated"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "ps3cfw.com",
+      "category": "other",
+      "sources": [
+        "tmafe-other",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "rikiki.site",
+      "category": "other",
+      "sources": [
+        "curated"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "screenshare.pics",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify",
+        "phishindex-iplogger"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "screenshot.best",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "screensnaps.top",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify",
+        "phishindex-iplogger"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "shareit.pics",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "sharevault.cloud",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify",
+        "phishindex-iplogger"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "shipment.website",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "shrekis.life",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify",
+        "phishindex-iplogger"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "snifferip.com",
+      "category": "iplogger",
+      "sources": [
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "spylink.net",
+      "category": "iplogger",
+      "sources": [
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "srturl.link",
+      "category": "iplogger",
+      "sources": [
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "stonks.boats",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "stonks.fun",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "stopify.co",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify",
+        "phishindex-iplogger"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "sugma.mom",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "thisdomainislong.lol",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "tinyurl.info.gf",
+      "category": "iplogger",
+      "sources": [
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "toes.beauty",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "toldyouso.lol",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "toldyouso.pics",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "tracker.iplocation.net",
+      "category": "other",
+      "sources": [
+        "tmafe-other",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "unl.one",
+      "category": "iplogger",
+      "sources": [
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "urito.me",
+      "category": "other",
+      "sources": [
+        "curated"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "urlto.me",
+      "category": "iplogger",
+      "sources": [
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "whatstheirip.com",
+      "category": "other",
+      "sources": [
+        "curated"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "wl.gl",
+      "category": "iplogger",
+      "sources": [
+        "tmafe-iplogger",
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "xn--yutube-iq4b.com",
+      "category": "other",
+      "sources": [
+        "tmafe-other",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "xtube.chat",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify",
+        "phishindex-iplogger"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "yip.su",
+      "category": "iplogger",
+      "sources": [
+        "tmafe-iplogger",
+        "phishindex-iplogger",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "yourmy.monster",
+      "category": "grabify",
+      "sources": [
+        "degrabify"
+      ],
+      "confidence": "single"
+    },
+    {
+      "domain": "ythingy.com",
+      "category": "other",
+      "sources": [
+        "tmafe-other",
+        "curated"
+      ],
+      "confidence": "confirmed"
+    },
+    {
+      "domain": "yum.mom",
+      "category": "grabify",
+      "sources": [
+        "tmafe-grabify",
+        "degrabify"
+      ],
+      "confidence": "confirmed"
+    }
+  ],
+  "sources": [
+    {
+      "id": "tmafe-grabify",
+      "name": "TMAFE anti-grabify, Grabify domains",
+      "tier": "core",
+      "category": "grabify",
+      "license": "MPL-2.0",
+      "project": "https://github.com/TMAFE/anti-grabify",
+      "url": "https://raw.githubusercontent.com/TMAFE/anti-grabify/master/chrome/grabify-urls.json",
+      "ok": true,
+      "count": 48,
+      "lines": 48,
+      "error": ""
+    },
+    {
+      "id": "tmafe-iplogger",
+      "name": "TMAFE anti-grabify, IPLogger domains",
+      "tier": "core",
+      "category": "iplogger",
+      "license": "MPL-2.0",
+      "project": "https://github.com/TMAFE/anti-grabify",
+      "url": "https://raw.githubusercontent.com/TMAFE/anti-grabify/master/chrome/iplogger-urls.json",
+      "ok": true,
+      "count": 19,
+      "lines": 19,
+      "error": ""
+    },
+    {
+      "id": "tmafe-other",
+      "name": "TMAFE anti-grabify, other services",
+      "tier": "core",
+      "category": "other",
+      "license": "MPL-2.0",
+      "project": "https://github.com/TMAFE/anti-grabify",
+      "url": "https://raw.githubusercontent.com/TMAFE/anti-grabify/master/chrome/other-urls.json",
+      "ok": true,
+      "count": 9,
+      "lines": 9,
+      "error": ""
+    },
+    {
+      "id": "degrabify",
+      "name": "DeGrabify plain domain list",
+      "tier": "core",
+      "category": "grabify",
+      "license": "Atıf, açık lisans belirtilmemiş",
+      "project": "https://github.com/JonasLong/DeGrabify",
+      "url": "https://gist.githubusercontent.com/JonasLong/82e98e4072ba592f130edc53cdaa386d/raw/DeGrabify%20Plain%20Domain%20Blocklist",
+      "ok": true,
+      "count": 67,
+      "lines": 67,
+      "error": ""
+    },
+    {
+      "id": "phishindex-iplogger",
+      "name": "PhishIndex IP logger domains",
+      "tier": "core",
+      "category": "iplogger",
+      "license": "MIT",
+      "project": "https://github.com/PhishIndex/phishindex-blocklist",
+      "url": "https://raw.githubusercontent.com/PhishIndex/phishindex-blocklist/main/Data/IP%20Logger%20Domains/ip_logger_domains.txt",
+      "ok": true,
+      "count": 51,
+      "lines": 52,
+      "error": ""
+    }
+  ]
+}

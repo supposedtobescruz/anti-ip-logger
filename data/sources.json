@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": "tmafe-grabify",
+      "name": "TMAFE anti-grabify, Grabify domains",
+      "url": "https://raw.githubusercontent.com/TMAFE/anti-grabify/master/chrome/grabify-urls.json",
+      "format": "dnr-json",
+      "tier": "core",
+      "category": "grabify",
+      "license": "MPL-2.0",
+      "project": "https://github.com/TMAFE/anti-grabify",
+      "required": true
+    },
+    {
+      "id": "tmafe-iplogger",
+      "name": "TMAFE anti-grabify, IPLogger domains",
+      "url": "https://raw.githubusercontent.com/TMAFE/anti-grabify/master/chrome/iplogger-urls.json",
+      "format": "dnr-json",
+      "tier": "core",
+      "category": "iplogger",
+      "license": "MPL-2.0",
+      "project": "https://github.com/TMAFE/anti-grabify",
+      "required": true
+    },
+    {
+      "id": "tmafe-other",
+      "name": "TMAFE anti-grabify, other services",
+      "url": "https://raw.githubusercontent.com/TMAFE/anti-grabify/master/chrome/other-urls.json",
+      "format": "dnr-json",
+      "tier": "core",
+      "category": "other",
+      "license": "MPL-2.0",
+      "project": "https://github.com/TMAFE/anti-grabify",
+      "required": true
+    },
+    {
+      "id": "degrabify",
+      "name": "DeGrabify plain domain list",
+      "url": "https://gist.githubusercontent.com/JonasLong/82e98e4072ba592f130edc53cdaa386d/raw/DeGrabify%20Plain%20Domain%20Blocklist",
+      "format": "text",
+      "tier": "core",
+      "category": "grabify",
+      "license": "Atıf, açık lisans belirtilmemiş",
+      "project": "https://github.com/JonasLong/DeGrabify",
+      "required": true
+    },
+    {
+      "id": "phishindex-iplogger",
+      "name": "PhishIndex IP logger domains",
+      "url": "https://raw.githubusercontent.com/PhishIndex/phishindex-blocklist/main/Data/IP%20Logger%20Domains/ip_logger_domains.txt",
+      "format": "text",
+      "tier": "core",
+      "category": "iplogger",
+      "license": "MIT",
+      "project": "https://github.com/PhishIndex/phishindex-blocklist",
+      "required": true
+    },
+    {
+      "id": "phishindex-malicious",
+      "name": "PhishIndex malicious domains",
+      "url": "https://raw.githubusercontent.com/PhishIndex/phishindex-blocklist/main/Data/Malicious%20Domains/txt/all_domains.txt",
+      "format": "text",
+      "tier": "extended",
+      "category": "threat",
+      "license": "MIT",
+      "project": "https://github.com/PhishIndex/phishindex-blocklist",
+      "required": false,
+      "maxBytes": 12582912
+    },
+    {
+      "id": "destroylist",
+      "name": "phishdestroy destroylist",
+      "url": "https://raw.githubusercontent.com/phishdestroy/destroylist/main/list.txt",
+      "format": "text",
+      "tier": "extended",
+      "category": "threat",
+      "license": "MIT",
+      "project": "https://github.com/phishdestroy/destroylist",
+      "required": false,
+      "maxBytes": 12582912
+    }
+  ]
+}
