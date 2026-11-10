@@ -102,7 +102,8 @@ Kural önceliği: sekme izni 110 > izin listesi 100 > özel engel 50 > engel say
 - Liste güncellemesi internet erişimi gerektirir. Çevrimdışıyken yerel liste kullanılır.
 - Kaynaklar kısmen yanıt verdiğinde uzantı, önceki senkronizasyonun alan adlarını korur ve yeni kayıtları üzerine ekler; boş liste yazmaz.
 - Alan adı listesi zamanla eskir. Grabify benzeri servisler sık sık yeni alan adı açar.
-- Gizli iframe ve piksel tespiti sezgiseldir; reklam ve analitik alan adları filtrelenir ama yanlış pozitif ihtimali sıfır değildir.
+- Uyarı bandı yalnızca danger seviyesinde ya da en az iki farklı warn kategorisi aynı anda tespit edildiğinde gösterilir. Tek zayıf sinyal (tek piksel, tek gizli iframe, tek erken istek) sayfada band açmaz, popup'ta rozet ve bulgu listesinde görünür.
+- Bilinen reklam, ölçüm, consent ve sosyal embed alan adları gizli iframe/piksel taramasında gürültü olarak işaretlenir; bunlar sinyal üretmez. Liste `content/guard.js` içindedir ve genişletilebilir.
 - Uyarı bandı sayfa tarafından CSS veya JavaScript ile gizlenebilir ya da DOM'dan kaldırılabilir. Engel listesi bu durumdan etkilenmez; panel ve popup her zaman doğru durumu gösterir.
 - İçerik betiği MAIN dünyada çalışır ve sayfa JavaScript'i sinyal kuyruğuna sahte sinyal yazabilir. Engelleme yolu (DNR) bundan etkilenmez; uyarı bandı ve olay kaydı etkilenebilir.
 - `host_permissions <all_urls>` gereklidir: `webNavigation` olaylarının URL alanının okunması ve içerik betiklerinin tüm sayfalarda çalışması buna bağlıdır. Uzantı, tanımlı liste kaynakları dışında hiçbir ağ isteği yapmaz ve hiçbir veriyi dışarı göndermez.

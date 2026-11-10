@@ -4,6 +4,8 @@
   if (window[FLAG]) return;
   window[FLAG] = true;
 
+  const IS_TOP = window.top === window;
+
   const state = {
     gesture: false,
     webrtcCreated: 0,
@@ -91,13 +93,15 @@
   }
 
   function noteRequest(url) {
+    if (!IS_TOP) return;
     if (!url) return;
     const host = hostOf(url);
     if (!host || !/^https?:/i.test(String(url))) return;
+    if (sameSite(host, location.hostname)) return;
     state.requestTotal += 1;
     if (!state.gesture) {
       state.preGestureRequests += 1;
-      if (!sameSite(host, location.hostname) && !state.thirdPartyHosts.includes(host) && state.thirdPartyHosts.length < 20) {
+      if (!state.thirdPartyHosts.includes(host) && state.thirdPartyHosts.length < 20) {
         state.thirdPartyHosts.push(host);
       }
     }

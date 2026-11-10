@@ -43,6 +43,45 @@ test("mergeSignals listeleri birleştirir, sayaçları monoton tutar", () => {
   assert.equal(second.hiddenPixels.length, 2);
 });
 
+test("tek gizli piksel yalnızca info üretir, banner açmaz", () => {
+  const signals = { ...emptySignals(), hiddenPixels: ["https://tracker.example.com/p.gif"] };
+  const risk = assessRisk({ signals });
+  assert.equal(risk.level, "info");
+  assert.equal(risk.banner, false);
+});
+
+test("tek meta refresh warn sayılır ama banner açmaz", () => {
+  const signals = { ...emptySignals(), metaRefresh: ["example.com"] };
+  const risk = assessRisk({ signals });
+  assert.equal(risk.level, "warn");
+  assert.equal(risk.banner, false);
+});
+
+test("iki farklı warn kategorisi banner açar", () => {
+  const signals = { ...emptySignals(), metaRefresh: ["example.com"], hiddenFrames: ["https://hidden.example.net/frame"] };
+  const risk = assessRisk({ signals });
+  assert.equal(risk.level, "warn");
+  assert.equal(risk.banner, true);
+});
+
+test("gizli çerçeve gesture yokken warn üretir, danger üretmez", () => {
+  const signals = { ...emptySignals(), hiddenFrames: ["https://hidden.example.net/frame"] };
+  const risk = assessRisk({ signals, gesture: false });
+  assert.equal(risk.level, "warn");
+});
+
+test("danger seviyesi banner açar", () => {
+  const risk = assessRisk({ signals: emptySignals(), knownLogger: true });
+  assert.equal(risk.banner, true);
+});
+
+test("erken dış istekler en az beş üçüncü taraf isteği ister", () => {
+  const four = assessRisk({ signals: { ...emptySignals(), preGestureRequests: 4 } });
+  assert.equal(four.findings.find((finding) => finding.id === "early-requests"), undefined);
+  const five = assessRisk({ signals: { ...emptySignals(), preGestureRequests: 5 } });
+  assert.equal(five.findings.find((finding) => finding.id === "early-requests").id, "early-requests");
+});
+
 test("zayıf bulguların toplamı tehlikeye yükseltmez", () => {
   const signals = { ...emptySignals(), metaRefresh: ["example.com"], hiddenPixels: ["https://tracker.example.com/p.gif"], preGestureRequests: 5 };
   const risk = assessRisk({ signals });

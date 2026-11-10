@@ -38,11 +38,45 @@
   ]);
 
   const NOISY = [
-    "google-analytics.com", "googletagmanager.com", "doubleclick.net", "hotjar.com",
-    "mixpanel.com", "segment.com", "amplitude.com", "facebook.net", "clarity.ms",
-    "cloudflare.com", "cdn.jsdelivr.net", "unpkg.com", "cdnjs.cloudflare.com",
-    "fonts.gstatic.com", "ajax.googleapis.com", "youtube.com", "ytimg.com",
-    "discord.com", "discordapp.com", "telegram.org", "t.me",
+    // Analytics and product telemetry
+    "google-analytics.com", "googletagmanager.com", "stats.wp.com", "hotjar.com",
+    "mixpanel.com", "segment.com", "amplitude.com", "clarity.ms", "chartbeat.com",
+    "getclicky.com", "umami.is", "simpleanalytics.com", "matomo.cloud", "plausible.io",
+    "usefathom.com", "posthog.com", "heap.io", "mouseflow.com", "inspectlet.com",
+    "smartlook.com", "crazyegg.com", "luckyorange.com", "scorecardresearch.com",
+    "quantserve.com", "fullstory.com", "logrocket.com", "newrelic.com", "nr-data.net",
+    "datadoghq.com", "sentry.io", "fathom.com", "cloudflareinsights.com", "comscore.com",
+    // Ad tech, SSPs, DSP and verification
+    "doubleclick.net", "googlesyndication.net", "googleadservices.com", "googletagservices.com",
+    "adservice.google.com", "2mdn.net", "gstatic.com",
+    "casalemedia.com", "pubmatic.com", "rubiconproject.com", "criteo.com", "criteo.net",
+    "adform.net", "smartadserver.com", "adnxs.com", "adsrvr.org", "amazon-adsystem.com",
+    "advertising.com", "openx.net", "sharethrough.com", "media.net", "outbrain.com",
+    "taboola.com", "mgid.com", "bidswitch.net", "freewheel.tv", "teads.tv", "gumgum.com",
+    "adsafeprotected.com", "doubleverify.com", "moatads.com", "demdex.net", "krxd.net",
+    "krxd.net", "bluekai.com", "agkn.com", "rlcdn.com", "lotame.com", "omtrdc.net",
+    "2o7.net", "tealium.com", "tiqcdn.com", "adobedtm.com",
+    // Consent management platforms
+    "trustarc.com", "onetrust.com", "cookielaw.org", "cookiebot.com", "sourcepoint.com",
+    "privacymanager.io", "didomi.io", "youronlinechoices.com", "osano.com",
+    "usercentrics.com", "consentmanager.net", "iubenda.com", "termly.io",
+    // Tag managers and CDNs
+    "cdn.jsdelivr.net", "unpkg.com", "cdnjs.cloudflare.com", "fonts.gstatic.com",
+    "fonts.googleapis.com", "ajax.googleapis.com", "googleusercontent.com", "cdn.tailwindcss.com",
+    "cdn.polyfill.io", "use.typekit.net",
+    // Social and player embeds
+    "platform.twitter.com", "syndication.twitter.com", "twimg.com", "connect.facebook.net",
+    "fbcdn.net", "platform.instagram.com", "cdninstagram.com", "platform.linkedin.com",
+    "licdn.com", "widgets.pinterest.com", "pinimg.com", "platform.tiktok.com",
+    "tiktokcdn.com", "embed.reddit.com", "redditstatic.com", "redditmedia.com",
+    "youtube.com", "ytimg.com", "googlevideo.com", "youtube-nocookie.com",
+    "disqus.com", "brid.gy", "addthis.com", "sharethis.com", "githubassets.com",
+    "githubusercontent.com", "discord.com", "discordapp.com", "cdn.discord.com",
+    "telegram.org", "t.me",
+    // Media and player CDNs of large platforms (recognized legit embeds)
+    "sndcdn.com", "w.soundcloud.com", "widget.sndcdn.com", "bcbits.com", "mixcloud.com",
+    "bandcamp.com", "open.spotify.com", "player.vimeo.com", "vimeocdn.com",
+    "cdn.jwplayer.com",
   ];
 
   function registrable(host) {
@@ -348,7 +382,11 @@
   document.addEventListener(
     "submit",
     (event) => {
-      if (!event.isTrusted || local.gesture) return;
+      if (event.isTrusted || local.gesture || !IS_TOP) return;
+      const form = event.target;
+      const action = form && typeof form.action === "string" ? form.action : "";
+      const actionHost = action ? hostOf(action) : "";
+      if (actionHost && sameSite(actionHost, location.hostname)) return;
       local.autoForm = true;
       scheduleReport(true);
     },

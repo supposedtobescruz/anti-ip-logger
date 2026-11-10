@@ -642,7 +642,7 @@ async function reportSignals(message, sender) {
     state.settings.warnings &&
     !allowed &&
     !next.bannerShown &&
-    (risk.level === "danger" || risk.level === "warn")
+    risk.banner
   ) {
     showBanner = true;
     next.bannerShown = true;
