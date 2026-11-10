@@ -20,7 +20,7 @@ async function readJson(path) {
 async function listFiles(dir, extension) {
   const found = [];
   for (const entry of await readdir(dir, { withFileTypes: true })) {
-    if (entry.name === "node_modules" || entry.name.startsWith(".")) continue;
+    if (entry.name === "node_modules" || entry.name.startsWith(".") || entry.name === "graphify-out") continue;
     const full = join(dir, entry.name);
     if (entry.isDirectory()) found.push(...(await listFiles(full, extension)));
     else if (entry.name.endsWith(extension)) found.push(full);

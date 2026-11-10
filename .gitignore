@@ -4,3 +4,4 @@ _metadata/
 .DS_Store
 Thumbs.db
 verify-output/
+graphify-out/
