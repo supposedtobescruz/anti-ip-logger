@@ -28,11 +28,13 @@ import {
   getStats,
   getTabAllow,
   getTabState,
+  pruneSession,
   resetAll,
   setPendingNav,
   setRemoteCache,
   setTabAllow,
   setTabState,
+  serializeTabState,
   updateSettings,
 } from "./lib/store.js";
 
@@ -266,10 +268,6 @@ function classifyHost(host) {
   return { known: false, allowed: false, domain: "" };
 }
 
-function isAllowlisted(host) {
-  return Boolean(matchDomain(normalizeHost(host), new Set(state.settings.allowlist)));
-}
-
 async function getActiveTab(tabId) {
   if (Number.isFinite(tabId)) {
     try {
@@ -424,6 +422,7 @@ async function fetchSource(source) {
 
 async function syncTier(tier) {
   const sources = state.sourceConfig.filter((source) => source.tier === tier);
+  const remoteExceptions = new Set(state.exceptionDomains);
   const reports = [];
   const all = new Set();
   for (const source of sources) {
@@ -431,6 +430,7 @@ async function syncTier(tier) {
     try {
       const parsed = await fetchSource(source);
       for (const domain of parsed.domains) all.add(domain);
+      for (const exception of parsed.exceptions || []) remoteExceptions.add(exception);
       report.ok = true;
       report.count = parsed.domains.length;
     } catch (error) {
@@ -439,12 +439,17 @@ async function syncTier(tier) {
     reports.push(report);
   }
 
-  const exceptionSet = new Set(state.exceptionDomains);
   const allowSet = new Set(state.settings.allowlist);
-  const cleaned = filterExceptions(dedupeSubdomains([...all]), exceptionSet).filter((domain) => !allowSet.has(domain));
+  let cleaned = filterExceptions(dedupeSubdomains([...all]), remoteExceptions).filter((domain) => !allowSet.has(domain));
   const anyOk = reports.some((report) => report.ok);
   const allOk = reports.every((report) => report.ok);
   const now = Date.now();
+
+  if (anyOk && !allOk) {
+    const previous = tier === "core" ? state.remoteCore : state.extended;
+    const previousKept = filterExceptions(previous || [], remoteExceptions).filter((domain) => !allowSet.has(domain));
+    cleaned = dedupeSubdomains([...cleaned, ...previousKept]);
+  }
 
   let count = 0;
   if (anyOk) {
@@ -630,7 +635,9 @@ async function reportSignals(message, sender) {
   };
 
   let showBanner = false;
+  const isTopFrame = !sender || sender.frameId === undefined || sender.frameId === 0;
   if (
+    isTopFrame &&
     state.settings.enabled &&
     state.settings.warnings &&
     !allowed &&
@@ -704,7 +711,12 @@ async function setSetting(key, value) {
 }
 
 async function resetEverything() {
+  const markerData = await chrome.storage.local.get(WEBRTC_MARKER_KEY);
+  const appliedPolicy = typeof markerData[WEBRTC_MARKER_KEY] === "string" ? markerData[WEBRTC_MARKER_KEY] : "";
   await resetAll();
+  if (appliedPolicy && appliedPolicy !== "default") {
+    await applyWebRtcPolicy("default");
+  }
   state.initialized = false;
   state.dnr = null;
   state.appliedSignature = "";
@@ -752,7 +764,16 @@ function publicSyncState() {
   };
 }
 
+function reportBackgroundError(scope, error) {
+  const text = error instanceof Error ? error.message : String(error);
+  console.error(`[anti-ip-logger] ${scope}:`, text);
+  appendEvent({ type: "info", host: "", detail: `${scope}: ${text}` }).catch(() => {});
+}
+
 async function handleMessage(message, sender) {
+  if (!sender || sender.id !== chrome.runtime.id) {
+    return { ok: false, error: "Geçersiz gönderici." };
+  }
   await ensureInit();
   const type = message && message.type;
   switch (type) {
@@ -807,9 +828,9 @@ async function handleMessage(message, sender) {
       };
     }
     case "reportSignals":
-      return reportSignals(message, sender);
+      return serializeTabState(() => reportSignals(message, sender));
     case "reportBlock":
-      return reportBlock(message, sender);
+      return serializeTabState(() => reportBlock(message, sender));
     case "getBlockedTarget": {
       const tabId = sender && sender.tab ? sender.tab.id : message.tabId;
       const pending = Number.isFinite(tabId) ? await getPendingNav(tabId) : null;
@@ -849,84 +870,98 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   return true;
 });
 
-chrome.runtime.onInstalled.addListener(async (details) => {
-  await ensureInit(true);
-  state.settings = await updateSettings({});
-  await applyState(true);
-  chrome.alarms.create(SYNC_ALARM, { periodInMinutes: SYNC_ALARM_MINUTES });
-  chrome.alarms.create(CLEANUP_ALARM, { periodInMinutes: CLEANUP_ALARM_MINUTES });
-  if (details.reason === "install") {
-    chrome.tabs.create({ url: chrome.runtime.getURL("dashboard/dashboard.html?welcome=1") });
-  }
-});
-
-chrome.runtime.onStartup.addListener(async () => {
-  await ensureInit(true);
-  const [syncAlarm, cleanupAlarm] = await Promise.all([
-    chrome.alarms.get(SYNC_ALARM),
-    chrome.alarms.get(CLEANUP_ALARM),
-  ]);
-  if (!syncAlarm) chrome.alarms.create(SYNC_ALARM, { periodInMinutes: SYNC_ALARM_MINUTES });
-  if (!cleanupAlarm) chrome.alarms.create(CLEANUP_ALARM, { periodInMinutes: CLEANUP_ALARM_MINUTES });
-});
-
-chrome.alarms.onAlarm.addListener(async (alarm) => {
-  await ensureInit();
-  if (alarm.name === SYNC_ALARM) {
-    await syncNow("core");
-    if (state.settings.tiers.extended) await syncNow("extended");
-  }
-  if (alarm.name === CLEANUP_ALARM) {
-    await pruneSession();
-    const tabs = await chrome.tabs.query({});
-    const live = new Set(tabs.map((tab) => tab.id));
-    const session = await chrome.storage.session.get(null);
-    const removals = [];
-    for (const key of Object.keys(session)) {
-      const match = key.match(/^(tab|nav|tabAllow):(\d+)$/);
-      if (match && !live.has(Number(match[2]))) removals.push(key);
+chrome.runtime.onInstalled.addListener((details) => {
+  (async () => {
+    await ensureInit(true);
+    state.settings = await updateSettings({});
+    await applyState(true);
+    chrome.alarms.create(SYNC_ALARM, { periodInMinutes: SYNC_ALARM_MINUTES });
+    chrome.alarms.create(CLEANUP_ALARM, { periodInMinutes: CLEANUP_ALARM_MINUTES });
+    if (details.reason === "install") {
+      chrome.tabs.create({ url: chrome.runtime.getURL("dashboard/dashboard.html?welcome=1") });
     }
-    if (removals.length > 0) await chrome.storage.session.remove(removals);
-    const now = Date.now();
-    for (const [tabId, value] of Object.entries(state.tabAllows)) {
-      if (!value || now - value.at > PAGE_STATE_TTL_MS * 4) {
-        delete state.tabAllows[tabId];
-        await clearTabAllow(Number(tabId));
+  })().catch((error) => reportBackgroundError("install", error));
+});
+
+chrome.runtime.onStartup.addListener(() => {
+  (async () => {
+    await ensureInit(true);
+    const [syncAlarm, cleanupAlarm] = await Promise.all([
+      chrome.alarms.get(SYNC_ALARM),
+      chrome.alarms.get(CLEANUP_ALARM),
+    ]);
+    if (!syncAlarm) chrome.alarms.create(SYNC_ALARM, { periodInMinutes: SYNC_ALARM_MINUTES });
+    if (!cleanupAlarm) chrome.alarms.create(CLEANUP_ALARM, { periodInMinutes: CLEANUP_ALARM_MINUTES });
+  })().catch((error) => reportBackgroundError("startup", error));
+});
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+  serializeTabState(async () => {
+    await ensureInit();
+    if (alarm.name === SYNC_ALARM) {
+      await syncNow("core");
+      if (state.settings.tiers.extended) await syncNow("extended");
+    }
+    if (alarm.name === CLEANUP_ALARM) {
+      await pruneSession();
+      const tabs = await chrome.tabs.query({});
+      const live = new Set(tabs.map((tab) => tab.id));
+      const session = await chrome.storage.session.get(null);
+      const removals = [];
+      for (const key of Object.keys(session)) {
+        const match = key.match(/^(tab|nav|tabAllow):(\d+)$/);
+        if (match && !live.has(Number(match[2]))) removals.push(key);
       }
+      if (removals.length > 0) await chrome.storage.session.remove(removals);
+      const now = Date.now();
+      for (const [tabId, value] of Object.entries(state.tabAllows)) {
+        if (!value || now - value.at > PAGE_STATE_TTL_MS * 4) {
+          delete state.tabAllows[tabId];
+          await clearTabAllow(Number(tabId));
+        }
+      }
+      await applyState(true);
     }
-  }
+  }).catch((error) => reportBackgroundError("alarm", error));
 });
 
-chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
+chrome.webNavigation.onBeforeNavigate.addListener((details) => {
   if (details.frameId !== 0 || !/^https?:/i.test(details.url)) return;
-  await ensureInit();
-  const tabAllow = await getTabAllow(details.tabId);
-  const host = urlToHost(details.url);
-  if (tabAllow && (!host || !hostMatchesDomain(host, tabAllow.domain))) {
-    delete state.tabAllows[details.tabId];
-    await clearTabAllow(details.tabId);
-    await applyState(true);
-  }
-  await setPendingNav(details.tabId, { url: details.url, at: Date.now() });
-  await clearTabState(details.tabId);
-  setActionBadge(details.tabId, "");
+  serializeTabState(async () => {
+    await ensureInit();
+    const tabAllow = await getTabAllow(details.tabId);
+    const host = urlToHost(details.url);
+    if (tabAllow && (!host || !hostMatchesDomain(host, tabAllow.domain))) {
+      delete state.tabAllows[details.tabId];
+      await clearTabAllow(details.tabId);
+      await applyState(true);
+    }
+    await setPendingNav(details.tabId, { url: details.url, at: Date.now() });
+    await clearTabState(details.tabId);
+    setActionBadge(details.tabId, "");
+  }).catch((error) => reportBackgroundError("navigation", error));
 });
 
-chrome.webNavigation.onCommitted.addListener(async (details) => {
+chrome.webNavigation.onCommitted.addListener((details) => {
   if (details.frameId !== 0 || !/^https?:/i.test(details.url)) return;
-  await ensureInit();
-  const tabAllow = await getTabAllow(details.tabId);
-  const host = urlToHost(details.url);
-  if (tabAllow && (!host || !hostMatchesDomain(host, tabAllow.domain))) {
-    delete state.tabAllows[details.tabId];
-    await clearTabAllow(details.tabId);
-    await applyState(true);
-  }
+  serializeTabState(async () => {
+    await ensureInit();
+    const tabAllow = await getTabAllow(details.tabId);
+    const host = urlToHost(details.url);
+    if (tabAllow && (!host || !hostMatchesDomain(host, tabAllow.domain))) {
+      delete state.tabAllows[details.tabId];
+      await clearTabAllow(details.tabId);
+      await applyState(true);
+    }
+  }).catch((error) => reportBackgroundError("navigation-commit", error));
 });
 
-chrome.tabs.onRemoved.addListener(async (tabId) => {
-  delete state.tabAllows[tabId];
-  await Promise.all([clearTabState(tabId), clearPendingNav(tabId), clearTabAllow(tabId)]);
+chrome.tabs.onRemoved.addListener((tabId) => {
+  serializeTabState(async () => {
+    delete state.tabAllows[tabId];
+    await Promise.all([clearTabState(tabId), clearPendingNav(tabId), clearTabAllow(tabId)]);
+    await applyState(true);
+  }).catch((error) => reportBackgroundError("tab-cleanup", error));
 });
 
 if (chrome.declarativeNetRequest.onRuleMatchedDebug) {
