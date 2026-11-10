@@ -15,7 +15,7 @@
     "webNavigation",
     "privacy"
   ],
-  "host_permissions": ["<all_urls>"],
+  "host_permissions": ["http://*/*", "https://*/*"],
   "background": {
     "service_worker": "background.js",
     "type": "module"

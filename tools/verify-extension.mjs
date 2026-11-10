@@ -51,7 +51,8 @@ const permissions = new Set(manifest.permissions || []);
 for (const permission of ["storage", "declarativeNetRequest", "alarms", "webNavigation", "privacy", "tabs"]) {
   check(`izin: ${permission}`, permissions.has(permission));
 }
-check("host_permissions <all_urls>", (manifest.host_permissions || []).includes("<all_urls>"));
+const hostPermissions = new Set(manifest.host_permissions || []);
+check("host_permissions are http/https only", hostPermissions.size === 2 && hostPermissions.has("http://*/*") && hostPermissions.has("https://*/*"));
 check(
   "content script runs in the main world",
   manifest.content_scripts.some((script) => script.world === "MAIN" && script.run_at === "document_start"),
