@@ -113,6 +113,9 @@ Kural öncelik merdiveni: sekme izni 110 > izin listesi 100 > özel engel 50 > e
 ## Bilinen sınırlar
 
 - WebRTC politikası tarayıcı genelindedir. "Tarayıcı varsayılanı", uzantı politikayı daha önce değiştirip kendisi için bir işaret kaydetmediyse politikaya dokunmaz.
+- Uzantı WebRTC politikasını değiştirdiyse, bu değişiklik uzantı kaldırıldıktan sonra da yerinde kalır. Tarayıcı varsayılanına dönmek için önce "Tarayıcı varsayılanı"nı seç, sonra uzantıyı kaldır.
+- Alt kaynak engelleri (engellenen iframe veya piksel) DNR ile durdurulur ama üretim derlemelerinde olay kaydına yazılmaz. Engellenen sayaçları yalnızca üst düzey gezinmeleri sayar.
+- Engellenen bir gezinmede tam URL (sorgu dizesi dahil) tarayıcı kapanana kadar `chrome.storage.session` içinde tutulur; engel sayfası bunu "Bu sekmede izin ver ve aç" için kullanır. Olay kaydı hiçbir zaman URL saklamaz.
 - Liste güncellemeleri ağ erişimi gerektirir. Çevrimdışıyken birlikte gelen liste kullanılır.
 - Bir kaynak kısmen başarısız olursa uzantı önceki eşitlemeden kalan girdileri korur ve yenilerini üstüne ekler. Hiçbir zaman iyi bir listenin üstüne boş liste yazmaz.
 - Alan adı listesi zamanla eskir. Grabify tarzı servisler alan adlarını düzenli olarak değiştirir.
@@ -120,7 +123,7 @@ Kural öncelik merdiveni: sekme izni 110 > izin listesi 100 > özel engel 50 > e
 - Bilinen reklam, analitik, rıza (consent) yönetimi ve sosyal yerleştirme alan adları gizli iframe ve piksel taraması tarafından gürültü olarak kabul edilir. Bunlar bulgu üretmez. Liste `content/guard.js` içindedir ve genişletilebilir.
 - Banner, sayfa tarafından CSS veya JavaScript ile gizlenebilir veya kaldırılabilir. Engel listesi bundan etkilenmez; panel ve açılır pencere gerçeği göstermeye devam eder.
 - İçerik betiği MAIN world'de çalışır, bu yüzden sayfa JavaScript'i sinyal kanalını taklit edebilir. Engel listesi (DNR) yolu bundan etkilenmez; banner ve olay kaydı etkilenir.
-- `host_permissions <all_urls>` gereklidir: `webNavigation`, değerlendirilen gezinmenin URL'sini açığa çıkarmak için buna ihtiyaç duyar ve içerik betikleri her sayfayla eşleşmelidir. Uzantı, tanımlı liste kaynakları dışında ağ isteği yapmaz.
+- `host_permissions`, içerik betikleriyle aynı kapsam olan `http://*/*` ve `https://*/*` değerlerini kapsar. `webNavigation`, değerlendirilen gezinmenin URL'sini açığa çıkarmak için kullanılır. Uzantı, tanımlı liste kaynakları dışında ağ isteği yapmaz.
 - Sinyaller her karede (iframe'ler dahil) toplanır ve üst sekmeye bağlanır. Banner yalnızca üst karede görünür.
 
 ## Dil eklemek

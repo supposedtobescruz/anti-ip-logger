@@ -113,6 +113,9 @@ Rule priority ladder: tab allow 110 > allowlist 100 > custom block 50 > blocked 
 ## Known limits
 
 - The WebRTC policy is browser-wide. "Browser default" leaves the policy untouched unless the extension changed it earlier and recorded a marker for it.
+- If the extension changed the WebRTC policy, that change stays in place even after you uninstall the extension. To restore the browser default, pick "Browser default" first, then remove the extension.
+- Subresource blocks (a blocked iframe or pixel) are stopped by DNR but are not written to the event log in production builds. The blocked counters record top-level navigations only.
+- On a blocked navigation, the full URL (including its query string) is held in `chrome.storage.session` until the browser closes; the blocked page uses it for "Allow once in this tab and open". The event log never stores URLs.
 - List updates need network access. Offline, the bundled list is used.
 - If a source partially fails, the extension keeps entries from the previous sync and adds new ones on top. It never writes an empty list over a good one.
 - The domain list ages. Grabify-style services rotate domains regularly.
@@ -120,7 +123,7 @@ Rule priority ladder: tab allow 110 > allowlist 100 > custom block 50 > blocked 
 - Known ad, analytics, consent and social embed domains are treated as noise by the hidden iframe and pixel scan. They produce no findings. The list lives in `content/guard.js` and is extensible.
 - The banner can be hidden or removed by the page via CSS or JavaScript. The blocklist is not affected; the panel and popup still show the truth.
 - The content script runs in the MAIN world, so page JavaScript can forge the signal channel. The blocklist (DNR) path is not affected; the banner and event log are.
-- `host_permissions <all_urls>` is required: `webNavigation` needs it to expose the URL of the navigation being judged, and content scripts must match every page. The extension makes no network requests beyond the defined list sources.
+- `host_permissions` covers `http://*/*` and `https://*/*`, the same scope as the content scripts. `webNavigation` exposes the URL of the navigation being judged. The extension makes no network requests beyond the defined list sources.
 - Signals are collected in every frame (iframes included) and attached to the top tab. The banner only shows in the top frame.
 
 ## Adding a language
