@@ -1,4 +1,4 @@
-# Permission justifications — Chrome Web Store dashboard
+# Permission justifications - Chrome Web Store dashboard
 
 Paste one paragraph per permission into the justification fields of the "Privacy practices" tab.
 

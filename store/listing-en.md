@@ -1,4 +1,4 @@
-# Chrome Web Store listing — English
+# Chrome Web Store listing - English
 
 ## Title
 Anti IP Logger

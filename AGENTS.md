@@ -94,6 +94,18 @@ Bu depo `antislop.md` kurallarını uygular. Tam metin depo kökünde. Özet:
 - Commit öncesi `npm run verify:all` çalıştır.
 - Üretilen veri değiştiyse aynı commit içinde olsun, ayrı commit'e bölme.
 
+## Sürüm numaralandırma
+
+Sürüm kaynağı `manifest.json` → `version`; `package.json` bununla aynı olmak zorunda.
+
+- Proje 1.0.0'dan başlar; altına inilmez.
+- Her teslim edilebilir güncelleme küçük bir sürüm artışıdır; sürüm artışı atlanmaz.
+- Artış semver'e uyar: hata düzeltme `patch` (1.0.1), kullanıcıya görünen özellik `minor` (1.1.0), uyumsuz davranış `major` (2.0.0).
+- Sürüm artışını manifest ve package.json birlikte taşır; README.md (`Version x.y.z`), readme/readmeTR.md, PRIVACY.md, docs/privacy.html, store/README.md ve paket çıktı adı aynı commit'te güncellenir.
+- `npm run package` manifest sürümünü kullanır; eski sürüm referansları asla bırakılmaz.
+- Sürüm numarası taşıyan her commit `v<version>` etiketi alır; push `--follow-tags` ile yapılır: `git push origin main --follow-tags`.
+- Sadece doküman ve imla düzeltmeleri sürüm artışı gerektirmez; paketlenip yayınlanacak her değişiklik gerektirir.
+
 ## Bilinen sınırlar
 
 Bunları gizleme, belgele:

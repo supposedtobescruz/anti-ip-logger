@@ -1,4 +1,4 @@
-# Chrome Web Store listing — Türkçe
+# Chrome Web Store listing - Türkçe
 
 ## Başlık
 Anti IP Logger
