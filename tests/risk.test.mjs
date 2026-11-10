@@ -43,6 +43,12 @@ test("mergeSignals listeleri birleştirir, sayaçları monoton tutar", () => {
   assert.equal(second.hiddenPixels.length, 2);
 });
 
+test("zayıf bulguların toplamı tehlikeye yükseltmez", () => {
+  const signals = { ...emptySignals(), metaRefresh: ["example.com"], hiddenPixels: ["https://tracker.example.com/p.gif"], preGestureRequests: 5 };
+  const risk = assessRisk({ signals });
+  assert.equal(risk.level, "warn");
+});
+
 test("verdict sırası izin, logger ve riski doğru önceler", () => {
   const risk = assessRisk({ signals: { ...emptySignals(), webrtcPublic: ["1.1.1.1"] } });
   assert.equal(verdictFor({ enabled: false, allowed: false, host: "a.com", knownLogger: true, risk }), "off");
