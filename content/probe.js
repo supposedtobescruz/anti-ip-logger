@@ -68,6 +68,16 @@
       state.mdns += 1;
       return;
     }
+    for (const token of text.split(/\s+/)) {
+      if (!/^([0-9a-f]{0,4}:){1,7}[0-9a-f]{0,4}$/i.test(token)) continue;
+      const ip = token.toLowerCase();
+      if (isPrivateIp(ip)) {
+        state.webrtcPrivate += 1;
+      } else if (!state.webrtcPublic.includes(ip) && state.webrtcPublic.length < 5) {
+        state.webrtcPublic.push(ip);
+      }
+      return;
+    }
     const match = text.match(/(?:^|\s)(\d{1,3}(?:\.\d{1,3}){3})(?:\s|$)/);
     if (!match) return;
     const ip = match[1];
@@ -151,57 +161,102 @@
     }
   }
 
-  const mediaDevices = navigator.mediaDevices;
-  if (mediaDevices && typeof mediaDevices.getUserMedia === "function") {
-    const original = mediaDevices.getUserMedia.bind(mediaDevices);
-    mediaDevices.getUserMedia = function (...args) {
-      state.media += 1;
-      scheduleReport();
-      return original(...args);
-    };
-  }
-
-  if (navigator.geolocation && typeof navigator.geolocation.getCurrentPosition === "function") {
-    const original = navigator.geolocation.getCurrentPosition.bind(navigator.geolocation);
-    navigator.geolocation.getCurrentPosition = function (...args) {
-      state.geolocation += 1;
-      scheduleReport();
-      return original(...args);
-    };
-  }
-
-  if (typeof window.fetch === "function") {
-    const originalFetch = window.fetch.bind(window);
-    window.fetch = function (input, init) {
-      try {
-        noteRequest(typeof input === "string" ? input : input && input.url);
-      } catch {
-        // A malformed Request object must not break the page request.
-      }
-      return originalFetch(input, init);
-    };
-  }
-
-  const xhrOpen = XMLHttpRequest.prototype.open;
-  XMLHttpRequest.prototype.open = function (method, url, ...rest) {
-    try {
-      noteRequest(url);
-    } catch {
-      // Ignore instrumentation errors.
+  try {
+    const mediaDevices = navigator.mediaDevices;
+    if (mediaDevices && typeof mediaDevices.getUserMedia === "function") {
+      const original = mediaDevices.getUserMedia.bind(mediaDevices);
+      mediaDevices.getUserMedia = function (...args) {
+        try {
+          state.media += 1;
+          scheduleReport();
+        } catch {
+          // Instrumentation must not break the call.
+        }
+        return original(...args);
+      };
     }
-    return xhrOpen.call(this, method, url, ...rest);
-  };
+  } catch {
+    // Frozen platform object: skip media instrumentation.
+  }
 
-  if (navigator.sendBeacon) {
-    const originalBeacon = navigator.sendBeacon.bind(navigator);
-    navigator.sendBeacon = function (url, data) {
+  try {
+    if (navigator.geolocation && typeof navigator.geolocation.getCurrentPosition === "function") {
+      const original = navigator.geolocation.getCurrentPosition.bind(navigator.geolocation);
+      navigator.geolocation.getCurrentPosition = function (...args) {
+        try {
+          state.geolocation += 1;
+          scheduleReport();
+        } catch {
+          // Instrumentation must not break the call.
+        }
+        return original(...args);
+      };
+    }
+  } catch {
+    // Frozen platform object: skip geolocation instrumentation.
+  }
+
+  try {
+    if (navigator.geolocation && typeof navigator.geolocation.watchPosition === "function") {
+      const originalWatch = navigator.geolocation.watchPosition.bind(navigator.geolocation);
+      navigator.geolocation.watchPosition = function (...args) {
+        try {
+          state.geolocation += 1;
+          scheduleReport();
+        } catch {
+          // Instrumentation must not break the call.
+        }
+        return originalWatch(...args);
+      };
+    }
+  } catch {
+    // Frozen platform object: skip watchPosition instrumentation.
+  }
+
+  try {
+    if (typeof window.fetch === "function") {
+      const originalFetch = window.fetch.bind(window);
+      window.fetch = function (input, init) {
+        try {
+          noteRequest(typeof input === "string" ? input : input && input.url);
+        } catch {
+          // A malformed Request object must not break the page request.
+        }
+        return originalFetch(input, init);
+      };
+    }
+  } catch {
+    // Frozen window: skip fetch instrumentation.
+  }
+
+  try {
+    const xhrOpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function (method, url, ...rest) {
       try {
         noteRequest(url);
       } catch {
         // Ignore instrumentation errors.
       }
-      return originalBeacon(url, data);
+      return xhrOpen.call(this, method, url, ...rest);
     };
+  } catch {
+    // Frozen prototype: skip XHR instrumentation.
+  }
+
+  try {
+    if (navigator.sendBeacon) {
+      const originalBeacon = navigator.sendBeacon.bind(navigator);
+      navigator.sendBeacon = function (url, data) {
+        try {
+          noteRequest(url);
+        } catch {
+          // Ignore instrumentation errors.
+        }
+        return originalBeacon(url, data);
+      };
+    }
+  } catch {
+    // Frozen platform object: skip sendBeacon instrumentation.
   }
 
   for (const eventName of ["pointerdown", "keydown", "touchstart", "mousedown", "wheel"]) {

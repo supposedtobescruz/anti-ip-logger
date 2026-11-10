@@ -54,13 +54,13 @@
       "js": ["content/probe.js"],
       "run_at": "document_start",
       "world": "MAIN",
-      "all_frames": false
+      "all_frames": true
     },
     {
       "matches": ["http://*/*", "https://*/*"],
       "js": ["content/guard.js"],
       "run_at": "document_start",
-      "all_frames": false
+      "all_frames": true
     }
   ]
 }

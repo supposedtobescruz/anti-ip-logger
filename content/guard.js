@@ -3,6 +3,7 @@
   const FLAG = "__antiIpLoggerGuard";
   if (window[FLAG]) return;
   window[FLAG] = true;
+  const IS_TOP = window.top === window;
 
   const local = {
     gesture: false,
@@ -97,14 +98,16 @@
   }
 
   function isSuspiciousElement(element) {
-    if (!element || element.tagName === "IMG" && element.loading === "lazy") return false;
-    if (element.hidden) return true;
+    if (!element) return false;
     const style = getComputedStyle(element);
-    if (style.display === "none" || style.visibility === "hidden" || Number(style.opacity) === 0) return true;
     const rect = element.getBoundingClientRect();
     const width = Number(element.getAttribute("width")) || rect.width;
     const height = Number(element.getAttribute("height")) || rect.height;
-    return width <= 2 && height <= 2;
+    const sizeSuspicious = width <= 2 && height <= 2;
+    if (element.tagName === "IMG" && element.loading === "lazy") return sizeSuspicious;
+    if (element.hidden) return true;
+    if (style.display === "none" || style.visibility === "hidden" || Number(style.opacity) === 0) return true;
+    return sizeSuspicious;
   }
 
   function scanDom() {
@@ -185,7 +188,7 @@
             local.disabled = true;
             return;
           }
-          if (response.showBanner && !local.bannerDismissed) {
+          if (response.showBanner && !local.bannerDismissed && IS_TOP) {
             showBanner(response);
           }
         },
@@ -352,11 +355,22 @@
     true,
   );
 
+  const scanState = { pending: false };
+  function debouncedScan() {
+    if (scanState.pending) return;
+    scanState.pending = true;
+    requestAnimationFrame(() => {
+      scanState.pending = false;
+      scanDom();
+    });
+  }
+
   function startScanning() {
+    if (!IS_TOP) return;
     scanDom();
     scheduleReport(true);
     local.observer = new MutationObserver(() => {
-      scanDom();
+      debouncedScan();
       scheduleReport();
     });
     if (document.documentElement) {
@@ -364,10 +378,10 @@
         childList: true,
         subtree: true,
         attributes: true,
-        attributeFilter: ["src", "style", "hidden", "width", "height", "loading"],
+        attributeFilter: ["src", "hidden", "width", "height", "loading"],
       });
     }
-    local.scanTimer = setInterval(scanDom, 2000);
+    local.scanTimer = setInterval(debouncedScan, 2000);
     setTimeout(() => {
       scanDom();
       scheduleReport(true);
