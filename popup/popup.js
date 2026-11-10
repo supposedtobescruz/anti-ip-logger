@@ -277,9 +277,11 @@ nodes.themeToggle.addEventListener("click", async () => {
 applyI18n();
 load();
 
-chrome.storage.onChanged.addListener((changes, area) => {
-  if (area !== "local") return;
-  if (changes.settings || changes.stats || changes.events) {
-    load();
-  }
-});
+if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.onChanged) {
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== "local") return;
+    if (changes.settings || changes.stats || changes.events) {
+      load();
+    }
+  });
+}

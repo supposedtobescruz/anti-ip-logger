@@ -2,6 +2,9 @@ import { t, isTurkish } from "./i18n.js";
 
 export async function send(message) {
   try {
+    if (typeof chrome === "undefined" || !chrome.runtime || typeof chrome.runtime.sendMessage !== "function") {
+      return { ok: false, error: t("errorNoResponse") };
+    }
     const response = await chrome.runtime.sendMessage(message);
     if (!response) return { ok: false, error: t("errorNoResponse") };
     return response;

@@ -555,10 +555,9 @@ function bind() {
   nodes.syncButton.addEventListener("click", () => syncTier("core", nodes.syncButton, nodes.syncCoreResult));
 
   nodes.themeButton.addEventListener("click", async () => {
-    if (!state.data) return;
     const next = toggleTheme(resolvedTheme());
     applyTheme(next);
-    renderTheme({ ...state.data.settings, theme: next });
+    renderTheme(state.data ? { ...state.data.settings, theme: next } : { theme: next });
     await applySetting("theme", next);
   });
 
@@ -712,7 +711,9 @@ navigate(currentRoute(), false);
 bind();
 load();
 
-chrome.storage.onChanged.addListener((changes, area) => {
-  if (area !== "local") return;
-  if (changes.settings || changes.events || changes.stats || changes.remoteCache) load();
-});
+if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.onChanged) {
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== "local") return;
+    if (changes.settings || changes.events || changes.stats || changes.remoteCache) load();
+  });
+}
