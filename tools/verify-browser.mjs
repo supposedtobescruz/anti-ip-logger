@@ -20,7 +20,7 @@ const BROWSER_CANDIDATES = [
 const failures = [];
 const passed = [];
 const consoleErrors = [];
-let stage = "başlangıç";
+let stage = "startup";
 
 function check(name, ok, detail = "") {
   if (ok) passed.push(name);
@@ -44,7 +44,7 @@ async function waitFor(task, timeoutMs, label) {
     }
     await sleep(150);
   }
-  throw new Error(`${label} zaman aşımı${lastError ? `: ${lastError.message}` : ""}`);
+  throw new Error(`${label} timed out${lastError ? `: ${lastError.message}` : ""}`);
 }
 
 class Cdp {
@@ -77,7 +77,7 @@ class Cdp {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         this.pending.delete(id);
-        reject(new Error(`${method} zaman aşımı`));
+        reject(new Error(`${method} timed out`));
       }, timeoutMs);
       this.pending.set(id, {
         resolve: (value) => {
@@ -160,7 +160,7 @@ async function screenshot(client, name, width, height, theme = "light") {
 
 async function openTab(port, url) {
   const response = await fetch(`http://127.0.0.1:${port}/json/new?${encodeURIComponent(url)}`, { method: "PUT" });
-  if (!response.ok) throw new Error(`Yeni sekme açılamadı: HTTP ${response.status}`);
+  if (!response.ok) throw new Error(`Could not open a new tab: HTTP ${response.status}`);
   return response.json();
 }
 
@@ -168,19 +168,19 @@ async function waitForLoad(client, timeout = 15_000) {
   await waitFor(
     () => evaluate(client, "return document.readyState === 'complete';"),
     timeout,
-    "sayfa yükleme",
+    "page load",
   );
 }
 
 async function run() {
   const watchdog = setTimeout(() => {
-    process.stderr.write(`\nDoğrulama zaman aşımı, aşama: ${stage}\n`);
+    process.stderr.write(`\nVerification timed out, stage: ${stage}\n`);
     process.exit(1);
   }, 120_000);
   watchdog.unref();
 
   const browser = BROWSER_CANDIDATES.find((candidate) => existsSync(candidate));
-  check("tarayıcı bulundu", Boolean(browser), browser || "Brave/Chrome bulunamadı");
+  check("browser found", Boolean(browser), browser || "Brave/Chrome not found");
   if (!browser) return;
 
   await mkdir(OUT, { recursive: true });
@@ -196,6 +196,7 @@ async function run() {
       `--load-extension=${ROOT}`,
       `--disable-extensions-except=${ROOT}`,
       "--remote-debugging-port=0",
+      "--lang=en-US",
       "about:blank",
     ],
     { stdio: "ignore", windowsHide: true },
@@ -213,7 +214,7 @@ async function run() {
       "DevTools portu",
     );
     port = Number(lines[0]);
-    check("tarayıcı hata ayıklama portu açıldı", Number.isFinite(port) && port > 0, String(port));
+    check("browser debug port opened", Number.isFinite(port) && port > 0, String(port));
 
     const worker = await waitFor(
       async () => {
@@ -222,18 +223,18 @@ async function run() {
         return targets.find((target) => target.type === "service_worker" && target.url.startsWith("chrome-extension://"));
       },
       20_000,
-      "servis çalışanı",
+      "service worker",
     );
-    check("servis çalışanı yüklendi", Boolean(worker), worker.url);
+    check("service worker loaded", Boolean(worker), worker.url);
 
     const extensionId = new URL(worker.url).host;
-    check("uzantı kimliği okundu", /^[a-p]{32}$/.test(extensionId), extensionId);
+    check("extension id read", /^[a-p]{32}$/.test(extensionId), extensionId);
 
     const workerClient = await connect(worker, { page: false });
     await waitFor(
       () => evaluate(workerClient, "return typeof chrome === 'object' && Boolean(chrome.declarativeNetRequest);").catch(() => false),
       10_000,
-      "servis çalışanı API bağlamı",
+      "service worker API context",
     );
 
     const ruleInfo = await waitFor(
@@ -247,7 +248,7 @@ async function run() {
         return info.dynamic > 0 ? info : null;
       },
       15_000,
-      "dinamik kural uygulaması",
+      "dynamic rule apply",
     ).catch(async () =>
       evaluate(
         workerClient,
@@ -256,8 +257,8 @@ async function run() {
          return { dynamic: rules.length, staticRules };`,
       ),
     );
-    check("dinamik kurallar yüklendi", ruleInfo.dynamic > 0, `${ruleInfo.dynamic} kural`);
-    check("statik kural seti etkin", ruleInfo.staticRules.includes("core"), ruleInfo.staticRules.join(","));
+    check("dynamic rules loaded", ruleInfo.dynamic > 0, `${ruleInfo.dynamic} kural`);
+    check("static ruleset enabled", ruleInfo.staticRules.includes("core"), ruleInfo.staticRules.join(","));
 
     const settings = await waitFor(
       async () => {
@@ -269,19 +270,19 @@ async function run() {
         return value && value.enabled === true ? value : null;
       },
       10_000,
-      "varsayılan ayarlar",
+      "default settings",
     ).catch(() => null);
-    check("varsayılan ayarlar yazıldı", Boolean(settings && settings.enabled === true));
+    check("default settings written", Boolean(settings && settings.enabled === true));
 
     const siteTarget = await openTab(port, "https://example.com/");
     const popupTarget = await openTab(port, `chrome-extension://${extensionId}/popup/popup.html`);
     const popup = await connect(popupTarget);
     await waitForLoad(popup);
-    await waitFor(() => evaluate(popup, "return document.getElementById('content') && !document.getElementById('content').hidden;"), 8000, "popup içeriği");
+    await waitFor(() => evaluate(popup, "return document.getElementById('content') && !document.getElementById('content').hidden;"), 8000, "popup content");
     await fetch(`http://127.0.0.1:${port}/json/activate/${siteTarget.id}`);
     await popup.send("Page.reload");
     await waitForLoad(popup);
-    await waitFor(() => evaluate(popup, "return document.getElementById('content') && !document.getElementById('content').hidden;"), 8000, "popup içeriği");
+    await waitFor(() => evaluate(popup, "return document.getElementById('content') && !document.getElementById('content').hidden;"), 8000, "popup content");
     const popupState = await evaluate(
       popup,
       `const headline = document.getElementById('verdict-headline').textContent.trim();
@@ -291,11 +292,11 @@ async function run() {
        const hint = !document.getElementById('no-host-hint').hidden;
        return { headline, label, buttons, host, hint, error: !document.getElementById('error-state').hidden };`,
     );
-    check("popup hata durumunda değil", popupState.error === false);
-    check("popup başlık metni var", popupState.headline.length > 8, popupState.headline);
-    check("popup durum etiketi var", popupState.label.length > 2, popupState.label);
-    check("popup eylem düğmeleri var", popupState.buttons.length >= 2 || popupState.hint, popupState.buttons.join(" | ") || "boş sekme ipucu");
-    if (popupState.host) check("popup aktif sekme alan adını gösterir", popupState.host.includes("example.com"), popupState.host);
+    check("popup not in error state", popupState.error === false);
+    check("popup headline present", popupState.headline.length > 8, popupState.headline);
+    check("popup badge present", popupState.label.length > 2, popupState.label);
+    check("popup action buttons present", popupState.buttons.length >= 2 || popupState.hint, popupState.buttons.join(" | ") || "empty tab hint");
+    if (popupState.host) check("popup shows active tab host", popupState.host.includes("example.com"), popupState.host);
     await screenshot(popup, "popup-light.png", 384, 620, "light");
 
     await popup.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] });
@@ -306,15 +307,15 @@ async function run() {
       `const style = getComputedStyle(document.body);
        return { background: style.backgroundColor, color: style.color };`,
     );
-    check("koyu tema uygulanabilir", darkContrast.background !== darkContrast.color, `${darkContrast.background} / ${darkContrast.color}`);
+    check("dark theme applied", darkContrast.background !== darkContrast.color, `${darkContrast.background} / ${darkContrast.color}`);
     await screenshot(popup, "popup-dark.png", 384, 620, "dark");
     await evaluate(popup, "document.documentElement.removeAttribute('data-theme'); return true;");
     await popup.send("Emulation.setEmulatedMedia", { features: [] });
 
-    const dashTarget = await openTab(port, `chrome-extension://${extensionId}/dashboard/dashboard.html#genel`);
+    const dashTarget = await openTab(port, `chrome-extension://${extensionId}/dashboard/dashboard.html#overview`);
     const dash = await connect(dashTarget);
     await waitForLoad(dash);
-    await waitFor(() => evaluate(dash, "return document.getElementById('tile-domains').textContent.trim() !== '0';"), 8000, "panel verisi");
+    await waitFor(() => evaluate(dash, "return document.getElementById('tile-domains').textContent.trim() !== '0';"), 8000, "panel data");
     const dashState = await evaluate(
       dash,
       `return {
@@ -325,23 +326,23 @@ async function run() {
         activeView: [...document.querySelectorAll('.view')].filter((v) => !v.hidden).map((v) => v.id),
       };`,
     );
-    check("panel verisi yüklendi", dashState.error === false && Number(dashState.coreCount.replace(/\\D/g, "")) > 0, dashState.coreCount);
-    check("panel koruma durumu", dashState.status.length > 3, dashState.status);
-    check("panel tek görünüm", dashState.activeView.length === 1, dashState.activeView.join(","));
+    check("panel data loaded", dashState.error === false && Number(dashState.coreCount.replace(/\\D/g, "")) > 0, dashState.coreCount);
+    check("panel protection status", dashState.status.length > 3, dashState.status);
+    check("panel single view", dashState.activeView.length === 1, dashState.activeView.join(","));
     await screenshot(dash, "dashboard-light.png", 1280, 900, "light");
 
-    await evaluate(dash, "location.hash = '#listeler'; return true;");
+    await evaluate(dash, "location.hash = '#lists'; return true;");
     await sleep(600);
     const listState = await evaluate(
       dash,
       `return {
         rows: document.querySelectorAll('#core-rows tr').length,
-        allowVisible: !document.getElementById('section-listeler').hidden,
+        allowVisible: !document.getElementById('section-lists').hidden,
         summary: document.getElementById('core-summary').textContent.trim(),
       };`,
     );
-    check("liste tablosu dolu", listState.rows > 10, `${listState.rows} satır`);
-    check("liste bölümü görünür", listState.allowVisible);
+    check("list table filled", listState.rows > 10, `${listState.rows} rows`);
+    check("lists section visible", listState.allowVisible);
     await screenshot(dash, "dashboard-lists.png", 1280, 900, "light");
 
     await evaluate(
@@ -359,7 +360,7 @@ async function run() {
        const empty = !document.getElementById('core-empty').hidden;
        return { rows, summary, empty };`,
     );
-    check("liste araması sonuçsuz durumu gösterir", searchState.rows === 0 && searchState.empty === true, searchState.summary);
+    check("list search shows empty state", searchState.rows === 0 && searchState.empty === true, searchState.summary);
     await evaluate(
       dash,
       `const input = document.getElementById('core-search');
@@ -377,16 +378,16 @@ async function run() {
     const allowAdded = await waitFor(
       () => evaluate(dash, "return document.querySelectorAll('#allow-list .domain-item').length === 1;").catch(() => false),
       5000,
-      "izin listesine ekleme",
+      "allowlist add",
     );
-    check("izin listesi formu çalışır", allowAdded === true);
+    check("allowlist form works", allowAdded === true);
     await evaluate(dash, "document.querySelector('#allow-list .domain-item button').click(); return true;");
     const allowRemoved = await waitFor(
       () => evaluate(dash, "return document.querySelectorAll('#allow-list .domain-item').length === 0;").catch(() => false),
       5000,
-      "izin listesinden kaldırma",
+      "allowlist removal",
     );
-    check("izin listesi kaydı kaldırılır", allowRemoved === true);
+    check("allowlist entry removed", allowRemoved === true);
 
     await evaluate(
       dash,
@@ -397,16 +398,16 @@ async function run() {
     const customAdded = await waitFor(
       () => evaluate(dash, "return document.querySelectorAll('#custom-list .domain-item').length === 1;").catch(() => false),
       5000,
-      "özel engel ekleme",
+      "custom block add",
     );
-    check("özel engel formu çalışır", customAdded === true);
+    check("custom block form works", customAdded === true);
     await evaluate(dash, "document.querySelector('#custom-list .domain-item button').click(); return true;");
     const customRemoved = await waitFor(
       () => evaluate(dash, "return document.querySelectorAll('#custom-list .domain-item').length === 0;").catch(() => false),
       5000,
-      "özel engel kaldırma",
+      "custom block removal",
     );
-    check("özel engel kaydı kaldırılır", customRemoved === true);
+    check("custom block entry removed", customRemoved === true);
 
     await dash.send("Emulation.setDeviceMetricsOverride", { width: 360, height: 780, deviceScaleFactor: 2, mobile: true });
     await sleep(400);
@@ -414,9 +415,9 @@ async function run() {
       dash,
       `return { scroll: document.documentElement.scrollWidth, view: window.innerWidth };`,
     );
-    check("panel mobilde yatay taşmıyor", mobileDash.scroll <= mobileDash.view + 1, `${mobileDash.scroll} / ${mobileDash.view}`);
+    check("panel does not overflow on mobile", mobileDash.scroll <= mobileDash.view + 1, `${mobileDash.scroll} / ${mobileDash.view}`);
 
-    await evaluate(dash, "location.hash = '#ayarlar'; return true;");
+    await evaluate(dash, "location.hash = '#settings'; return true;");
     await sleep(500);
     const settingsState = await evaluate(
       dash,
@@ -427,7 +428,7 @@ async function run() {
         webrtc: document.getElementById('set-webrtc').value,
       };`,
     );
-    check("ayarlar forma yansıdı", settingsState.enabled === true && settingsState.core === true, JSON.stringify(settingsState));
+    check("settings reflected in form", settingsState.enabled === true && settingsState.core === true, JSON.stringify(settingsState));
     await screenshot(dash, "dashboard-settings.png", 1280, 900, "light");
 
     await evaluate(dash, "document.documentElement.setAttribute('data-theme','dark'); return true;");
@@ -438,7 +439,7 @@ async function run() {
        const rail = getComputedStyle(document.querySelector('.rail')).backgroundColor;
        return { background: style.backgroundColor, color: style.color, rail };`,
     );
-    check("panel koyu temada okunur", dashDark.background !== dashDark.color && !dashDark.rail.includes("251, 248, 241"), JSON.stringify(dashDark));
+    check("panel readable in dark theme", dashDark.background !== dashDark.color && !dashDark.rail.includes("251, 248, 241"), JSON.stringify(dashDark));
     await screenshot(dash, "dashboard-dark.png", 1280, 900, "dark");
     await evaluate(dash, "document.documentElement.setAttribute('data-theme','light'); return true;");
 
@@ -448,17 +449,17 @@ async function run() {
       await waitFor(
         () => evaluate(test, "return location.href.includes('/blocked/blocked.html');"),
         12_000,
-        "engel yönlendirmesi",
+        "blocked redirect",
       );
       await waitFor(
         () =>
           evaluate(
             test,
             `const node = document.getElementById('target-url');
-             return Boolean(node) && node.textContent.trim() !== 'Adres okunuyor';`,
+             return Boolean(node) && node.textContent.trim() !== 'Reading address';`,
           ),
         8000,
-        "engel hedefi",
+        "blocked target",
       );
       const blocked = await evaluate(
         test,
@@ -470,9 +471,9 @@ async function run() {
           allowEnabled: !document.getElementById('allow-tab').disabled,
         };`,
       );
-      check("grabify isteği engel sayfasına yönlendi", blocked.url.includes("/blocked/blocked.html"), blocked.url);
-      check("engel sayfası hedef adresi gösterir", blocked.target.includes("grabify.link"), blocked.target);
-      check("engel sayfası izin düğmesi etkin", blocked.allowEnabled === true);
+      check("grabify request redirected to blocked page", blocked.url.includes("/blocked/blocked.html"), blocked.url);
+      check("blocked page shows target address", blocked.target.includes("grabify.link"), blocked.target);
+      check("blocked page allow button enabled", blocked.allowEnabled === true);
       await screenshot(test, "blocked.png", 900, 760, "light");
       await test.send("Emulation.setDeviceMetricsOverride", { width: 360, height: 780, deviceScaleFactor: 2, mobile: true });
       await sleep(350);
@@ -480,10 +481,10 @@ async function run() {
         test,
         `return { scroll: document.documentElement.scrollWidth, view: window.innerWidth };`,
       );
-      check("engel sayfası mobilde yatay taşmıyor", blockedMobile.scroll <= blockedMobile.view + 1, `${blockedMobile.scroll} / ${blockedMobile.view}`);
+      check("blocked page does not overflow on mobile", blockedMobile.scroll <= blockedMobile.view + 1, `${blockedMobile.scroll} / ${blockedMobile.view}`);
       await screenshot(test, "blocked-mobile.png", 360, 780, "light");
     } catch (error) {
-      check("grabify isteği engel sayfasına yönlendi", false, error.message);
+      check("grabify request redirected to blocked page", false, error.message);
     }
 
     const tabState = await evaluate(
@@ -491,10 +492,10 @@ async function run() {
       `const tabs = await chrome.tabs.query({});
        return tabs.map((tab) => ({ id: tab.id, url: tab.url || "" }));`,
     );
-    check("sekme izinleri sekme kapanınca temizlenir", Array.isArray(tabState), `${tabState.length} sekme`);
+    check("tab allows cleared on tab close", Array.isArray(tabState), `${tabState.length} sekme`);
 
     const nonFaviconErrors = consoleErrors.filter((text) => !/favicon|net::ERR/i.test(text));
-    check("konsol hatası yok", nonFaviconErrors.length === 0, nonFaviconErrors.slice(0, 3).join(" | "));
+    check("no console errors", nonFaviconErrors.length === 0, nonFaviconErrors.slice(0, 3).join(" | "));
 
     await writeFile(
       join(OUT, "report.json"),
@@ -512,14 +513,14 @@ async function run() {
     await rm(PROFILE, { recursive: true, force: true }).catch(() => {});
   }
 
-  process.stdout.write(`\n${passed.length}/${passed.length + failures.length} tarayıcı kontrolü geçti. Görüntüler: verify-output/\n`);
+  process.stdout.write(`\n${passed.length}/${passed.length + failures.length} browser checks passed. Screenshots: verify-output/\n`);
   if (failures.length > 0) {
-    process.stdout.write(`\nBaşarısız:\n${failures.map((item) => `- ${item}`).join("\n")}\n`);
+    process.stdout.write(`\nFAILED:\n${failures.map((item) => `- ${item}`).join("\n")}\n`);
     process.exitCode = 1;
   }
 }
 
 run().catch((error) => {
-  process.stderr.write(`Tarayıcı doğrulaması çalıştırılamadı: ${error.message}\n`);
+  process.stderr.write(`Browser verification could not run: ${error.message}\n`);
   process.exitCode = 1;
 });

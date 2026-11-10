@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "IP logger ve link grabber alan adlarini engelleyen, sayfa ici IP sizintisi denemelerini raporlayan Chrome uzantisi.",
+  "description": "Chrome extension that blocks IP logger and link grabber domains and reports in-page IP leak attempts.",
   "scripts": {
     "build": "node tools/build-lists.mjs",
     "build:offline": "node tools/build-lists.mjs --offline",

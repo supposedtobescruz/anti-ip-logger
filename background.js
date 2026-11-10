@@ -4,6 +4,7 @@ import {
   PAGE_STATE_TTL_MS,
 } from "./lib/constants.js";
 import { normalizeHost, parseList, parseDnrJson, dedupeSubdomains } from "./lib/parser.js";
+import { t } from "./assets/i18n.js";
 import { hostMatchesDomain, matchDomain, urlToHost } from "./lib/domains.js";
 import { buildDynamicRuleSet } from "./lib/rules.js";
 import {
@@ -306,7 +307,7 @@ async function getTabInfo(tabId) {
       url: "",
       host: "",
       verdict: settings.enabled ? "idle" : "off",
-      copy: describeVerdict(settings.enabled ? "idle" : "off"),
+      copy: describeVerdict(settings.enabled ? "idle" : "off", t),
       risk: assessRisk({ signals: emptySignals(), protectionEnabled: settings.enabled }),
       signals: emptySignals(),
       allowed: false,
@@ -341,7 +342,7 @@ async function getTabInfo(tabId) {
     url,
     host,
     verdict,
-    copy: describeVerdict(verdict),
+    copy: describeVerdict(verdict, t),
     risk,
     signals: tabState ? tabState.signals : emptySignals(),
     allowed,
@@ -476,7 +477,7 @@ async function syncTier(tier) {
           ok: tier === "core" ? allOk : anyOk,
           count,
           at: now,
-          error: allOk ? "" : "Bazı kaynaklar yanıt vermedi; mevcut liste korundu.",
+          error: allOk ? "" : t("syncPartialError"),
           sources: reports,
         },
       },
@@ -485,7 +486,7 @@ async function syncTier(tier) {
     await appendEvent({
       type: "sync",
       host: "",
-      detail: `${tier === "core" ? "Çekirdek" : "Tehdit"} liste güncellendi: ${count} yeni alan adı`,
+      detail: t(tier === "core" ? "eventCoreUpdated" : "eventExtendedUpdated", [String(count)]),
     });
   } else {
     state.settings = await updateSettings({
@@ -495,7 +496,7 @@ async function syncTier(tier) {
           ok: false,
           count: 0,
           at: 0,
-          error: "Hiçbir kaynak yanıt vermedi. Mevcut liste değişmedi.",
+          error: t("syncAllFailedError"),
           sources: reports,
         },
       },
@@ -508,7 +509,7 @@ async function syncTier(tier) {
     tier,
     count,
     reports,
-    error: anyOk ? "" : "Hiçbir kaynak yanıt vermedi.",
+    error: anyOk ? "" : t("syncAllFailedShort"),
   };
 }
 
@@ -526,60 +527,60 @@ function normalizeDomainInput(input) {
 
 async function addCustomDomain(input) {
   const domain = normalizeDomainInput(input);
-  if (!domain) return { ok: false, error: "Geçerli bir alan adı gir." };
+  if (!domain) return { ok: false, error: t("errorInvalidDomain") };
   const allowlist = state.settings.allowlist.filter((item) => !hostMatchesDomain(domain, item) && !hostMatchesDomain(item, domain));
   const customBlocks = [...new Set([...state.settings.customBlocks, domain])].sort();
   state.settings = await updateSettings({ customBlocks, allowlist });
   await applyState(true);
-  await appendEvent({ type: "custom", host: domain, detail: "Özel engel listesine eklendi" });
+  await appendEvent({ type: "custom", host: domain, detail: t("eventCustomAdded") });
   return { ok: true, domain, settings: publicSettings() };
 }
 
 async function removeCustomDomain(input) {
   const domain = normalizeDomainInput(input);
-  if (!domain) return { ok: false, error: "Geçerli bir alan adı gir." };
+  if (!domain) return { ok: false, error: t("errorInvalidDomain") };
   const customBlocks = state.settings.customBlocks.filter((item) => item !== domain);
   state.settings = await updateSettings({ customBlocks });
   await applyState(true);
-  await appendEvent({ type: "custom", host: domain, detail: "Özel engel listesinden çıkarıldı" });
+  await appendEvent({ type: "custom", host: domain, detail: t("eventCustomRemoved") });
   return { ok: true, domain, settings: publicSettings() };
 }
 
 async function allowDomain(input) {
   const domain = normalizeDomainInput(input);
-  if (!domain) return { ok: false, error: "Geçerli bir alan adı gir." };
+  if (!domain) return { ok: false, error: t("errorInvalidDomain") };
   const customBlocks = state.settings.customBlocks.filter((item) => item !== domain);
   const allowlist = [...new Set([...state.settings.allowlist, domain])].sort();
   state.settings = await updateSettings({ customBlocks, allowlist });
   await applyState(true);
-  await appendEvent({ type: "allowed", host: domain, detail: "İzin listesine eklendi" });
+  await appendEvent({ type: "allowed", host: domain, detail: t("eventAllowedAdded") });
   return { ok: true, domain, settings: publicSettings() };
 }
 
 async function removeAllowedDomain(input) {
   const domain = normalizeDomainInput(input);
-  if (!domain) return { ok: false, error: "Geçerli bir alan adı gir." };
+  if (!domain) return { ok: false, error: t("errorInvalidDomain") };
   const allowlist = state.settings.allowlist.filter((item) => item !== domain);
   state.settings = await updateSettings({ allowlist });
   await applyState(true);
-  await appendEvent({ type: "allowed", host: domain, detail: "İzin listesinden çıkarıldı" });
+  await appendEvent({ type: "allowed", host: domain, detail: t("eventAllowedRemoved") });
   return { ok: true, domain, settings: publicSettings() };
 }
 
 async function allowForTab(tabId, input) {
   const domain = normalizeDomainInput(input);
-  if (!Number.isFinite(tabId) || !domain) return { ok: false, error: "Sekme veya alan adı geçersiz." };
+  if (!Number.isFinite(tabId) || !domain) return { ok: false, error: t("errorInvalidTabOrDomain") };
   const value = { domain, at: Date.now() };
   state.tabAllows[tabId] = value;
   await setTabAllow(tabId, value);
   await applyState(true);
-  await appendEvent({ type: "allowed", host: domain, detail: "Bu sekme için geçici izin verildi", tabId });
+  await appendEvent({ type: "allowed", host: domain, detail: t("eventTabAllowed"), tabId });
   return { ok: true, domain, tabId };
 }
 
 async function reportBlock(message, sender) {
   const tabId = sender && sender.tab ? sender.tab.id : message.tabId;
-  if (!Number.isFinite(tabId)) return { ok: false, error: "Sekme bulunamadı." };
+  if (!Number.isFinite(tabId)) return { ok: false, error: t("errorTabNotFound") };
   const pending = await getPendingNav(tabId);
   const target = message.url || (pending && pending.url) || "";
   const host = normalizeHost(target) || normalizeHost(message.host) || "";
@@ -596,7 +597,7 @@ async function reportBlock(message, sender) {
   await appendEvent({
     type: "blocked",
     host,
-    detail: message.reason || "Üst düzey gezinme engellendi",
+    detail: message.reason || t("eventNavBlocked"),
     tabId,
   });
   setActionBadge(tabId, "1");
@@ -653,7 +654,7 @@ async function reportSignals(message, sender) {
     await appendEvent({
       type: "detected",
       host,
-      detail: risk.findings[0] ? risk.findings[0].title : "Sızıntı sinyali",
+      detail: risk.findings[0] ? t(risk.findings[0].titleKey) : t("findingLeakSignal"),
       tabId,
     });
   }
@@ -673,14 +674,14 @@ async function reportSignals(message, sender) {
     showBanner,
     risk,
     verdict,
-    copy: describeVerdict(verdict),
+    copy: describeVerdict(verdict, t),
     known: cls,
   };
 }
 
 async function setSetting(key, value) {
   if (key === "tiers") {
-    if (!value || typeof value !== "object") return { ok: false, error: "Geçersiz katman." };
+    if (!value || typeof value !== "object") return { ok: false, error: t("errorInvalidTier") };
     const tiers = { ...state.settings.tiers };
     if (typeof value.core === "boolean") tiers.core = value.core;
     if (typeof value.extended === "boolean") tiers.extended = value.extended;
@@ -701,7 +702,7 @@ async function setSetting(key, value) {
     theme: (v) => ["system", "light", "dark"].includes(v),
     onboardingSeen: (v) => typeof v === "boolean",
   };
-  if (!allowed[key] || !allowed[key](value)) return { ok: false, error: "Geçersiz ayar." };
+  if (!allowed[key] || !allowed[key](value)) return { ok: false, error: t("errorInvalidSetting") };
 
   state.settings = await updateSettings({ [key]: value });
   if (key !== "theme" && key !== "onboardingSeen" && key !== "warnings") {
@@ -739,7 +740,7 @@ async function exportData() {
 
 async function importData(payload) {
   if (!payload || typeof payload !== "object" || !payload.settings) {
-    return { ok: false, error: "Geçerli bir yedek dosyası değil." };
+    return { ok: false, error: t("errorInvalidBackup") };
   }
   const incoming = payload.settings;
   state.settings = await updateSettings({
@@ -772,7 +773,7 @@ function reportBackgroundError(scope, error) {
 
 async function handleMessage(message, sender) {
   if (!sender || sender.id !== chrome.runtime.id) {
-    return { ok: false, error: "Geçersiz gönderici." };
+    return { ok: false, error: t("errorInvalidSender") };
   }
   await ensureInit();
   const type = message && message.type;
@@ -814,7 +815,7 @@ async function handleMessage(message, sender) {
     }
     case "checkUrl": {
       const host = normalizeDomainInput(message.url);
-      if (!host) return { ok: false, error: "Geçersiz adres." };
+      if (!host) return { ok: false, error: t("errorInvalidUrl") };
       const cls = classifyHost(host);
       const allowed = Boolean(cls.allowed);
       const wouldBlock = state.settings.enabled && cls.known && !allowed;
@@ -855,7 +856,7 @@ async function handleMessage(message, sender) {
       await chrome.runtime.openOptionsPage();
       return { ok: true };
     default:
-      return { ok: false, error: "Bilinmeyen mesaj." };
+      return { ok: false, error: t("errorUnknownMessage") };
   }
 }
 
@@ -980,7 +981,7 @@ if (chrome.declarativeNetRequest.onRuleMatchedDebug) {
         if (now - ts > 60_000) state.recentBlocks.delete(item);
       }
     }
-    await appendEvent({ type: "blocked", host, detail: "Alt kaynak engellendi", tabId: info.request.tabId });
+    await appendEvent({ type: "blocked", host, detail: t("eventSubresourceBlocked"), tabId: info.request.tabId });
   });
 }
 

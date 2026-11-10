@@ -2,14 +2,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { dedupeSubdomains, mergeLists, normalizeHost, parseDnrJson, parseList } from "../lib/parser.js";
 
-test("normalizeHost kabul edilen girdileri sadeleştirir", () => {
+test("normalizeHost cleans accepted inputs", () => {
   assert.equal(normalizeHost("HTTPS://WWW.Example.COM/path?x=1"), "example.com");
   assert.equal(normalizeHost("example.com:8443"), "example.com");
   assert.equal(normalizeHost("  grabify.link.  "), "grabify.link");
   assert.equal(normalizeHost("user:pass@iplogger.org/x"), "iplogger.org");
 });
 
-test("normalizeHost yerel ve geçersiz adları reddeder", () => {
+test("normalizeHost rejects local and invalid hosts", () => {
   assert.equal(normalizeHost("localhost"), null);
   assert.equal(normalizeHost("127.0.0.1"), null);
   assert.equal(normalizeHost("router.local"), null);
@@ -20,7 +20,7 @@ test("normalizeHost yerel ve geçersiz adları reddeder", () => {
   assert.equal(normalizeHost(null), null);
 });
 
-test("parseList hosts ve düz liste satırlarını okur", () => {
+test("parseList reads hosts and plain list lines", () => {
   const text = [
     "# yorum",
     "0.0.0.0 ads.example.com",
@@ -34,19 +34,19 @@ test("parseList hosts ve düz liste satırlarını okur", () => {
   assert.equal(parsed.stats.blocked, 4);
 });
 
-test("parseList adblock istisnalarını ayırır", () => {
+test("parseList separates adblock exceptions", () => {
   const parsed = parseList("@@||example.com^\nexample.com\n||blocked.example.net^");
   assert.deepEqual(parsed.exceptions, ["example.com"]);
   assert.deepEqual(parsed.domains, ["blocked.example.net"]);
 });
 
-test("parseList kozmetik ve yol kapsamlı kuralları atlar", () => {
+test("parseList skips cosmetic and path scoped rules", () => {
   const parsed = parseList("example.com##.ad\nexample.com##+js(nowebrtc)\n@@||example.com/path$xhr");
   assert.equal(parsed.domains.length, 0);
   assert.equal(parsed.stats.skipped, 3);
 });
 
-test("parseDnrJson urlFilter ve requestDomains alanlarını okur", () => {
+test("parseDnrJson reads urlFilter and requestDomains", () => {
   const text = JSON.stringify([
     { id: 1, action: { type: "block" }, condition: { urlFilter: "||grabify.link/*" } },
     { id: 2, action: { type: "block" }, condition: { requestDomains: ["iplogger.org"] } },
@@ -57,11 +57,11 @@ test("parseDnrJson urlFilter ve requestDomains alanlarını okur", () => {
   assert.deepEqual(parsed.exceptions, ["example.com"]);
 });
 
-test("parseDnrJson bozuk JSON için hata fırlatır", () => {
+test("parseDnrJson throws on broken JSON", () => {
   assert.throws(() => parseDnrJson("{bozuk"), /Invalid DNR JSON/);
 });
 
-test("mergeLists istisnaları engel listesinden çıkarır", () => {
+test("mergeLists drops blocked domains present in exceptions", () => {
   const merged = mergeLists([
     { domains: ["a.com", "b.com"], exceptions: [] },
     { domains: ["b.com", "c.com"], exceptions: ["c.com"] },
@@ -70,7 +70,7 @@ test("mergeLists istisnaları engel listesinden çıkarır", () => {
   assert.deepEqual(merged.exceptions, ["c.com"]);
 });
 
-test("dedupeSubdomains üst alan adı varken alt alan adını atar", () => {
+test("dedupeSubdomains drops subdomains with an explicit parent", () => {
   assert.deepEqual(dedupeSubdomains(["sub.example.com", "example.com", "other.net"]), ["example.com", "other.net"]);
   assert.deepEqual(dedupeSubdomains(["a.example.com", "b.example.com"]), ["a.example.com", "b.example.com"]);
 });

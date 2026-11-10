@@ -49,23 +49,23 @@ const light = parseTokens(baseCss, ":root {");
 const dark = parseTokens(baseCss, ':root[data-theme="dark"]');
 
 const PAIRS = [
-  ["ink", "paper", "gövde metni"],
-  ["ink-soft", "paper", "ikincil metin"],
-  ["ink-faint", "paper", "üçüncül metin"],
-  ["ink-faint", "paper-sunken", "üçüncül metin, çukur zemin"],
-  ["accent", "paper", "vurgu metni"],
-  ["accent-ink", "accent", "vurgu düğmesi"],
-  ["danger", "danger-wash", "tehlike etiketi"],
-  ["warn", "warn-wash", "uyarı etiketi"],
-  ["safe", "safe-wash", "güvenli etiket"],
-  ["ink", "paper-raised", "kart metni"],
+  ["ink", "paper", "body text"],
+  ["ink-soft", "paper", "secondary text"],
+  ["ink-faint", "paper", "tertiary text"],
+  ["ink-faint", "paper-sunken", "tertiary text, sunken ground"],
+  ["accent", "paper", "accent text"],
+  ["accent-ink", "accent", "accent button"],
+  ["danger", "danger-wash", "danger badge"],
+  ["warn", "warn-wash", "warn badge"],
+  ["safe", "safe-wash", "safe badge"],
+  ["ink", "paper-raised", "card text"],
 ];
 
-for (const [themeName, tokens] of [["açık", light], ["koyu", dark]]) {
-  check(`${themeName} tema tokenları eksiksiz`, Object.keys(tokens).length > 15, `${Object.keys(tokens).length} token`);
+for (const [themeName, tokens] of [["light", light], ["dark", dark]]) {
+  check(`${themeName} theme tokens complete`, Object.keys(tokens).length > 15, `${Object.keys(tokens).length} token`);
   for (const [fg, bg, label] of PAIRS) {
     if (!tokens[fg] || !tokens[bg]) {
-      check(`${themeName}: ${label} tokenı var`, false, `${fg} / ${bg}`);
+      check(`${themeName}: ${label} token present`, false, `${fg} / ${bg}`);
       continue;
     }
     const ratio = contrast(tokens[fg], tokens[bg]);
@@ -81,11 +81,11 @@ const html = [
 
 for (const [name, file] of html) {
   const text = await readFile(file, "utf8");
-  check(`${name}: dil tr`, /<html lang="tr">/.test(text));
-  check(`${name}: tek h1`, (text.match(/<h1[\s>]/g) || []).length === 1);
-  check(`${name}: düğmelerde type`, [...text.matchAll(/<button\b[^>]*>/g)].every((match) => /type="(button|submit)"/.test(match[0])));
-  check(`${name}: görsel yok`, !/<img\b/.test(text));
-  check(`${name}: satır içi stil yok`, !/<(div|p|span|main|section|header|footer)[^>]+style="/.test(text));
+  check(`${name}: lang en`, /<html lang="en">/.test(text));
+  check(`${name}: single h1`, (text.match(/<h1[\s>]/g) || []).length === 1);
+  check(`${name}: buttons have type`, [...text.matchAll(/<button\b[^>]*>/g)].every((match) => /type="(button|submit)"/.test(match[0])));
+  check(`${name}: no images`, !/<img\b/.test(text));
+  check(`${name}: no inline style`, !/<(div|p|span|main|section|header|footer)[^>]+style="/.test(text));
 
   const controls = [...text.matchAll(/<(input|select|textarea)\b[^>]*>/g)];
   let unlabeled = 0;
@@ -99,35 +99,35 @@ for (const [name, file] of html) {
     const wrapped = before.lastIndexOf("<label") > before.lastIndexOf("</label>");
     if (!hasAria && !hasFor && !wrapped) unlabeled += 1;
   }
-  check(`${name}: form alanları etiketli`, unlabeled === 0, `${unlabeled} etiketsiz`);
+  check(`${name}: form fields labeled`, unlabeled === 0, `${unlabeled} etiketsiz`);
 
-  check(`${name}: canlı bölge var`, /aria-live=|role="status"|role="alert"/.test(text) || name !== "popup");
+  check(`${name}: live region`, /aria-live=|role="status"|role="alert"/.test(text) || name !== "popup");
 }
 
 const blockedCss = await readFile(join(ROOT, "blocked", "blocked.css"), "utf8");
-check("engel sayfası mobilde tam genişlik", /@media \(max-width: 520px\)/.test(blockedCss));
+check("blocked page full width on mobile", /@media \(max-width: 520px\)/.test(blockedCss));
 
 const popupCss = await readFile(join(ROOT, "popup", "popup.css"), "utf8");
-check("popup sabit genişlik", /width: 384px/.test(popupCss));
+check("popup fixed width", /width: 384px/.test(popupCss));
 
 const dashboardCss = await readFile(join(ROOT, "dashboard", "dashboard.css"), "utf8");
-check("panel mobil kırılımı", /@media \(max-width: 980px\)/.test(dashboardCss) && /@media \(max-width: 760px\)/.test(dashboardCss));
+check("panel mobile breakpoints", /@media \(max-width: 980px\)/.test(dashboardCss) && /@media \(max-width: 760px\)/.test(dashboardCss));
 
-check("odak halkası tanımlı", /:focus-visible\s*\{[^}]*outline: 2px solid var\(--accent\)/s.test(baseCss));
-check("hareket azaltma desteği", /prefers-reduced-motion: reduce/.test(baseCss));
-check("koyu tema desteği", /prefers-color-scheme: dark/.test(baseCss));
-check("yazı tipi yerel", /@font-face/.test(await readFile(join(ROOT, "assets", "fonts.css"), "utf8")));
+check("focus ring defined", /:focus-visible\s*\{[^}]*outline: 2px solid var\(--accent\)/s.test(baseCss));
+check("reduced motion support", /prefers-reduced-motion: reduce/.test(baseCss));
+check("dark theme support", /prefers-color-scheme: dark/.test(baseCss));
+check("font is local", /@font-face/.test(await readFile(join(ROOT, "assets", "fonts.css"), "utf8")));
 
 const uiSource = await readFile(join(ROOT, "assets", "ui.js"), "utf8");
-check("ortak tema yardımcısı", /export function applyTheme/.test(uiSource));
-check("mesaj sarmalayıcı hata yakalar", /catch \(error\)/.test(uiSource));
+check("shared theme helper", /export function applyTheme/.test(uiSource));
+check("message wrapper catches errors", /catch \(error\)/.test(uiSource));
 
 for (const item of checks) {
   process.stdout.write(`${item.ok ? "PASS" : "FAIL"}  ${item.name}${item.detail ? `  (${item.detail})` : ""}\n`);
 }
 
-process.stdout.write(`\n${checks.length - failures.length}/${checks.length} arayüz kontrolü geçti.\n`);
+process.stdout.write(`\n${checks.length - failures.length}/${checks.length} UI checks passed.\n`);
 if (failures.length > 0) {
-  process.stdout.write(`\nBaşarısız:\n${failures.map((item) => `- ${item}`).join("\n")}\n`);
+  process.stdout.write(`\nFAILED:\n${failures.map((item) => `- ${item}`).join("\n")}\n`);
   process.exitCode = 1;
 }

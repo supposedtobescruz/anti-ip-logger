@@ -31,8 +31,8 @@ async function listFiles(dir, extension) {
 const manifest = await readJson(join(ROOT, "manifest.json"));
 
 check("manifest_version 3", manifest.manifest_version === 3);
-check("isim ve sürüm tanımlı", typeof manifest.name === "string" && /^\d+\.\d+\.\d+$/.test(manifest.version));
-check("service worker modül", manifest.background && manifest.background.type === "module");
+check("name and version defined", typeof manifest.name === "string" && /^\d+\.\d+\.\d+$/.test(manifest.version));
+check("service worker is a module", manifest.background && manifest.background.type === "module");
 
 const requiredFiles = new Set([
   manifest.background.service_worker,
@@ -44,7 +44,7 @@ const requiredFiles = new Set([
 ]);
 
 for (const file of requiredFiles) {
-  check(`dosya var: ${file}`, existsSync(join(ROOT, file)));
+  check(`file exists: ${file}`, existsSync(join(ROOT, file)));
 }
 
 const permissions = new Set(manifest.permissions || []);
@@ -53,7 +53,7 @@ for (const permission of ["storage", "declarativeNetRequest", "alarms", "webNavi
 }
 check("host_permissions <all_urls>", (manifest.host_permissions || []).includes("<all_urls>"));
 check(
-  "içerik betiği ana dünyada çalışır",
+  "content script runs in the main world",
   manifest.content_scripts.some((script) => script.world === "MAIN" && script.run_at === "document_start"),
 );
 
@@ -71,12 +71,12 @@ const jsFiles = [
 
 for (const file of jsFiles) {
   const result = spawnSync(process.execPath, ["--check", file], { encoding: "utf8" });
-  check(`sözdizimi: ${relative(ROOT, file)}`, result.status === 0, (result.stderr || "").split("\n")[0]);
+  check(`syntax: ${relative(ROOT, file)}`, result.status === 0, (result.stderr || "").split("\n")[0]);
 }
 
 const rules = await readJson(join(ROOT, "rules", "core.json"));
-check("statik kural listesi dizi", Array.isArray(rules) && rules.length > 0);
-check("statik kural sayısı sınırda", rules.length <= 30_000, `${rules.length}`);
+check("static rule list is an array", Array.isArray(rules) && rules.length > 0);
+check("static rule count within limit", rules.length <= 30_000, `${rules.length}`);
 
 const ids = new Set();
 let domainTotal = 0;
@@ -93,23 +93,23 @@ for (const rule of rules) {
     if (!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(domain)) schemaOk = false;
   }
 }
-check("statik kural şeması geçerli", schemaOk);
-check("statik kural kimlikleri tekil", ids.size === rules.length);
+check("static rule schema is valid", schemaOk);
+check("static rule ids are unique", ids.size === rules.length);
 
 const coreData = await readJson(join(ROOT, "data", "core-domains.json"));
 const exceptions = await readJson(join(ROOT, "data", "core-exceptions.json"));
 const meta = await readJson(join(ROOT, "data", "meta.json"));
 
-check("çekirdek veri sayısı meta ile uyumlu", coreData.domains.length === meta.counts.domains, `${coreData.domains.length} / ${meta.counts.domains}`);
-check("kural alan adı toplamı veri ile uyumlu", domainTotal === meta.counts.domains, `${domainTotal} / ${meta.counts.domains}`);
-check("istisna sayısı meta ile uyumlu", exceptions.length === meta.counts.exceptions);
+check("core data count matches meta", coreData.domains.length === meta.counts.domains, `${coreData.domains.length} / ${meta.counts.domains}`);
+check("rule domain total matches data", domainTotal === meta.counts.domains, `${domainTotal} / ${meta.counts.domains}`);
+check("exception count matches meta", exceptions.length === meta.counts.exceptions);
 
 const coreSet = new Set(coreData.domains.map((entry) => entry.domain));
-check("çekirdek listede tekrar yok", coreSet.size === coreData.domains.length);
+check("no duplicates in the core list", coreSet.size === coreData.domains.length);
 const overlap = exceptions.filter((domain) => coreSet.has(domain));
-check("istisnalar engel listesinde değil", overlap.length === 0, overlap.join(","));
-check("her kayıt kategori ve güven taşır", coreData.domains.every((entry) => entry.category && ["confirmed", "single"].includes(entry.confidence)));
-check("her kayıt en az bir kaynak taşır", coreData.domains.every((entry) => Array.isArray(entry.sources) && entry.sources.length > 0));
+check("exceptions are not on the blocklist", overlap.length === 0, overlap.join(","));
+check("every entry has category and trust", coreData.domains.every((entry) => entry.category && ["confirmed", "single"].includes(entry.confidence)));
+check("every entry has at least one source", coreData.domains.every((entry) => Array.isArray(entry.sources) && entry.sources.length > 0));
 
 const htmlFiles = [
   join(ROOT, "popup", "popup.html"),
@@ -120,18 +120,18 @@ const htmlFiles = [
 for (const file of htmlFiles) {
   const html = await readFile(file, "utf8");
   const label = relative(ROOT, file);
-  check(`dil tanımı: ${label}`, /<html lang="tr">/.test(html));
+  check(`lang attribute: ${label}`, /<html lang="en">/.test(html));
   check(`viewport: ${label}`, /name="viewport"/.test(html));
-  check(`tek h1: ${label}`, (html.match(/<h1[\s>]/g) || []).length === 1);
-  check(`harici script yok: ${label}`, !/<script[^>]+src="https?:/.test(html));
+  check(`single h1: ${label}`, (html.match(/<h1[\s>]/g) || []).length === 1);
+  check(`no external script: ${label}`, !/<script[^>]+src="https?:/.test(html));
   const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]);
-  check(`tekil id: ${label}`, new Set(ids).size === ids.length);
+  check(`unique ids: ${label}`, new Set(ids).size === ids.length);
 
   const assetRefs = [...html.matchAll(/(?:href|src)="([^"#:]+)"/g)].map((match) => match[1]);
   for (const ref of assetRefs) {
     if (ref.startsWith("data:")) continue;
     const target = join(dirname(file), ref);
-    check(`varlık var: ${label} -> ${ref}`, existsSync(target));
+    check(`asset exists: ${label} -> ${ref}`, existsSync(target));
   }
 }
 
@@ -147,27 +147,34 @@ for (const file of sourceFiles) {
   const text = await readFile(file, "utf8");
   if (text.includes("\u2014")) emDash.push(relative(ROOT, file));
 }
-check("uzun tire (em dash) yok", emDash.length === 0, emDash.join(", "));
+check("no em dash", emDash.length === 0, emDash.join(", "));
 
 const manifestKeys = Object.keys(manifest);
-check("bilinmeyen manifest anahtarı yok", manifestKeys.every((key) => !["default_locale"].includes(key)));
+const KNOWN_MANIFEST_KEYS = new Set([
+  "manifest_version", "name", "short_name", "version", "description", "default_locale",
+  "minimum_chrome_version", "permissions", "host_permissions", "background", "action",
+  "icons", "options_ui", "declarative_net_request", "content_scripts",
+]);
+check("no unknown manifest keys", manifestKeys.every((key) => KNOWN_MANIFEST_KEYS.has(key)));
+check("default_locale is en", manifest.default_locale === "en");
+check("en and tr locales exist", existsSync(join(ROOT, "_locales", "en", "messages.json")) && existsSync(join(ROOT, "_locales", "tr", "messages.json")));
 
 const fonts = await readdir(join(ROOT, "assets", "fonts"));
-check("gömülü yazı tipleri mevcut", fonts.filter((name) => name.endsWith(".woff2")).length >= 6, `${fonts.length}`);
+check("embedded fonts present", fonts.filter((name) => name.endsWith(".woff2")).length >= 6, `${fonts.length}`);
 
 const totalBytes = await (async () => {
   let sum = 0;
   for (const file of [...jsFiles, ...htmlFiles]) sum += (await stat(file)).size;
   return sum;
 })();
-check("kaynak boyutu makul", totalBytes < 400_000, `${Math.round(totalBytes / 1024)} KB`);
+check("source size is reasonable", totalBytes < 400_000, `${Math.round(totalBytes / 1024)} KB`);
 
 for (const item of checks) {
   process.stdout.write(`${item.ok ? "PASS" : "FAIL"}  ${item.name}${item.detail ? `  (${item.detail})` : ""}\n`);
 }
 
-process.stdout.write(`\n${checks.length - failures.length}/${checks.length} kontrol geçti.\n`);
+process.stdout.write(`\n${checks.length - failures.length}/${checks.length} checks passed.\n`);
 if (failures.length > 0) {
-  process.stdout.write(`\nBaşarısız:\n${failures.map((item) => `- ${item}`).join("\n")}\n`);
+  process.stdout.write(`\nFAILED:\n${failures.map((item) => `- ${item}`).join("\n")}\n`);
   process.exitCode = 1;
 }

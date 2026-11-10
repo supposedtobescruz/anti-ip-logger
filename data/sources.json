@@ -41,7 +41,7 @@
       "format": "text",
       "tier": "core",
       "category": "grabify",
-      "license": "Atıf, açık lisans belirtilmemiş",
+      "license": "Attribution given, no explicit license",
       "project": "https://github.com/JonasLong/DeGrabify",
       "required": true
     },

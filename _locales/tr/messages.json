@@ -1,0 +1,1374 @@
+{
+  "appName": {
+    "message": "Anti IP Logger",
+    "description": "Uzantı adı."
+  },
+  "appShortName": {
+    "message": "Anti IP Logger",
+    "description": "Kısa ad."
+  },
+  "appDescription": {
+    "message": "IP logger ve link grabber alan adlarını engeller, sayfa içinde IP sızıntısı denemelerini raporlar.",
+    "description": "Store açıklaması."
+  },
+  "commonWorking": {
+    "message": "Çalışıyor",
+    "description": "Meşgul düğme metin varsayılanı."
+  },
+  "loadingText": {
+    "message": "Yükleniyor",
+    "description": "Genel yüklenme metni."
+  },
+  "hostUnknown": {
+    "message": "genel",
+    "description": "Alan adı yokken yedek metin."
+  },
+  "relativeNever": {
+    "message": "hiç",
+    "description": "Zaman damgası yokken."
+  },
+  "relativeJustNow": {
+    "message": "az önce",
+    "description": "45 saniyenin altında."
+  },
+  "relativeMinutes": {
+    "message": "$1 dk önce",
+    "description": "Dakika cinsinden göreli zaman."
+  },
+  "relativeHours": {
+    "message": "$1 sa önce",
+    "description": "Saat cinsinden göreli zaman."
+  },
+  "relativeDays": {
+    "message": "$1 gün önce",
+    "description": "Gün cinsinden göreli zaman."
+  },
+  "skipToContent": {
+    "message": "İçeriğe geç",
+    "description": "Panel atlama bağlantısı."
+  },
+  "navOverview": {
+    "message": "Genel Bakış",
+    "description": "Panel bölümü."
+  },
+  "navLists": {
+    "message": "Listeler",
+    "description": "Panel bölümü."
+  },
+  "navEvents": {
+    "message": "Olaylar",
+    "description": "Panel bölümü."
+  },
+  "navSources": {
+    "message": "Kaynaklar",
+    "description": "Panel bölümü."
+  },
+  "navSettings": {
+    "message": "Ayarlar",
+    "description": "Panel bölümü."
+  },
+  "eyebrowPanel": {
+    "message": "Kontrol paneli",
+    "description": "Panel üst metin etiketi."
+  },
+  "syncNowButton": {
+    "message": "Listeyi güncelle",
+    "description": "Panel üstündeki senkron düğmesi."
+  },
+  "themeButton": {
+    "message": "Tema",
+    "description": "Panel üstündeki tema düğmesi."
+  },
+  "routeOverviewTitle": {
+    "message": "Genel Bakış",
+    "description": "Genel Bakış rotasının başlığı."
+  },
+  "routeOverviewEyebrow": {
+    "message": "Kontrol paneli",
+    "description": "Genel Bakış rotasının üst metni."
+  },
+  "routeListsTitle": {
+    "message": "Listeler",
+    "description": "Listeler rotasının başlığı."
+  },
+  "routeListsEyebrow": {
+    "message": "Engel ve izin",
+    "description": "Listeler rotasının üst metni."
+  },
+  "routeEventsTitle": {
+    "message": "Olaylar",
+    "description": "Olaylar rotasının başlığı."
+  },
+  "routeEventsEyebrow": {
+    "message": "Kayıt",
+    "description": "Olaylar rotasının üst metni."
+  },
+  "routeSourcesTitle": {
+    "message": "Kaynaklar",
+    "description": "Kaynaklar rotasının başlığı."
+  },
+  "routeSourcesEyebrow": {
+    "message": "Liste sağlığı",
+    "description": "Kaynaklar rotasının üst metni."
+  },
+  "routeSettingsTitle": {
+    "message": "Ayarlar",
+    "description": "Ayarlar rotasının başlığı."
+  },
+  "routeSettingsEyebrow": {
+    "message": "Davranış",
+    "description": "Ayarlar rotasının üst metni."
+  },
+  "themeToggleLabel": {
+    "message": "Temayı değiştir",
+    "description": "Popup tema düğmesi erişilebilir adı."
+  },
+  "openDashboardLabel": {
+    "message": "Paneli aç",
+    "description": "Popup panel düğmesi erişilebilir adı."
+  },
+  "themeSwitchToLight": {
+    "message": "Açık temaya geç",
+    "description": "Koyu tema etkindeyken düğme adı."
+  },
+  "themeSwitchToDark": {
+    "message": "Koyu temaya geç",
+    "description": "Açık tema etkindeyken düğme adı."
+  },
+  "protectionOn": {
+    "message": "Koruma açık",
+    "description": "Koruma durumu."
+  },
+  "protectionOff": {
+    "message": "Koruma kapalı",
+    "description": "Koruma durumu."
+  },
+  "switchOn": {
+    "message": "Açık",
+    "description": "Koruma açıkken anahtar etiketi."
+  },
+  "switchOff": {
+    "message": "Kapalı",
+    "description": "Koruma kapalıyken anahtar etiketi."
+  },
+  "protectionStatusEyebrow": {
+    "message": "Koruma durumu",
+    "description": "Durum bandı etiketi."
+  },
+  "statusPartialDetail": {
+    "message": "Liste kısmen güncel. Son güncellemede bazı kaynaklar yanıt vermedi, mevcut alan adları korundu.",
+    "description": "Kısmi senkron hatasında durum bandı detayı."
+  },
+  "statusWorkingDetail": {
+    "message": "Çekirdek liste $1 alan adı ve $2 dinamik kural ile çalışıyor.",
+    "description": "Koruma etkinken durum bandı detayı."
+  },
+  "statusDisabledDetail": {
+    "message": "Engelleme ve sayfa içi uyarılar devre dışı. Açtığında önceki ayarlar geri gelir.",
+    "description": "Koruma kapalıyken durum bandı detayı."
+  },
+  "tileBlocked": {
+    "message": "Engellenen istek",
+    "description": "Kutucuk etiketi."
+  },
+  "tileBlockedNote": {
+    "message": "Bu tarayıcıda toplam",
+    "description": "Kutucuk dipnotu."
+  },
+  "tileDetected": {
+    "message": "Tespit edilen sinyal",
+    "description": "Kutucuk etiketi."
+  },
+  "tileDetectedNote": {
+    "message": "WebRTC, form, piksel",
+    "description": "Kutucuk dipnotu."
+  },
+  "tileDomains": {
+    "message": "Çekirdek liste",
+    "description": "Kutucuk etiketi."
+  },
+  "tileDomainsNote": {
+    "message": "Alan adı",
+    "description": "Kutucuk dipnotu."
+  },
+  "tileDomainsBreakdown": {
+    "message": "$1 doğrulanmış, $2 tek kaynak",
+    "description": "Kutucuk dipnotu, sayaçlı."
+  },
+  "tileRules": {
+    "message": "Aktif kural",
+    "description": "Kutucuk etiketi."
+  },
+  "tileRulesNote": {
+    "message": "Dinamik ve statik",
+    "description": "Kutucuk dipnotu."
+  },
+  "tileRulesStatic": {
+    "message": "Statik kural etkin",
+    "description": "Kutucuk dipnotu."
+  },
+  "tileRulesDynamicOnly": {
+    "message": "Yalnızca dinamik kural",
+    "description": "Kutucuk dipnotu."
+  },
+  "recentEventsTitle": {
+    "message": "Son olaylar",
+    "description": "Kart başlığı."
+  },
+  "seeAllLink": {
+    "message": "Tümü",
+    "description": "Sessiz bağlantı."
+  },
+  "overviewEventsEmpty": {
+    "message": "Henüz olay yok. Engellenen bağlantılar burada listelenir.",
+    "description": "Genel Bakış olay listesi boş durumu."
+  },
+  "coverageTitle": {
+    "message": "Kapsam",
+    "description": "Kart başlığı."
+  },
+  "coverageCore": {
+    "message": "Çekirdek alan adı",
+    "description": "Anahtar-değer satırı."
+  },
+  "coverageRemote": {
+    "message": "Uzak güncelleme",
+    "description": "Anahtar-değer satırı."
+  },
+  "coverageExtended": {
+    "message": "Tehdit listesi",
+    "description": "Anahtar-değer satırı."
+  },
+  "coverageAllow": {
+    "message": "İzin listesi",
+    "description": "Anahtar-değer satırı."
+  },
+  "coverageTab": {
+    "message": "Sekme izni",
+    "description": "Anahtar-değer satırı."
+  },
+  "coverageSynced": {
+    "message": "Son çekirdek güncelleme $1.",
+    "description": "Kapsam dipnotu, göreli zaman."
+  },
+  "coverageLocalOnly": {
+    "message": "Uzak güncelleme henüz çalışmadı, yerel liste kullanılıyor.",
+    "description": "Kapsam dipnotu."
+  },
+  "offLabel": {
+    "message": "kapalı",
+    "description": "Tehdit listesi kapalı etiketi."
+  },
+  "badgeOff": {
+    "message": "Kapalı",
+    "description": "Kapalı durum rozeti."
+  },
+  "badgeOn": {
+    "message": "Açık",
+    "description": "Açık durum rozeti."
+  },
+  "coreListTitle": {
+    "message": "Çekirdek liste",
+    "description": "Kart başlığı."
+  },
+  "coreCount": {
+    "message": "$1 alan adı",
+    "description": "Çekirdek liste sayacı."
+  },
+  "coreSummaryAll": {
+    "message": "$1 alan adı listeleniyor. Kategori ve güven etiketi derleme sırasında üretilir.",
+    "description": "Filtrelenmemiş çekirdek liste özeti."
+  },
+  "coreSummaryFiltered": {
+    "message": "$1 sonuç, toplam $2 alan adı.",
+    "description": "Filtrelenmiş çekirdek liste özeti."
+  },
+  "searchLabel": {
+    "message": "Ara",
+    "description": "Arama alanı etiketi."
+  },
+  "coreSearchPlaceholder": {
+    "message": "alan adı, kategori veya kaynak",
+    "description": "Arama yer tutucusu."
+  },
+  "categoryLabel": {
+    "message": "Kategori",
+    "description": "Kategori filtresi etiketi."
+  },
+  "categoryAll": {
+    "message": "Tümü",
+    "description": "Kategori filtresi seçeneği."
+  },
+  "coreListCaption": {
+    "message": "Çekirdek engel listesi",
+    "description": "Tablo başlığı."
+  },
+  "tableDomain": {
+    "message": "Alan adı",
+    "description": "Tablo sütunu."
+  },
+  "tableCategory": {
+    "message": "Kategori",
+    "description": "Tablo sütunu."
+  },
+  "tableTrust": {
+    "message": "Güven",
+    "description": "Tablo sütunu."
+  },
+  "tableSource": {
+    "message": "Kaynak",
+    "description": "Tablo sütunu."
+  },
+  "coreEmpty": {
+    "message": "Aramanla eşleşen alan adı yok.",
+    "description": "Çekirdek liste boş durumu."
+  },
+  "coreMoreButton": {
+    "message": "Daha fazla göster",
+    "description": "Sayfalama düğmesi."
+  },
+  "categoryGrabify": {
+    "message": "Grabify",
+    "description": "Kategori etiketi."
+  },
+  "categoryIplogger": {
+    "message": "IPLogger",
+    "description": "Kategori etiketi."
+  },
+  "categoryOther": {
+    "message": "Diğer",
+    "description": "Kategori etiketi."
+  },
+  "categoryTracker": {
+    "message": "İzleyici",
+    "description": "Kategori etiketi."
+  },
+  "categoryThreat": {
+    "message": "Tehdit",
+    "description": "Kategori etiketi."
+  },
+  "categoryCustom": {
+    "message": "Özel",
+    "description": "Kategori etiketi."
+  },
+  "categoryGrabifyLong": {
+    "message": "Grabify benzeri link grabber",
+    "description": "Kategori uzun etiket."
+  },
+  "categoryIploggerLong": {
+    "message": "IPLogger ailesi",
+    "description": "Kategori uzun etiket."
+  },
+  "categoryOtherLong": {
+    "message": "IP toplama veya kısa bağlantı servisi",
+    "description": "Kategori uzun etiket."
+  },
+  "categoryTrackerLong": {
+    "message": "İzleyici altyapısı",
+    "description": "Kategori uzun etiket."
+  },
+  "categoryThreatLong": {
+    "message": "Tehdit listesi kaydı",
+    "description": "Kategori uzun etiket."
+  },
+  "categoryCustomLong": {
+    "message": "Özel engel kuralı",
+    "description": "Kategori uzun etiket."
+  },
+  "confidenceConfirmed": {
+    "message": "Doğrulanmış",
+    "description": "Güven rozeti."
+  },
+  "confidenceSingle": {
+    "message": "Tek kaynak",
+    "description": "Güven rozeti."
+  },
+  "confidenceConfirmedDetail": {
+    "message": "iki veya daha fazla kaynakla doğrulandı",
+    "description": "Kayıt detayı."
+  },
+  "confidenceSingleDetail": {
+    "message": "tek kaynak kaydı",
+    "description": "Kayıt detayı."
+  },
+  "originRemote": {
+    "message": "uzak güncelleme",
+    "description": "Kayıt detayı."
+  },
+  "originAllowlist": {
+    "message": "izin listesinde",
+    "description": "Kayıt detayı."
+  },
+  "knownOnList": {
+    "message": "Alan adı listede bulundu.",
+    "description": "Kayıt yedeği."
+  },
+  "allowlistTitle": {
+    "message": "İzin listesi",
+    "description": "Kart başlığı."
+  },
+  "customBlocksTitle": {
+    "message": "Özel engeller",
+    "description": "Kart başlığı."
+  },
+  "domainInputLabel": {
+    "message": "Alan adı ekle",
+    "description": "Form alan etiketi."
+  },
+  "addButton": {
+    "message": "Ekle",
+    "description": "Form gönder düğmesi."
+  },
+  "removeButton": {
+    "message": "Kaldır",
+    "description": "Kaldır düğmesi."
+  },
+  "removeAllowAria": {
+    "message": "$1 kaydını izin listesinden kaldır",
+    "description": "Kaldır düğmesi erişilebilir adı."
+  },
+  "removeCustomAria": {
+    "message": "$1 kaydını özel engellerden kaldır",
+    "description": "Kaldır düğmesi erişilebilir adı."
+  },
+  "recordCount": {
+    "message": "$1 kayıt",
+    "description": "Kayıt sayacı."
+  },
+  "allowEmpty": {
+    "message": "İzin listesi boş. Engellenen bir siteyi buradan muaf tutabilirsin.",
+    "description": "İzin listesi boş durumu."
+  },
+  "customEmpty": {
+    "message": "Özel engel yok. Listede olmayan bir siteyi buradan ekleyebilirsin.",
+    "description": "Özel engeller boş durumu."
+  },
+  "listsFootnote": {
+    "message": "Liste, kaynaklar güncellendiğinde otomatik yenilenir. İzin listesi her zaman engel listesinden önce gelir.",
+    "description": "Listeler kartları alt metni."
+  },
+  "eventsTitle": {
+    "message": "Olay kaydı",
+    "description": "Kart / bölüm başlığı."
+  },
+  "typeLabel": {
+    "message": "Tür",
+    "description": "Filtre etiketi."
+  },
+  "typeAll": {
+    "message": "Tümü",
+    "description": "Filtre seçeneği."
+  },
+  "typeBlocked": {
+    "message": "Engel",
+    "description": "Olay türü."
+  },
+  "typeDetected": {
+    "message": "Tespit",
+    "description": "Olay türü."
+  },
+  "typeAllowed": {
+    "message": "İzin",
+    "description": "Olay türü."
+  },
+  "typeCustom": {
+    "message": "Kural",
+    "description": "Olay türü."
+  },
+  "typeSync": {
+    "message": "Güncelleme",
+    "description": "Olay türü."
+  },
+  "typeInfo": {
+    "message": "Bilgi",
+    "description": "Olay türü."
+  },
+  "eventsSearchPlaceholder": {
+    "message": "alan adı veya açıklama",
+    "description": "Arama yer tutucusu."
+  },
+  "eventsClearButton": {
+    "message": "Kaydı temizle",
+    "description": "Temizle düğmesi."
+  },
+  "eventCount": {
+    "message": "$1 olay",
+    "description": "Olay sayacı."
+  },
+  "eventsFilterEmpty": {
+    "message": "Bu filtreyle eşleşen olay yok.",
+    "description": "Boş durum."
+  },
+  "eventsFootnote": {
+    "message": "Kayıt en son 500 olayı tutar, sayfa yeniden başlatıldığında silinmez. Sekmeler kapandığında geçici izinler temizlenir.",
+    "description": "Dipnot."
+  },
+  "eventsSeeAll": {
+    "message": "Tümü",
+    "description": "Sessiz bağlantı etiketi."
+  },
+  "eventsEmpty": {
+    "message": "Henüz kayıt yok. Bir IP logger bağlantısı engellendiğinde burada görünür.",
+    "description": "Popup olay listesi boş durumu."
+  },
+  "sourceHealthTitle": {
+    "message": "Kaynak sağlığı",
+    "description": "Kart başlığı."
+  },
+  "sourceCount": {
+    "message": "$1 kaynak",
+    "description": "Kaynak sayacı."
+  },
+  "sourcesCaption": {
+    "message": "Liste kaynakları ve son güncelleme durumu",
+    "description": "Tablo başlığı."
+  },
+  "tableSourceCol": {
+    "message": "Kaynak",
+    "description": "Tablo sütunu."
+  },
+  "tableTierCol": {
+    "message": "Katman",
+    "description": "Tablo sütunu."
+  },
+  "tableLicenseCol": {
+    "message": "Lisans",
+    "description": "Tablo sütunu."
+  },
+  "tableStatusCol": {
+    "message": "Son durum",
+    "description": "Tablo sütunu."
+  },
+  "tableDomainsCol": {
+    "message": "Alan adı",
+    "description": "Tablo sütunu."
+  },
+  "tierCore": {
+    "message": "Çekirdek",
+    "description": "Katman etiketi."
+  },
+  "tierThreat": {
+    "message": "Tehdit",
+    "description": "Katman etiketi."
+  },
+  "licenseUnspecified": {
+    "message": "belirtilmemiş",
+    "description": "Lisans yedeği."
+  },
+  "sourceOk": {
+    "message": "Yanıt verdi",
+    "description": "Kaynak durumu."
+  },
+  "sourceError": {
+    "message": "Hata",
+    "description": "Kaynak durumu."
+  },
+  "sourcePending": {
+    "message": "Bekliyor",
+    "description": "Kaynak durumu."
+  },
+  "sourcesNote": {
+    "message": "$1 çekirdek kaynak her güncellemede çekilir. Tehdit listesi yalnızca açıkken güncellenir.",
+    "description": "Kaynaklar tablosu altı ipucu."
+  },
+  "coreRefreshTitle": {
+    "message": "Çekirdek güncelleme",
+    "description": "Kart başlığı."
+  },
+  "coreRefreshHint": {
+    "message": "Kaynaklar başarısız olursa mevcut liste korunur, boş liste yazılmaz.",
+    "description": "İpucu metni."
+  },
+  "syncNowCoreButton": {
+    "message": "Şimdi güncelle",
+    "description": "Düğme etiketi."
+  },
+  "threatListTitle": {
+    "message": "Tehdit listesi",
+    "description": "Kart başlığı."
+  },
+  "threatListHint": {
+    "message": "İsteğe bağlı geniş liste. Açıldığında çok sayıda alan adı eklenir ve daha fazla yanlış pozitif üretebilir.",
+    "description": "İpucu metni."
+  },
+  "syncNowExtendedButton": {
+    "message": "Listeyi güncelle",
+    "description": "Düğme etiketi."
+  },
+  "lastRefresh": {
+    "message": "Son güncelleme: $1",
+    "description": "Senkron sonuç satırı."
+  },
+  "protectionCardTitle": {
+    "message": "Koruma",
+    "description": "Kart başlığı."
+  },
+  "settingEnabledTitle": {
+    "message": "Koruma açık",
+    "description": "Ayar satırı başlığı."
+  },
+  "settingEnabledHint": {
+    "message": "Tüm engelleme ve uyarıları açar veya kapatır.",
+    "description": "Ayar satırı ipucu."
+  },
+  "settingCoreTitle": {
+    "message": "Çekirdek liste",
+    "description": "Ayar satırı başlığı."
+  },
+  "settingCoreHint": {
+    "message": "Grabify, IPLogger ve benzeri servisler.",
+    "description": "Ayar satırı ipucu."
+  },
+  "settingExtendedTitle": {
+    "message": "Tehdit listesi",
+    "description": "Ayar satırı başlığı."
+  },
+  "settingExtendedHint": {
+    "message": "İsteğe bağlı geniş liste, varsayılan kapalı.",
+    "description": "Ayar satırı ipucu."
+  },
+  "settingBlockedPageTitle": {
+    "message": "Engel sayfası",
+    "description": "Ayar satırı başlığı."
+  },
+  "settingBlockedPageHint": {
+    "message": "Engellenen adres yerine uyarı sayfası göster.",
+    "description": "Ayar satırı ipucu."
+  },
+  "settingWarningsTitle": {
+    "message": "Sayfa içi uyarı",
+    "description": "Ayar satırı başlığı."
+  },
+  "settingWarningsHint": {
+    "message": "Şüpheli davranışta sayfada uyarı bandı göster.",
+    "description": "Ayar satırı ipucu."
+  },
+  "privacyCardTitle": {
+    "message": "Gizlilik ve görünüm",
+    "description": "Kart başlığı."
+  },
+  "webrtcLabel": {
+    "message": "WebRTC IP politikası",
+    "description": "Seçim etiketi."
+  },
+  "webrtcDefault": {
+    "message": "Tarayıcı varsayılanı",
+    "description": "Seçim seçeneği."
+  },
+  "webrtcNonProxied": {
+    "message": "Yerel IP paylaşımını kapat",
+    "description": "Seçim seçeneği."
+  },
+  "webrtcUdp": {
+    "message": "UDP üzerinden WebRTC bağlantısını kapat",
+    "description": "Seçim seçeneği."
+  },
+  "webrtcHint": {
+    "message": "Bu ayar tarayıcı genelinde geçerlidir. Kapatıldığında bazı görüntülü görüşmeler çalışmayabilir.",
+    "description": "İpucu metni."
+  },
+  "themeLabel": {
+    "message": "Tema",
+    "description": "Seçim etiketi."
+  },
+  "themeSystem": {
+    "message": "Sistem",
+    "description": "Seçim seçeneği."
+  },
+  "themeLight": {
+    "message": "Açık",
+    "description": "Seçim seçeneği."
+  },
+  "themeDark": {
+    "message": "Koyu",
+    "description": "Seçim seçeneği."
+  },
+  "webrtcNoteDefault": {
+    "message": "WebRTC politikası tarayıcı varsayılanında. Yerel IP sızıntısı için sinyal izleme yine çalışır.",
+    "description": "Politika varsayılan iken not."
+  },
+  "webrtcNoteCustom": {
+    "message": "WebRTC politikası bu tarayıcıda değiştirildi. Ayar kaldırıldığında tarayıcı varsayılanına döner.",
+    "description": "Politika özelken not."
+  },
+  "dataCardTitle": {
+    "message": "Veri",
+    "description": "Kart başlığı."
+  },
+  "exportButton": {
+    "message": "Yedeği indir",
+    "description": "Düğme etiketi."
+  },
+  "importButton": {
+    "message": "Yedekten yükle",
+    "description": "Düğme etiketi."
+  },
+  "resetButton": {
+    "message": "Tüm verileri sıfırla",
+    "description": "Düğme etiketi."
+  },
+  "resetConfirmText": {
+    "message": "Bu işlem izin listesini, özel engelleri ve olay kaydını siler. Geri alınamaz.",
+    "description": "Onay metni."
+  },
+  "resetConfirmButton": {
+    "message": "Sıfırlamayı onayla",
+    "description": "Onay düğmesi."
+  },
+  "resetCancelButton": {
+    "message": "Vazgeç",
+    "description": "İptal düğmesi."
+  },
+  "aboutCardTitle": {
+    "message": "Hakkında",
+    "description": "Kart başlığı."
+  },
+  "aboutLine": {
+    "message": "Liste kaynakları ve lisansları",
+    "description": "Hakkında satırı başı."
+  },
+  "aboutLineEnd": {
+    "message": " dosyasında. Veriler yalnızca bu tarayıcıda saklanır, hiçbir sunucuya gönderilmez.",
+    "description": "Hakkında satırı sonu."
+  },
+  "versionLine": {
+    "message": "Sürüm $1",
+    "description": "Hakkında sürüm satırı."
+  },
+  "dataNote": {
+    "message": "Yedek; ayarları, sayaçları ve $1 olay kaydını içerir. Yükleme yalnızca ayarları değiştirir.",
+    "description": "Veri düğmeleri altı ipucu."
+  },
+  "allowAddButton": {
+    "message": "İzin listesine ekle",
+    "description": "Popup düğmesi."
+  },
+  "allowRemoveButton": {
+    "message": "İzni kaldır",
+    "description": "Popup düğmesi."
+  },
+  "blockSiteButton": {
+    "message": "Siteyi engelle",
+    "description": "Popup düğmesi."
+  },
+  "allowTabButton": {
+    "message": "Bu sekmede izin ver",
+    "description": "Popup düğmesi."
+  },
+  "noHostHint": {
+    "message": "Bir web sayfası açınca seçenekler burada görünür.",
+    "description": "Popup ipucu, alan adı yokken."
+  },
+  "findingsTitle": {
+    "message": "Sinyaller",
+    "description": "Popup bölüm başlığı."
+  },
+  "signalCount": {
+    "message": "$1 sinyal",
+    "description": "Popup sinyal sayacı."
+  },
+  "findingLevelDanger": {
+    "message": "yüksek",
+    "description": "Bulgu seviye etiketi."
+  },
+  "findingLevelWarn": {
+    "message": "süpheli",
+    "description": "Bulgu seviye etiketi."
+  },
+  "findingLevelInfo": {
+    "message": "düşük",
+    "description": "Bulgu seviye etiketi."
+  },
+  "findingLeakSignal": {
+    "message": "Sızıntı sinyali",
+    "description": "Bulgu yedek metin."
+  },
+  "statsTitle": {
+    "message": "Sayaçlar",
+    "description": "Popup bölüm başlığı."
+  },
+  "statsWindow": {
+    "message": "Bu tarayıcı",
+    "description": "Popup sayaç üst metni."
+  },
+  "statBlocked": {
+    "message": "Engellenen",
+    "description": "Popup sayaç etiketi."
+  },
+  "statDetected": {
+    "message": "Tespit",
+    "description": "Popup sayaç etiketi."
+  },
+  "statDomains": {
+    "message": "Liste",
+    "description": "Popup sayaç etiketi."
+  },
+  "statRules": {
+    "message": "Kural",
+    "description": "Popup sayaç etiketi."
+  },
+  "listReady": {
+    "message": "Liste hazır",
+    "description": "Popup alt bilgi satırı."
+  },
+  "listLocal": {
+    "message": "Yerel liste",
+    "description": "Popup senkron satırı."
+  },
+  "listUpdatedRelative": {
+    "message": "Liste $1",
+    "description": "Popup senkron satırı, göreli zaman."
+  },
+  "listPartiallyUpdated": {
+    "message": "Liste kısmen güncel",
+    "description": "Popup senkron satırı."
+  },
+  "statusUnreadable": {
+    "message": "Durum okunamadı.",
+    "description": "Hata durumu metni."
+  },
+  "retryButton": {
+    "message": "Tekrar dene",
+    "description": "Hata dene düğmesi."
+  },
+  "panelReadFailed": {
+    "message": "Panel verisi okunamadı. Uzantıyı yeniden yüklemeyi dene.",
+    "description": "Global hata metni."
+  },
+  "domainRequired": {
+    "message": "Bir alan adı gir.",
+    "description": "Doğrulama mesajı."
+  },
+  "toastBlocked": {
+    "message": "$1 engellendi.",
+    "description": "Engelleme sonrası toast."
+  },
+  "toastBlockFailed": {
+    "message": "Site engellenemedi.",
+    "description": "Başarısız toast."
+  },
+  "toastAllowAdded": {
+    "message": "Site izin listesine eklendi.",
+    "description": "İzin listesine ekleme toast'u."
+  },
+  "toastAllowRemoved": {
+    "message": "İzin kaldırıldı.",
+    "description": "İzin kaldırma toast'u."
+  },
+  "toastGenericFailed": {
+    "message": "İşlem tamamlanamadı.",
+    "description": "Genel başarısız toast."
+  },
+  "toastTabAllowed": {
+    "message": "Bu sekme için izin verildi.",
+    "description": "Sekme izni toast'u."
+  },
+  "toastTabAllowFailed": {
+    "message": "Geçici izin verilemedi.",
+    "description": "Sekme izni başarısız toast'u."
+  },
+  "toastDashboardFailed": {
+    "message": "Panel açılamadı.",
+    "description": "Panel açma hatası toast'u."
+  },
+  "toastSettingFailed": {
+    "message": "Ayar kaydedilemedi.",
+    "description": "Ayar hatası toast'u."
+  },
+  "toastProtectionOn": {
+    "message": "Koruma açıldı.",
+    "description": "Açma toast'u."
+  },
+  "toastProtectionOff": {
+    "message": "Koruma kapatıldı.",
+    "description": "Kapatma toast'u."
+  },
+  "toastAddDomainFailed": {
+    "message": "Alan adı eklenemedi.",
+    "description": "Ekleme hatası toast'u."
+  },
+  "toastDomainAllowed": {
+    "message": "$1 izin listesine eklendi.",
+    "description": "İzin listesine ekleme toast'u."
+  },
+  "toastDomainBlocked": {
+    "message": "$1 engel listesine eklendi.",
+    "description": "Özel engele ekleme toast'u."
+  },
+  "toastRemoveDomainFailed": {
+    "message": "Kayıt kaldırılamadı.",
+    "description": "Kaldırma hatası toast'u."
+  },
+  "toastDomainRemoved": {
+    "message": "$1 kaldırıldı.",
+    "description": "Kaldırma toast'u."
+  },
+  "toastClearEventsFailed": {
+    "message": "Olay kaydı temizlenemedi.",
+    "description": "Temizleme hatası toast'u."
+  },
+  "toastClearEventsDone": {
+    "message": "Olay kaydı temizlendi.",
+    "description": "Temizleme toast'u."
+  },
+  "toastExportFailed": {
+    "message": "Yedek oluşturulamadı.",
+    "description": "Dışa aktarım hatası toast'u."
+  },
+  "toastExportDone": {
+    "message": "Yedek indirildi.",
+    "description": "Dışa aktarım toast'u."
+  },
+  "toastImportInvalid": {
+    "message": "Dosya geçerli JSON değil.",
+    "description": "Geçersiz içe aktarım toast'u."
+  },
+  "toastImportFailed": {
+    "message": "Yedek yüklenemedi.",
+    "description": "İçe aktarım hatası toast'u."
+  },
+  "toastImportDone": {
+    "message": "Ayarlar yedekten yüklendi.",
+    "description": "İçe aktarım toast'u."
+  },
+  "toastImportReadFailed": {
+    "message": "Dosya okunamadı.",
+    "description": "Okuma hatası toast'u."
+  },
+  "toastSyncFailed": {
+    "message": "Güncelleme başarısız.",
+    "description": "Senkron hatası toast'u."
+  },
+  "toastSyncAdded": {
+    "message": "Liste güncellendi: $1 yeni alan adı.",
+    "description": "Senkron başarı toast'u."
+  },
+  "toastSyncPartial": {
+    "message": "Kısmi güncelleme: bazı kaynaklar yanıt vermedi.",
+    "description": "Kısmi senkron toast'u."
+  },
+  "toastSyncNothing": {
+    "message": "Güncelleme başarısız: hiçbir kaynak yanıt vermedi.",
+    "description": "Tam senkron hatası toast'u."
+  },
+  "toastResetFailed": {
+    "message": "Sıfırlama başarısız.",
+    "description": "Sıfırlama hatası toast'u."
+  },
+  "toastResetDone": {
+    "message": "Tüm veriler sıfırlandı.",
+    "description": "Sıfırlama toast'u."
+  },
+  "syncingButton": {
+    "message": "Güncelleniyor",
+    "description": "Senkron sırasında düğme etiketi."
+  },
+  "syncingSources": {
+    "message": "Kaynaklar çekiliyor...",
+    "description": "Senkron sırasında sonuç satırı."
+  },
+  "syncResultAdded": {
+    "message": "$1 yeni alan adı eklendi.",
+    "description": "Senkron sonuç satırı."
+  },
+  "syncResultPartial": {
+    "message": "Bazı kaynaklar yanıt vermedi, mevcut liste korundu.",
+    "description": "Senkron sonuç satırı."
+  },
+  "syncResultFailed": {
+    "message": "Hiçbir kaynak yanıt vermedi. Liste değişmedi.",
+    "description": "Senkron sonuç satırı."
+  },
+  "resettingButton": {
+    "message": "Sıfırlanıyor",
+    "description": "Sıfırlama sırasında düğme etiketi."
+  },
+  "verdictOffLabel": {
+    "message": "Koruma kapalı",
+    "description": "Karar etiketi."
+  },
+  "verdictOffHeadline": {
+    "message": "Koruma şu anda kapalı.",
+    "description": "Karar başlığı."
+  },
+  "verdictOffDetail": {
+    "message": "IP logger alan adları engellenmiyor ve sayfa sinyalleri izlenmiyor.",
+    "description": "Karar detayı."
+  },
+  "verdictAllowedLabel": {
+    "message": "İzin verildi",
+    "description": "Karar etiketi."
+  },
+  "verdictAllowedHeadline": {
+    "message": "Bu site izin listesinde.",
+    "description": "Karar başlığı."
+  },
+  "verdictAllowedDetail": {
+    "message": "Alan adı engel listesinde olsa bile bu sitede koruma devre dışı.",
+    "description": "Karar detayı."
+  },
+  "verdictLoggerLabel": {
+    "message": "IP logger",
+    "description": "Karar etiketi."
+  },
+  "verdictLoggerHeadline": {
+    "message": "Bu alan adı IP logger listesinde.",
+    "description": "Karar başlığı."
+  },
+  "verdictLoggerDetail": {
+    "message": "Bağlantı engellenmediyse sayfa IP adresini toplamaya çalışıyor olabilir.",
+    "description": "Karar detayı."
+  },
+  "verdictBlockedLabel": {
+    "message": "Engellendi",
+    "description": "Karar etiketi."
+  },
+  "verdictBlockedHeadline": {
+    "message": "Bu sekmede bir bağlantı engellendi.",
+    "description": "Karar başlığı."
+  },
+  "verdictBlockedDetail": {
+    "message": "Engellenen adres olay kaydında. Sayfayı yenilemeden önce kontrol et.",
+    "description": "Karar detayı."
+  },
+  "verdictDangerLabel": {
+    "message": "Yüksek risk",
+    "description": "Karar etiketi."
+  },
+  "verdictDangerHeadline": {
+    "message": "Sayfa IP adresini sızdırmayı denedi.",
+    "description": "Karar başlığı."
+  },
+  "verdictDangerDetail": {
+    "message": "Aşağıdaki sinyaller bu sekmede yakalandı.",
+    "description": "Karar detayı."
+  },
+  "verdictWarnLabel": {
+    "message": "Şüpheli",
+    "description": "Karar etiketi."
+  },
+  "verdictWarnHeadline": {
+    "message": "Sayfada şüpheli davranış var.",
+    "description": "Karar başlığı."
+  },
+  "verdictWarnDetail": {
+    "message": "Kesin bir IP logger değil, ancak sinyaller takip edilmeli.",
+    "description": "Karar detayı."
+  },
+  "verdictInfoLabel": {
+    "message": "Düşük risk",
+    "description": "Karar etiketi."
+  },
+  "verdictInfoHeadline": {
+    "message": "Sayfa düşük riskli sinyaller gönderdi.",
+    "description": "Karar başlığı."
+  },
+  "verdictInfoDetail": {
+    "message": "Medya, konum veya erken istek gibi tek bir sinyal var.",
+    "description": "Karar detayı."
+  },
+  "verdictCleanLabel": {
+    "message": "Temiz",
+    "description": "Karar etiketi."
+  },
+  "verdictCleanHeadline": {
+    "message": "Bu sekmede sızıntı sinyali yok.",
+    "description": "Karar başlığı."
+  },
+  "verdictCleanDetail": {
+    "message": "Sayfa açıldığından beri IP toplama davranışı yakalanmadı.",
+    "description": "Karar detayı."
+  },
+  "verdictIdleLabel": {
+    "message": "Bekliyor",
+    "description": "Karar etiketi."
+  },
+  "verdictIdleHeadline": {
+    "message": "Bu sekme izlenmiyor.",
+    "description": "Karar başlığı."
+  },
+  "verdictIdleDetail": {
+    "message": "Normal bir web sayfası açtığında durum burada görünür.",
+    "description": "Karar detayı."
+  },
+  "findingKnownLoggerTitle": {
+    "message": "Bilinen IP logger alan adı",
+    "description": "Bulgu başlığı."
+  },
+  "findingKnownLoggerDetail": {
+    "message": "Bu alan adı IP toplama veya link grabber listesinde.",
+    "description": "Bulgu detayı."
+  },
+  "findingWebrtcTitle": {
+    "message": "WebRTC ile IP adresi paylaşıldı",
+    "description": "Bulgu başlığı."
+  },
+  "findingWebrtcDetail": {
+    "message": "Sayfa, yerel ağ adresini açığa çıkarabilecek bir WebRTC bağlantısı kurdu.",
+    "description": "Bulgu detayı."
+  },
+  "findingAutoFormTitle": {
+    "message": "Tıklamadan form gönderildi",
+    "description": "Bulgu başlığı."
+  },
+  "findingAutoFormDetail": {
+    "message": "Kullanıcı etkileşimi olmadan bir form gönderimi yakalandı.",
+    "description": "Bulgu detayı."
+  },
+  "findingHiddenFrameTitle": {
+    "message": "Gizli çerçeve yüklendi",
+    "description": "Bulgu başlığı."
+  },
+  "findingHiddenFrameDetail": {
+    "message": "Görünmeyen bir iframe başka bir alan adına bağlandı.",
+    "description": "Bulgu detayı."
+  },
+  "findingMetaRefreshTitle": {
+    "message": "Otomatik yönlendirme",
+    "description": "Bulgu başlığı."
+  },
+  "findingMetaRefreshDetail": {
+    "message": "Sayfa, tıklama olmadan başka bir alan adına yönlendiriyor.",
+    "description": "Bulgu detayı."
+  },
+  "findingHiddenPixelTitle": {
+    "message": "Gizli takip pikseli",
+    "description": "Bulgu başlığı."
+  },
+  "findingHiddenPixelDetail": {
+    "message": "Görünmeyen bir görsel başka bir alan adına istek gönderiyor.",
+    "description": "Bulgu detayı."
+  },
+  "findingEarlyRequestsTitle": {
+    "message": "Tıklama öncesi dış istekler",
+    "description": "Bulgu başlığı."
+  },
+  "findingEarlyRequestsDetail": {
+    "message": "Sayfa, herhangi bir etkileşimden önce üçüncü taraf istekleri gönderdi.",
+    "description": "Bulgu detayı."
+  },
+  "findingMediaTitle": {
+    "message": "Kamera veya mikrofon isteği",
+    "description": "Bulgu başlığı."
+  },
+  "findingMediaDetail": {
+    "message": "Sayfa medya cihazlarına erişim istedi.",
+    "description": "Bulgu detayı."
+  },
+  "findingGeolocationTitle": {
+    "message": "Konum isteği",
+    "description": "Bulgu başlığı."
+  },
+  "findingGeolocationDetail": {
+    "message": "Sayfa tarayıcıdan konum bilgisi istedi.",
+    "description": "Bulgu detayı."
+  },
+  "eventCoreUpdated": {
+    "message": "Çekirdek liste güncellendi: $1 yeni alan adı",
+    "description": "Olay detayı."
+  },
+  "eventExtendedUpdated": {
+    "message": "Tehdit listesi güncellendi: $1 yeni alan adı",
+    "description": "Olay detayı."
+  },
+  "eventCustomAdded": {
+    "message": "Özel engel listesine eklendi",
+    "description": "Olay detayı."
+  },
+  "eventCustomRemoved": {
+    "message": "Özel engel listesinden çıkarıldı",
+    "description": "Olay detayı."
+  },
+  "eventAllowedAdded": {
+    "message": "İzin listesine eklendi",
+    "description": "Olay detayı."
+  },
+  "eventAllowedRemoved": {
+    "message": "İzin listesinden çıkarıldı",
+    "description": "Olay detayı."
+  },
+  "eventTabAllowed": {
+    "message": "Bu sekme için geçici izin verildi",
+    "description": "Olay detayı."
+  },
+  "eventNavBlocked": {
+    "message": "Üst düzey gezinme engellendi",
+    "description": "Olay detayı."
+  },
+  "eventSubresourceBlocked": {
+    "message": "Alt kaynak engellendi",
+    "description": "Olay detayı."
+  },
+  "syncPartialError": {
+    "message": "Bazı kaynaklar yanıt vermedi; mevcut liste korundu.",
+    "description": "Senkron hata detayı."
+  },
+  "syncAllFailedError": {
+    "message": "Hiçbir kaynak yanıt vermedi. Mevcut liste değişmedi.",
+    "description": "Senkron hata detayı."
+  },
+  "syncAllFailedShort": {
+    "message": "Hiçbir kaynak yanıt vermedi.",
+    "description": "Senkron hata detayı, kısa."
+  },
+  "errorInvalidDomain": {
+    "message": "Geçerli bir alan adı gir.",
+    "description": "Hata mesajı."
+  },
+  "errorInvalidTabOrDomain": {
+    "message": "Sekme veya alan adı geçersiz.",
+    "description": "Hata mesajı."
+  },
+  "errorTabNotFound": {
+    "message": "Sekme bulunamadı.",
+    "description": "Hata mesajı."
+  },
+  "errorInvalidTier": {
+    "message": "Geçersiz katman.",
+    "description": "Hata mesajı."
+  },
+  "errorInvalidSetting": {
+    "message": "Geçersiz ayar.",
+    "description": "Hata mesajı."
+  },
+  "errorInvalidBackup": {
+    "message": "Geçerli bir yedek dosyası değil.",
+    "description": "Hata mesajı."
+  },
+  "errorInvalidSender": {
+    "message": "Geçersiz gönderici.",
+    "description": "Hata mesajı."
+  },
+  "errorInvalidUrl": {
+    "message": "Geçersiz adres.",
+    "description": "Hata mesajı."
+  },
+  "errorUnknownMessage": {
+    "message": "Bilinmeyen mesaj.",
+    "description": "Hata mesajı."
+  },
+  "bannerAriaLabel": {
+    "message": "Anti IP Logger uyarısı",
+    "description": "Uyarı bandı erişilebilir adı."
+  },
+  "bannerFallbackTitle": {
+    "message": "Bu sayfa IP adresini istemeye çalıştı.",
+    "description": "Uyarı bandı yedek başlığı."
+  },
+  "bannerFallbackDetail": {
+    "message": "Sayfa, IP adresini toplayabilecek davranışlar gösterdi.",
+    "description": "Uyarı bandı yedek detayı."
+  },
+  "bannerBlockSite": {
+    "message": "Siteyi engelle",
+    "description": "Uyarı bandı birincil eylemi."
+  },
+  "bannerAllowSite": {
+    "message": "Bu siteye izin ver",
+    "description": "Uyarı bandı ikincil eylemi."
+  },
+  "bannerClose": {
+    "message": "Kapat",
+    "description": "Uyarı bandı kapatma eylemi."
+  },
+  "blockedStamp": {
+    "message": "ENGELLENDİ",
+    "description": "Engel sayfası damgası."
+  },
+  "blockedPageTitle": {
+    "message": "Bu bağlantı IP logger listesinde.",
+    "description": "Engel sayfası başlığı."
+  },
+  "blockedPageLead": {
+    "message": "Sayfa açılmadı. Adres, IP adresi toplayan servisler listesinde bulunduğu için istek tarayıcıda durduruldu.",
+    "description": "Engel sayfası açıklama."
+  },
+  "blockedUnreadableTitle": {
+    "message": "Engellenen adres okunamadı.",
+    "description": "Engel sayfası yedek başlığı."
+  },
+  "blockedUnreadableLead": {
+    "message": "Kural çalıştı ancak hedef adres bu sayfaya taşınamadı. Adresi tarayıcı geçmişinden kontrol edebilirsin.",
+    "description": "Engel sayfası yedek açıklama."
+  },
+  "blockedUnknownUrl": {
+    "message": "Bilinmiyor",
+    "description": "Engel sayfası yedek hedef."
+  },
+  "blockedTargetLoading": {
+    "message": "Adres okunuyor",
+    "description": "Engel sayfası yükleniyor durumu."
+  },
+  "blockedTargetLabel": {
+    "message": "Hedef adres",
+    "description": "Engel sayfası etiketi."
+  },
+  "blockedCasePending": {
+    "message": "DOSYA: BEKLENİYOR",
+    "description": "Engel sayfası, yüklenmeden önceki dosya numarası."
+  },
+  "blockedCaseNumber": {
+    "message": "DOSYA: $1 / $2",
+    "description": "Engel sayfası dosya numarası."
+  },
+  "blockedNoteTitle": {
+    "message": "Bu engel ne yapar",
+    "description": "Engel sayfası bölüm başlığı."
+  },
+  "blockedNote1": {
+    "message": "Üst düzey gezinme durdurulur, hedef sunucuya istek gitmez.",
+    "description": "Engel sayfası not."
+  },
+  "blockedNote2": {
+    "message": "Bu sekmede izin verirsen kural yalnızca bu sekme için geçerli olur ve sekme kapanınca silinir.",
+    "description": "Engel sayfası not."
+  },
+  "blockedNote3": {
+    "message": "Kalıcı izin, alan adını tüm sekmelerde engel listesinden çıkarır.",
+    "description": "Engel sayfası not."
+  },
+  "blockedAllowTab": {
+    "message": "Bu sekmede izin ver ve aç",
+    "description": "Engel sayfası düğmesi."
+  },
+  "blockedAllowSite": {
+    "message": "Siteyi kalıcı olarak izin ver",
+    "description": "Engel sayfası düğmesi."
+  },
+  "blockedGoBack": {
+    "message": "Geri dön",
+    "description": "Engel sayfası düğmesi."
+  },
+  "blockedOpenLists": {
+    "message": "Listeyi aç",
+    "description": "Engel sayfası bağlantısı."
+  },
+  "blockedFineprint": {
+    "message": "İzin listesi panelden yönetilir. Karar vermeden önce adresi kontrol et.",
+    "description": "Engel sayfası ince yazı."
+  },
+  "blockedAllowFailed": {
+    "message": "İzin kaydedilemedi.",
+    "description": "Engel sayfası hatası."
+  },
+  "blockedAllowTabDone": {
+    "message": "Bu sekme için izin verildi, sayfa açılıyor.",
+    "description": "Engel sayfası başarı."
+  },
+  "blockedAllowSiteDone": {
+    "message": "Alan adı izin listesine eklendi, sayfa açılıyor.",
+    "description": "Engel sayfası başarı."
+  },
+  "blockedRecordFailed": {
+    "message": "Engel kaydı gönderilemedi. Engel yine uygulandı, panelde sayaç güncellenmeyebilir.",
+    "description": "Engel sayfası hatası."
+  },
+  "allowingButton": {
+    "message": "İzin veriliyor",
+    "description": "İzin verilirken düğme etiketi."
+  },
+  "errorNoResponse": {
+    "message": "Yanıt alınamadı.",
+    "description": "Missing response from the extension worker."
+  }
+}

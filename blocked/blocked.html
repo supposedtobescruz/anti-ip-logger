@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="tr">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Bağlantı engellendi · Anti IP Logger</title>
+    <title>Connection blocked · Anti IP Logger</title>
     <link rel="stylesheet" href="../assets/fonts.css" />
     <link rel="stylesheet" href="../assets/base.css" />
     <link rel="stylesheet" href="blocked.css" />
@@ -15,42 +15,42 @@
           <span class="brand__mark" aria-hidden="true"></span>
           <span class="mono">ANTI IP LOGGER</span>
         </div>
-        <span class="mono sheet__case" id="case-number">DOSYA: BEKLENİYOR</span>
+        <span class="mono sheet__case" id="case-number" data-i18n="blockedCasePending">CASE: PENDING</span>
       </header>
 
       <div class="sheet__body">
-        <p class="stamp" id="stamp">ENGELLENDİ</p>
+        <p class="stamp" id="stamp" data-i18n="blockedStamp">BLOCKED</p>
 
-        <h1 class="sheet__title" id="title">Bu bağlantı IP logger listesinde.</h1>
-        <p class="sheet__lead" id="lead">
-          Sayfa açılmadı. Adres, IP adresi toplayan servisler listesinde bulunduğu için istek tarayıcıda durduruldu.
+        <h1 class="sheet__title" id="title" data-i18n="blockedPageTitle">This connection is on the IP logger list.</h1>
+        <p class="sheet__lead" id="lead" data-i18n="blockedPageLead">
+          The page did not open. The target was found on the list of IP collecting services, so the request was stopped in the browser.
         </p>
 
         <div class="target">
-          <p class="eyebrow">Hedef adres</p>
-          <p class="target__url mono" id="target-url">Adres okunuyor</p>
+          <p class="eyebrow" data-i18n="blockedTargetLabel">Target address</p>
+          <p class="target__url mono" id="target-url" data-i18n="blockedTargetLoading">Reading address</p>
           <p class="target__meta" id="target-meta"></p>
         </div>
 
         <div class="actions">
-          <button class="btn btn--primary" id="allow-tab" type="button" disabled>Bu sekmede izin ver ve aç</button>
-          <button class="btn btn--quiet" id="allow-site" type="button" disabled>Siteyi kalıcı olarak izin ver</button>
-          <button class="btn btn--quiet" id="go-back" type="button">Geri dön</button>
-          <a class="btn btn--quiet" href="../dashboard/dashboard.html#listeler" target="_blank" rel="noreferrer" id="open-lists">Listeyi aç</a>
+          <button class="btn btn--primary" id="allow-tab" type="button" disabled data-i18n="blockedAllowTab">Allow once in this tab and open</button>
+          <button class="btn btn--quiet" id="allow-site" type="button" disabled data-i18n="blockedAllowSite">Allowlist this site permanently</button>
+          <button class="btn btn--quiet" id="go-back" type="button" data-i18n="blockedGoBack">Go back</button>
+          <a class="btn btn--quiet" href="../dashboard/dashboard.html#lists" target="_blank" rel="noreferrer" id="open-lists" data-i18n="blockedOpenLists">Open the list</a>
         </div>
 
         <p class="feedback" id="feedback" role="status" aria-live="polite"></p>
 
         <section class="note" aria-labelledby="note-title">
-          <h2 class="note__title" id="note-title">Bu engel ne yapar</h2>
+          <h2 class="note__title" id="note-title" data-i18n="blockedNoteTitle">What this block does</h2>
           <ul class="note__list">
-            <li>Üst düzey gezinme durdurulur, hedef sunucuya istek gitmez.</li>
-            <li>Bu sekmede izin verirsen kural yalnızca bu sekme için geçerli olur ve sekme kapanınca silinir.</li>
-            <li>Kalıcı izin, alan adını tüm sekmelerde engel listesinden çıkarır.</li>
+            <li data-i18n="blockedNote1">Top level navigation is stopped, no request reached the target server.</li>
+            <li data-i18n="blockedNote2">Allowing once in this tab only applies to this tab and is forgotten when the tab closes.</li>
+            <li data-i18n="blockedNote3">Permanent allow removes the domain from the blocklist in every tab.</li>
           </ul>
         </section>
 
-        <p class="fineprint mono" id="fineprint">İzin listesi panelden yönetilir. Karar vermeden önce adresi kontrol et.</p>
+        <p class="fineprint mono" id="fineprint" data-i18n="blockedFineprint">The allowlist is managed in the panel. Check the address before you decide.</p>
       </div>
     </main>
 

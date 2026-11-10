@@ -14,12 +14,12 @@
     "single": 34
   },
   "categories": {
-    "grabify": "Grabify ve benzeri link grabber servisleri",
-    "iplogger": "IPLogger ailesi ve benzeri servisler",
-    "other": "Diğer IP toplama ve kısa bağlantı servisleri",
-    "tracker": "İzleyici altyapısı",
-    "threat": "İsteğe bağlı tehdit listesi",
-    "custom": "Kullanıcı kuralı"
+    "grabify": "Grabify and similar link grabber services",
+    "iplogger": "IPLogger family and similar services",
+    "other": "Other IP collecting and short link services",
+    "tracker": "Tracker infrastructure",
+    "threat": "Optional threat list",
+    "custom": "User rule"
   },
   "sources": [
     {
@@ -66,7 +66,7 @@
       "name": "DeGrabify plain domain list",
       "tier": "core",
       "category": "grabify",
-      "license": "Atıf, açık lisans belirtilmemiş",
+      "license": "Attribution given, no explicit license",
       "project": "https://github.com/JonasLong/DeGrabify",
       "url": "https://gist.githubusercontent.com/JonasLong/82e98e4072ba592f130edc53cdaa386d/raw/DeGrabify%20Plain%20Domain%20Blocklist",
       "ok": true,

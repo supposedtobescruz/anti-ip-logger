@@ -47,7 +47,7 @@ Sürüm 2.0.0. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisn
 - **Panel** (seçenekler sayfası): Genel Bakış, Listeler, Olaylar, Kaynaklar, Ayarlar. Çekirdek listede arama yapın, izin ve özel listeleri yönetin, kaynak sağlığını kontrol edin, verilerinizi yedekleyin ve sıfırlayın.
 - **Engel sayfası:** hedef URL, hangi liste girdisinin eşleştiği ve üç karar: bu sekmede bir kez izin ver, siteye kalıcı izin ver veya geri dön.
 
-Arayüz şimdilik Türkçedir. İngilizce arayüz metinleri planlanıyor; bu dosya için dil altyapısı zaten mevcut (bkz. "Dil eklemek").
+Uzantının arayüzü İngilizce (varsayılan) ve Türkçe olup tarayıcı arayüz dilini (`chrome.i18n`) izler. Bu dosya Türkçe çeviridir; arayüz Türkçe metinleri `_locales/tr/messages.json` içinde yaşar.
 
 ## Veri ve kaynaklar
 
@@ -124,6 +124,8 @@ Kural öncelik merdiveni: sekme izni 110 > izin listesi 100 > özel engel 50 > e
 - Sinyaller her karede (iframe'ler dahil) toplanır ve üst sekmeye bağlanır. Banner yalnızca üst karede görünür.
 
 ## Dil eklemek
+
+Uzantının arayüzü İngilizce (varsayılan) ve Türkçedir. Arayüz metinleri `_locales/en/messages.json` ve `_locales/tr/messages.json` içinde yaşar; üçüncü bir arayüz dili, aynı anahtar kümesiyle yeni bir `_locales/<code>/messages.json` demektir.
 
 İngilizce dosya (`README.md`) kaynak doğruluk kabul edilir. Çeviriler `readme/` klasöründe yaşar ve aynı yapıyı izler, böylece çevirmen bölüm bölüm çalışabilir:
 

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="tr">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -16,10 +16,10 @@
           <span class="brand__name">Anti IP Logger</span>
         </div>
         <div class="row">
-          <button class="btn btn--quiet btn--icon" id="theme-toggle" type="button" aria-label="Temayı değiştir" title="Temayı değiştir">
+          <button class="btn btn--quiet btn--icon" id="theme-toggle" type="button" data-i18n-aria-label="themeToggleLabel" data-i18n-title="themeToggleLabel" aria-label="Switch theme" title="Switch theme">
             <span class="mono" aria-hidden="true" id="theme-glyph">A</span>
           </button>
-          <button class="btn btn--quiet btn--icon" id="open-dashboard" type="button" aria-label="Paneli aç" title="Paneli aç">
+          <button class="btn btn--quiet btn--icon" id="open-dashboard" type="button" data-i18n-aria-label="openDashboardLabel" data-i18n-title="openDashboardLabel" aria-label="Open panel" title="Open panel">
             <span aria-hidden="true">&#9776;</span>
           </button>
         </div>
@@ -32,8 +32,8 @@
       </div>
 
       <div id="error-state" class="stack" hidden>
-        <p class="notice notice--danger" id="error-text">Durum okunamadı.</p>
-        <button class="btn" id="retry" type="button">Tekrar dene</button>
+        <p class="notice notice--danger" id="error-text" data-i18n="statusUnreadable">State cannot be read.</p>
+        <button class="btn" id="retry" type="button" data-i18n="retryButton">Try again</button>
       </div>
 
       <p class="sr-only" id="live-status" role="status" aria-live="polite"></p>
@@ -41,22 +41,22 @@
       <main id="content" hidden>
         <section class="hero" id="hero" aria-labelledby="verdict-headline">
           <div class="hero__top">
-            <span class="badge" id="verdict-badge">Bekliyor</span>
+            <span class="badge" id="verdict-badge">Waiting</span>
             <span class="hero__host mono truncate" id="hero-host"></span>
           </div>
           <h1 class="hero__headline" id="verdict-headline"></h1>
           <p class="hero__detail" id="verdict-detail"></p>
           <div class="hero__actions">
-            <button class="btn btn--primary" id="block-site" type="button">Siteyi engelle</button>
-            <button class="btn btn--quiet" id="allow-site" type="button">İzin listesine ekle</button>
-            <button class="btn btn--quiet btn--small" id="allow-tab" type="button" hidden>Bu sekmede izin ver</button>
-            <p class="hint" id="no-host-hint" hidden>Bir web sayfası açınca seçenekler burada görünür.</p>
+            <button class="btn btn--primary" id="block-site" type="button" data-i18n="blockSiteButton">Block this site</button>
+            <button class="btn btn--quiet" id="allow-site" type="button">Allowlist this site</button>
+            <button class="btn btn--quiet btn--small" id="allow-tab" type="button" hidden data-i18n="allowTabButton">Allow once in this tab</button>
+            <p class="hint" id="no-host-hint" hidden data-i18n="noHostHint">Open a web page and the options appear here.</p>
           </div>
         </section>
 
         <section class="section" id="findings-section" hidden aria-labelledby="findings-title">
           <div class="section__head">
-            <h2 class="section__title" id="findings-title">Sinyaller</h2>
+            <h2 class="section__title" id="findings-title" data-i18n="findingsTitle">Signals</h2>
             <span class="eyebrow" id="findings-count"></span>
           </div>
           <ul class="findings" id="findings"></ul>
@@ -64,24 +64,24 @@
 
         <section class="section" aria-labelledby="stats-title">
           <div class="section__head">
-            <h2 class="section__title" id="stats-title">Sayaçlar</h2>
-            <span class="eyebrow" id="stats-window">Bu tarayıcı</span>
+            <h2 class="section__title" id="stats-title" data-i18n="statsTitle">Counters</h2>
+            <span class="eyebrow" id="stats-window" data-i18n="statsWindow">This browser</span>
           </div>
           <dl class="stats">
             <div class="stat">
-              <dt>Engellenen</dt>
+              <dt data-i18n="statBlocked">Blocked</dt>
               <dd class="mono" id="stat-blocked">0</dd>
             </div>
             <div class="stat">
-              <dt>Tespit</dt>
+              <dt data-i18n="statDetected">Detected</dt>
               <dd class="mono" id="stat-detected">0</dd>
             </div>
             <div class="stat">
-              <dt>Liste</dt>
+              <dt data-i18n="statDomains">List</dt>
               <dd class="mono" id="stat-domains">0</dd>
             </div>
             <div class="stat">
-              <dt>Kural</dt>
+              <dt data-i18n="statRules">Rules</dt>
               <dd class="mono" id="stat-rules">0</dd>
             </div>
           </dl>
@@ -89,16 +89,16 @@
 
         <section class="section" aria-labelledby="events-title">
           <div class="section__head">
-            <h2 class="section__title" id="events-title">Son olaylar</h2>
-            <a class="section__link" id="events-link" href="../dashboard/dashboard.html#olaylar" target="_blank" rel="noreferrer">Tümü</a>
+            <h2 class="section__title" id="events-title" data-i18n="eventsTitle">Recent events</h2>
+            <a class="section__link" id="events-link" href="../dashboard/dashboard.html#olaylar" target="_blank" rel="noreferrer" data-i18n="eventsSeeAll">All</a>
           </div>
           <ul class="events" id="events"></ul>
-          <p class="empty" id="events-empty" hidden>Henüz kayıt yok. Bir IP logger bağlantısı engellendiğinde burada görünür.</p>
+          <p class="empty" id="events-empty" hidden data-i18n="eventsEmpty">No events yet. Blocked IP logger connections appear here.</p>
         </section>
       </main>
 
       <footer class="popup__foot">
-        <span class="mono" id="sync-line">Liste hazır</span>
+        <span class="mono" id="sync-line" data-i18n="listReady">List ready</span>
         <span class="mono" id="version-line"></span>
       </footer>
     </div>

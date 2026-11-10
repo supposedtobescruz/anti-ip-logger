@@ -43,7 +43,7 @@ Bunlar tasarım kararıdır; gerekçesiz değiştirme.
 7. **Engel sayfası hedef adrese istek göndermez.** Yönlendirme `declarativeNetRequest` ile yapılır, hedef sunucuya ön istek atılmaz.
 8. **Veri yalnızca yerelde.** `chrome.storage.local` ayarlar, sayaçlar ve olaylar için; `chrome.storage.session` sekme durumu için. Uzak sunucu, telemetri, analitik yok. Ağ isteği sadece liste güncellemesinde ve yalnızca tanımlı kaynak adreslerine gider.
 9. **Olay kaydı sınırlı.** En fazla 500 kayıt. Alan adı ve kısa açıklama dışında kişisel veri yazma, tam URL saklama.
-10. **Türkçe arayüz.** Tüm kullanıcı metinleri Türkçe ve doğru diakritiklerle. Kod, değişken adı ve API adları İngilizce kalır.
+10. **Arayüz iki dillidir: İngilizce varsayılan, Türkçe destek.** Tüm kullanıcı metinleri `_locales/en/messages.json` ve `_locales/tr/messages.json` içindedir; `manifest.json` içinde `default_locale: "en"`. Kod, değişken adı ve API adları İngilizce kalır. Bölümler hash rotası İngilizcedir (`#overview`, `#lists`, `#events`, `#sources`, `#settings`).
 11. **Uzun tire yok.** Proje dosyalarında `U+2014` kullanılmaz. `npm run verify` bunu kontrol eder. `antislop.md` hariç tutulur çünkü üçüncü taraf metindir.
 
 ## Antislop kuralları

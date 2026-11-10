@@ -12,6 +12,7 @@ import {
   toast,
   toggleTheme,
 } from "../assets/ui.js";
+import { t, applyI18n } from "../assets/i18n.js";
 
 const nodes = {
   app: document.getElementById("app"),
@@ -37,7 +38,6 @@ const nodes = {
   statRules: document.getElementById("stat-rules"),
   events: document.getElementById("events"),
   eventsEmpty: document.getElementById("events-empty"),
-
   noHostHint: document.getElementById("no-host-hint"),
   liveStatus: document.getElementById("live-status"),
   syncLine: document.getElementById("sync-line"),
@@ -49,6 +49,7 @@ const nodes = {
 
 const BADGE_TONE = { danger: "danger", warn: "warn", info: "plain", safe: "safe", muted: "muted" };
 const FINDING_TONE = { danger: "danger", warn: "warn", info: "muted" };
+const FINDING_LEVEL_KEY = { danger: "findingLevelDanger", warn: "findingLevelWarn", info: "findingLevelInfo" };
 
 let view = null;
 let theme = "system";
@@ -61,8 +62,9 @@ function setTheme(themeValue) {
   applyTheme(themeValue);
   const resolved = resolvedTheme();
   nodes.themeGlyph.textContent = resolved === "dark" ? "☾" : "☀";
-  nodes.themeToggle.setAttribute("aria-label", resolved === "dark" ? "Açık temaya geç" : "Koyu temaya geç");
-  nodes.themeToggle.title = resolved === "dark" ? "Açık temaya geç" : "Koyu temaya geç";
+  const labelKey = resolved === "dark" ? "themeSwitchToLight" : "themeSwitchToDark";
+  nodes.themeToggle.setAttribute("aria-label", t(labelKey));
+  nodes.themeToggle.title = t(labelKey);
 }
 
 function showLoading() {
@@ -93,13 +95,13 @@ function renderHero(data) {
   const tone = copy.tone || "muted";
   nodes.hero.className = `hero hero--${tone}`;
   nodes.verdictBadge.className = `badge badge--${BADGE_TONE[tone] || "muted"}`;
-  nodes.verdictBadge.textContent = copy.label || "Bekliyor";
-  nodes.headline.textContent = copy.headline || "Durum okunamadı.";
+  nodes.verdictBadge.textContent = copy.label || t("verdictIdleLabel");
+  nodes.headline.textContent = copy.headline || t("statusUnreadable");
   nodes.detail.textContent = copy.detail || "";
   nodes.host.textContent = data.host || "";
   nodes.host.hidden = !data.host;
   nodes.host.title = data.url || "";
-  nodes.liveStatus.textContent = `${copy.label || "Durum"}: ${copy.headline || ""}${data.host ? ` ${data.host}` : ""}`;
+  nodes.liveStatus.textContent = `${copy.label || t("verdictIdleLabel")}: ${copy.headline || ""}${data.host ? ` ${data.host}` : ""}`;
 }
 
 function renderActions(data) {
@@ -110,7 +112,7 @@ function renderActions(data) {
 
   nodes.block.disabled = !hasHost || busy;
   nodes.allow.disabled = !hasHost || busy;
-  nodes.allow.textContent = allowed ? "İzni kaldır" : "İzin listesine ekle";
+  nodes.allow.textContent = allowed ? t("allowRemoveButton") : t("allowAddButton");
   nodes.allowTab.hidden = !(hasHost && known && !allowed && !protectionOff);
   nodes.allowTab.disabled = busy;
   nodes.allow.hidden = !hasHost;
@@ -126,12 +128,12 @@ function renderFindings(data) {
     return;
   }
   nodes.findingsSection.hidden = false;
-  nodes.findingsCount.textContent = `${formatNumber(findings.length)} sinyal`;
+  nodes.findingsCount.textContent = t("signalCount", [formatNumber(findings.length)]);
   for (const finding of findings) {
     const item = el("li", "finding");
-    item.append(badge(FINDING_TONE[finding.level] || "muted", finding.level === "danger" ? "yüksek" : finding.level === "warn" ? "süpheli" : "düşük"));
+    item.append(badge(FINDING_TONE[finding.level] || "muted", t(FINDING_LEVEL_KEY[finding.level] || "findingLevelInfo")));
     const body = el("div", "finding__body");
-    body.append(el("p", "finding__title", finding.title), el("p", "finding__detail", finding.detail));
+    body.append(el("p", "finding__title", t(finding.titleKey || "findingLeakSignal")), el("p", "finding__detail", t(finding.detailKey || "findingLeakSignal")));
     item.append(body);
     nodes.findings.append(item);
   }
@@ -155,7 +157,7 @@ function renderEvents(data) {
   for (const event of events) {
     const item = el("li", "event");
     item.append(el("span", "event__time mono", formatClock(event.ts)));
-    item.append(el("span", "event__host mono", event.host || "genel"));
+    item.append(el("span", "event__host mono", event.host || t("hostUnknown")));
     item.append(el("span", "event__detail", event.detail || ""));
     item.title = `${formatRelative(event.ts)} - ${event.detail || ""}`;
     nodes.events.append(item);
@@ -167,15 +169,15 @@ function renderSync(data) {
   const sync = settings.sync || {};
   const core = sync.core || {};
   if (!settings.enabled) {
-    nodes.syncLine.textContent = "Koruma kapalı";
+    nodes.syncLine.textContent = t("protectionOff");
     return;
   }
   if (sync.core && sync.core.error) {
-    nodes.syncLine.textContent = "Liste kısmen güncel";
+    nodes.syncLine.textContent = t("listPartiallyUpdated");
     return;
   }
   const at = core.at || settings.lastSync;
-  nodes.syncLine.textContent = at ? `Liste ${formatRelative(at)}` : "Yerel liste";
+  nodes.syncLine.textContent = at ? t("listUpdatedRelative", [formatRelative(at)]) : t("listLocal");
 }
 
 function render(data) {
@@ -200,7 +202,7 @@ async function load() {
   try {
     const result = await send({ type: "getPopup" });
     if (!result || !result.ok) {
-      showError(result && result.error ? result.error : "Durum okunamadı.");
+      showError(result && result.error ? result.error : t("statusUnreadable"));
       return;
     }
     render(result);
@@ -232,7 +234,7 @@ async function act(button, message, successText, failureText) {
 
 nodes.block.addEventListener("click", () => {
   if (!view || !view.host) return;
-  act(nodes.block, { type: "addCustomDomain", domain: view.host }, `${view.host} engellendi.`, "Site engellenemedi.");
+  act(nodes.block, { type: "addCustomDomain", domain: view.host }, t("toastBlocked", [view.host]), t("toastBlockFailed"));
 });
 
 nodes.allow.addEventListener("click", () => {
@@ -240,15 +242,17 @@ nodes.allow.addEventListener("click", () => {
   const allowed = Boolean(view.allowed);
   act(
     nodes.allow,
-    allowed ? { type: "removeAllowedDomain", domain: view.known && view.known.domain ? view.known.domain : view.host } : { type: "allowDomain", domain: view.host },
-    allowed ? "İzin kaldırıldı." : "Site izin listesine eklendi.",
-    "İşlem tamamlanamadı.",
+    allowed
+      ? { type: "removeAllowedDomain", domain: view.known && view.known.domain ? view.known.domain : view.host }
+      : { type: "allowDomain", domain: view.host },
+    allowed ? t("toastAllowRemoved") : t("toastAllowAdded"),
+    t("toastGenericFailed"),
   );
 });
 
 nodes.allowTab.addEventListener("click", () => {
   if (!view || !view.host) return;
-  act(nodes.allowTab, { type: "allowOnce", domain: view.host, tabId: view.tabId }, "Bu sekme için izin verildi.", "Geçici izin verilemedi.");
+  act(nodes.allowTab, { type: "allowOnce", domain: view.host, tabId: view.tabId }, t("toastTabAllowed"), t("toastTabAllowFailed"));
 });
 
 nodes.retry.addEventListener("click", load);
@@ -256,7 +260,7 @@ nodes.retry.addEventListener("click", load);
 async function openDashboardFrom() {
   const result = await send({ type: "openDashboard" });
   if (!result || !result.ok) {
-    toast((result && result.error) || "Panel açılamadı.", "error");
+    toast((result && result.error) || t("toastDashboardFailed"), "error");
   }
 }
 
@@ -270,6 +274,7 @@ nodes.themeToggle.addEventListener("click", async () => {
   await send({ type: "setSetting", key: "theme", value: next });
 });
 
+applyI18n();
 load();
 
 chrome.storage.onChanged.addListener((changes, area) => {

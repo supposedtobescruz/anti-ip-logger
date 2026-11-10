@@ -47,7 +47,7 @@ Version 2.0.0. The bundled list ships 125 domains in 2 static rules, with 61 exc
 - **Panel** (options page): Overview, Lists, Events, Sources, Settings. Search the core list, manage allow/custom lists, check source health, back up and reset your data.
 - **Blocked page:** the target URL, which list entry matched, and three decisions: allow once in this tab, allow the site permanently, or go back.
 
-The UI is in Turkish for now. English UI copy is planned; the language framework for this file exists already (see "Adding a language").
+The extension interface is in English (default) and Turkish, following your browser's UI language (`chrome.i18n`). This file is the English source of truth; the Turkish UI translation ships in `_locales/tr/messages.json`.
 
 ## Data sources
 
@@ -124,6 +124,8 @@ Rule priority ladder: tab allow 110 > allowlist 100 > custom block 50 > blocked 
 - Signals are collected in every frame (iframes included) and attached to the top tab. The banner only shows in the top frame.
 
 ## Adding a language
+
+The extension interface is in English (default) and Turkish. UI strings live in `_locales/en/messages.json` and `_locales/tr/messages.json`; adding a third UI language means a new `_locales/<code>/messages.json` and the same key set.
 
 This file is the English source of truth. Translations live in the `readme/` folder and follow the same structure, so a translator can work section by section:
 

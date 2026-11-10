@@ -21,7 +21,7 @@ function lists(overrides = {}) {
   };
 }
 
-test("çekirdek alan adları 100'lük parçalara bölünür", () => {
+test("core domains are split into chunks of 100", () => {
   const domains = Array.from({ length: MAX_DOMAINS_PER_RULE + 20 }, (_, i) => `d${i}.example.com`);
   const rules = buildDynamicRuleSet(lists({ remoteCore: domains }), settings({ showBlockedPage: false }));
   const blockRules = rules.filter((rule) => rule.id >= RULE_BASE.remoteCore && rule.id < RULE_BASE.remoteCore + 900_000);
@@ -31,7 +31,7 @@ test("çekirdek alan adları 100'lük parçalara bölünür", () => {
   assert.deepEqual(blockRules[0].action, { type: "block" });
 });
 
-test("izin listesi engel kuralından çıkarılır ve allow kuralı eklenir", () => {
+test("the allowlist is removed from block rules and gets an allow rule", () => {
   const rules = buildDynamicRuleSet(
     lists({ remoteCore: ["a.example.com", "b.example.com"] }),
     settings({ allowlist: ["b.example.com"], showBlockedPage: false }),
@@ -43,7 +43,7 @@ test("izin listesi engel kuralından çıkarılır ve allow kuralı eklenir", ()
   assert.deepEqual(allowRules[0].condition.requestDomains, ["b.example.com"]);
 });
 
-test("engel sayfası yönlendirmesi yalnızca ayar açıkken üretilir", () => {
+test("blocked page redirect is only emitted when the setting is on", () => {
   const on = buildDynamicRuleSet(lists({ packagedCore: ["grabify.link"] }), settings({ showBlockedPage: true }));
   const generated = on.filter((rule) => rule.action.type === "redirect");
   assert.equal(generated.length, 1);
@@ -54,7 +54,7 @@ test("engel sayfası yönlendirmesi yalnızca ayar açıkken üretilir", () => {
   assert.equal(off.filter((rule) => rule.action.type === "redirect").length, 0);
 });
 
-test("tehdit katmanı kapalıyken geniş liste kurala girmez", () => {
+test("the threat tier produces no rules when disabled", () => {
   const off = buildDynamicRuleSet(
     lists({ extended: ["threat.example.com"] }),
     settings({ tiers: { core: true, extended: false } }),
@@ -68,7 +68,7 @@ test("tehdit katmanı kapalıyken geniş liste kurala girmez", () => {
   assert.equal(on.filter((rule) => rule.priority === PRIORITY.extended).length, 1);
 });
 
-test("özel engeller çekirdek kuraldan yüksek öncelik taşır", () => {
+test("custom blocks outrank the core rule", () => {
   const rules = buildDynamicRuleSet(
     lists({ remoteCore: ["custom.example.com"] }),
     settings({ customBlocks: ["custom.example.com"], showBlockedPage: false }),
@@ -78,7 +78,7 @@ test("özel engeller çekirdek kuraldan yüksek öncelik taşır", () => {
   assert.ok(custom[0].priority > PRIORITY.core);
 });
 
-test("özet kural kimliklerini taban aralığına göre sayar", () => {
+test("summary counts rule identities by base range", () => {
   const rules = buildDynamicRuleSet(
     lists({ packagedCore: ["a.com"], remoteCore: ["b.com"], extended: ["c.com"] }),
     settings({ allowlist: ["d.com"], customBlocks: ["e.com"], tiers: { core: true, extended: true } }),

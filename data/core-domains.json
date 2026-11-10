@@ -1171,7 +1171,7 @@
       "name": "DeGrabify plain domain list",
       "tier": "core",
       "category": "grabify",
-      "license": "Atıf, açık lisans belirtilmemiş",
+      "license": "Attribution given, no explicit license",
       "project": "https://github.com/JonasLong/DeGrabify",
       "url": "https://gist.githubusercontent.com/JonasLong/82e98e4072ba592f130edc53cdaa386d/raw/DeGrabify%20Plain%20Domain%20Blocklist",
       "ok": true,

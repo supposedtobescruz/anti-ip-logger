@@ -1,0 +1,1374 @@
+{
+  "appName": {
+    "message": "Anti IP Logger",
+    "description": "Extension name."
+  },
+  "appShortName": {
+    "message": "Anti IP Logger",
+    "description": "Extension short name."
+  },
+  "appDescription": {
+    "message": "Blocks IP logger and link grabber domains, reports IP leak attempts in the page.",
+    "description": "Store listing description."
+  },
+  "commonWorking": {
+    "message": "Working",
+    "description": "Default busy button label."
+  },
+  "loadingText": {
+    "message": "Loading",
+    "description": "Generic loading text."
+  },
+  "hostUnknown": {
+    "message": "general",
+    "description": "Fallback host when none is available."
+  },
+  "relativeNever": {
+    "message": "never",
+    "description": "Relative time when there is no timestamp."
+  },
+  "relativeJustNow": {
+    "message": "just now",
+    "description": "Relative time under 45 seconds."
+  },
+  "relativeMinutes": {
+    "message": "$1 min ago",
+    "description": "Relative time in minutes."
+  },
+  "relativeHours": {
+    "message": "$1 h ago",
+    "description": "Relative time in hours."
+  },
+  "relativeDays": {
+    "message": "$1 d ago",
+    "description": "Relative time in days."
+  },
+  "skipToContent": {
+    "message": "Skip to content",
+    "description": "Skip link on the panel."
+  },
+  "navOverview": {
+    "message": "Overview",
+    "description": "Panel section."
+  },
+  "navLists": {
+    "message": "Lists",
+    "description": "Panel section."
+  },
+  "navEvents": {
+    "message": "Events",
+    "description": "Panel section."
+  },
+  "navSources": {
+    "message": "Sources",
+    "description": "Panel section."
+  },
+  "navSettings": {
+    "message": "Settings",
+    "description": "Panel section."
+  },
+  "eyebrowPanel": {
+    "message": "Control panel",
+    "description": "Panel eyebrow label."
+  },
+  "syncNowButton": {
+    "message": "Update list",
+    "description": "Sync button in panel header."
+  },
+  "themeButton": {
+    "message": "Theme",
+    "description": "Theme toggle in panel header."
+  },
+  "routeOverviewTitle": {
+    "message": "Overview",
+    "description": "Page title for the overview route."
+  },
+  "routeOverviewEyebrow": {
+    "message": "Control panel",
+    "description": "Eyebrow for the overview route."
+  },
+  "routeListsTitle": {
+    "message": "Lists",
+    "description": "Page title for the lists route."
+  },
+  "routeListsEyebrow": {
+    "message": "Blocklist and allowlist",
+    "description": "Eyebrow for the lists route."
+  },
+  "routeEventsTitle": {
+    "message": "Events",
+    "description": "Page title for the events route."
+  },
+  "routeEventsEyebrow": {
+    "message": "Event log",
+    "description": "Eyebrow for the events route."
+  },
+  "routeSourcesTitle": {
+    "message": "Sources",
+    "description": "Page title for the sources route."
+  },
+  "routeSourcesEyebrow": {
+    "message": "List health",
+    "description": "Eyebrow for the sources route."
+  },
+  "routeSettingsTitle": {
+    "message": "Settings",
+    "description": "Page title for the settings route."
+  },
+  "routeSettingsEyebrow": {
+    "message": "Behavior",
+    "description": "Eyebrow for the settings route."
+  },
+  "themeToggleLabel": {
+    "message": "Switch theme",
+    "description": "Popup theme toggle accessible label."
+  },
+  "openDashboardLabel": {
+    "message": "Open panel",
+    "description": "Popup panel button accessible label."
+  },
+  "themeSwitchToLight": {
+    "message": "Switch to light theme",
+    "description": "Action label when the dark theme is active."
+  },
+  "themeSwitchToDark": {
+    "message": "Switch to dark theme",
+    "description": "Action label when the light theme is active."
+  },
+  "protectionOn": {
+    "message": "Protection on",
+    "description": "Protection state."
+  },
+  "protectionOff": {
+    "message": "Protection off",
+    "description": "Protection state."
+  },
+  "switchOn": {
+    "message": "On",
+    "description": "Switch label when protection is on."
+  },
+  "switchOff": {
+    "message": "Off",
+    "description": "Switch label when protection is off."
+  },
+  "protectionStatusEyebrow": {
+    "message": "Protection status",
+    "description": "Status band label."
+  },
+  "statusPartialDetail": {
+    "message": "The list is partly up to date. Some sources did not respond in the last refresh, the existing domains were kept.",
+    "description": "Status band detail on partial sync failure."
+  },
+  "statusWorkingDetail": {
+    "message": "The core list is working with $1 domains and $2 dynamic rules.",
+    "description": "Status band detail when protection works."
+  },
+  "statusDisabledDetail": {
+    "message": "Blocking and in-page warnings are off. Your previous settings come back when you turn this on.",
+    "description": "Status band detail when disabled."
+  },
+  "tileBlocked": {
+    "message": "Blocked requests",
+    "description": "Tile label."
+  },
+  "tileBlockedNote": {
+    "message": "Total in this browser",
+    "description": "Tile footnote."
+  },
+  "tileDetected": {
+    "message": "Signals detected",
+    "description": "Tile label."
+  },
+  "tileDetectedNote": {
+    "message": "WebRTC, forms, pixels",
+    "description": "Tile footnote."
+  },
+  "tileDomains": {
+    "message": "Core list",
+    "description": "Tile label."
+  },
+  "tileDomainsNote": {
+    "message": "Domains",
+    "description": "Tile footnote."
+  },
+  "tileDomainsBreakdown": {
+    "message": "$1 verified, $2 single source",
+    "description": "Tile footnote with counts."
+  },
+  "tileRules": {
+    "message": "Active rules",
+    "description": "Tile label."
+  },
+  "tileRulesNote": {
+    "message": "Dynamic and static",
+    "description": "Tile footnote."
+  },
+  "tileRulesStatic": {
+    "message": "Static ruleset enabled",
+    "description": "Tile footnote."
+  },
+  "tileRulesDynamicOnly": {
+    "message": "Dynamic rules only",
+    "description": "Tile footnote."
+  },
+  "recentEventsTitle": {
+    "message": "Recent events",
+    "description": "Card title."
+  },
+  "seeAllLink": {
+    "message": "All",
+    "description": "Quiet link to the full list."
+  },
+  "overviewEventsEmpty": {
+    "message": "No events yet. Blocked connections appear here.",
+    "description": "Empty state for the overview event list."
+  },
+  "coverageTitle": {
+    "message": "Coverage",
+    "description": "Card title."
+  },
+  "coverageCore": {
+    "message": "Core domains",
+    "description": "Key-value row."
+  },
+  "coverageRemote": {
+    "message": "Remote update",
+    "description": "Key-value row."
+  },
+  "coverageExtended": {
+    "message": "Threat list",
+    "description": "Key-value row."
+  },
+  "coverageAllow": {
+    "message": "Allowlist",
+    "description": "Key-value row."
+  },
+  "coverageTab": {
+    "message": "Tab allow",
+    "description": "Key-value row."
+  },
+  "coverageSynced": {
+    "message": "Last core refresh $1.",
+    "description": "Coverage footnote with relative time."
+  },
+  "coverageLocalOnly": {
+    "message": "No remote refresh yet, the local list is used.",
+    "description": "Coverage footnote."
+  },
+  "offLabel": {
+    "message": "off",
+    "description": "Threat list off label."
+  },
+  "badgeOff": {
+    "message": "Off",
+    "description": "Badge for disabled state."
+  },
+  "badgeOn": {
+    "message": "On",
+    "description": "Badge for enabled state."
+  },
+  "coreListTitle": {
+    "message": "Core list",
+    "description": "Card title."
+  },
+  "coreCount": {
+    "message": "$1 domains",
+    "description": "Count of domains in the core list."
+  },
+  "coreSummaryAll": {
+    "message": "$1 domains listed. Category and trust labels are generated at build time.",
+    "description": "Core list summary, unfiltered."
+  },
+  "coreSummaryFiltered": {
+    "message": "$1 results, $2 domains in total.",
+    "description": "Core list summary, filtered."
+  },
+  "searchLabel": {
+    "message": "Search",
+    "description": "Search field label."
+  },
+  "coreSearchPlaceholder": {
+    "message": "domain, category or source",
+    "description": "Search placeholder."
+  },
+  "categoryLabel": {
+    "message": "Category",
+    "description": "Category filter label."
+  },
+  "categoryAll": {
+    "message": "All",
+    "description": "Category filter option."
+  },
+  "coreListCaption": {
+    "message": "Core blocklist",
+    "description": "Table caption."
+  },
+  "tableDomain": {
+    "message": "Domain",
+    "description": "Table header."
+  },
+  "tableCategory": {
+    "message": "Category",
+    "description": "Table header."
+  },
+  "tableTrust": {
+    "message": "Trust",
+    "description": "Table header."
+  },
+  "tableSource": {
+    "message": "Source",
+    "description": "Table header."
+  },
+  "coreEmpty": {
+    "message": "No domain matches your search.",
+    "description": "Empty state for the core list."
+  },
+  "coreMoreButton": {
+    "message": "Show more",
+    "description": "Pagination button."
+  },
+  "categoryGrabify": {
+    "message": "Grabify",
+    "description": "Category label."
+  },
+  "categoryIplogger": {
+    "message": "IPLogger",
+    "description": "Category label."
+  },
+  "categoryOther": {
+    "message": "Other",
+    "description": "Category label."
+  },
+  "categoryTracker": {
+    "message": "Tracker",
+    "description": "Category label."
+  },
+  "categoryThreat": {
+    "message": "Threat list",
+    "description": "Category label."
+  },
+  "categoryCustom": {
+    "message": "Custom",
+    "description": "Category label."
+  },
+  "categoryGrabifyLong": {
+    "message": "Grabify-style link grabber",
+    "description": "Category long label."
+  },
+  "categoryIploggerLong": {
+    "message": "IPLogger family",
+    "description": "Category long label."
+  },
+  "categoryOtherLong": {
+    "message": "IP collecting or short link service",
+    "description": "Category long label."
+  },
+  "categoryTrackerLong": {
+    "message": "Tracker infrastructure",
+    "description": "Category long label."
+  },
+  "categoryThreatLong": {
+    "message": "Threat list entry",
+    "description": "Category long label."
+  },
+  "categoryCustomLong": {
+    "message": "Custom block rule",
+    "description": "Category long label."
+  },
+  "confidenceConfirmed": {
+    "message": "Verified",
+    "description": "Confidence badge."
+  },
+  "confidenceSingle": {
+    "message": "Single source",
+    "description": "Confidence badge."
+  },
+  "confidenceConfirmedDetail": {
+    "message": "verified by two or more sources",
+    "description": "Metadata detail."
+  },
+  "confidenceSingleDetail": {
+    "message": "single source entry",
+    "description": "Metadata detail."
+  },
+  "originRemote": {
+    "message": "from remote refresh",
+    "description": "Metadata detail."
+  },
+  "originAllowlist": {
+    "message": "on the allowlist",
+    "description": "Metadata detail."
+  },
+  "knownOnList": {
+    "message": "Domain found on the list.",
+    "description": "Metadata fallback."
+  },
+  "allowlistTitle": {
+    "message": "Allowlist",
+    "description": "Card title."
+  },
+  "customBlocksTitle": {
+    "message": "Custom blocks",
+    "description": "Card title."
+  },
+  "domainInputLabel": {
+    "message": "Add domain",
+    "description": "Form field label."
+  },
+  "addButton": {
+    "message": "Add",
+    "description": "Form submit button."
+  },
+  "removeButton": {
+    "message": "Remove",
+    "description": "Remove button."
+  },
+  "removeAllowAria": {
+    "message": "Remove $1 from the allowlist",
+    "description": "Remove button accessible name."
+  },
+  "removeCustomAria": {
+    "message": "Remove $1 from custom blocks",
+    "description": "Remove button accessible name."
+  },
+  "recordCount": {
+    "message": "$1 entries",
+    "description": "Record count label."
+  },
+  "allowEmpty": {
+    "message": "The allowlist is empty. You can exempt a blocked site from here.",
+    "description": "Empty state for the allowlist."
+  },
+  "customEmpty": {
+    "message": "No custom blocks. Add a site that is not on the list.",
+    "description": "Empty state for custom blocks."
+  },
+  "listsFootnote": {
+    "message": "The list refreshes automatically when sources update. The allowlist always takes precedence over the blocklist.",
+    "description": "Footnote under the lists cards."
+  },
+  "eventsTitle": {
+    "message": "Event log",
+    "description": "Card title / section title."
+  },
+  "typeLabel": {
+    "message": "Type",
+    "description": "Filter label."
+  },
+  "typeAll": {
+    "message": "All",
+    "description": "Filter option."
+  },
+  "typeBlocked": {
+    "message": "Blocked",
+    "description": "Event type."
+  },
+  "typeDetected": {
+    "message": "Detected",
+    "description": "Event type."
+  },
+  "typeAllowed": {
+    "message": "Allowed",
+    "description": "Event type."
+  },
+  "typeCustom": {
+    "message": "Rule",
+    "description": "Event type."
+  },
+  "typeSync": {
+    "message": "Refresh",
+    "description": "Event type."
+  },
+  "typeInfo": {
+    "message": "Info",
+    "description": "Event type."
+  },
+  "eventsSearchPlaceholder": {
+    "message": "domain or description",
+    "description": "Search placeholder."
+  },
+  "eventsClearButton": {
+    "message": "Clear log",
+    "description": "Clear button."
+  },
+  "eventCount": {
+    "message": "$1 events",
+    "description": "Event count label."
+  },
+  "eventsFilterEmpty": {
+    "message": "No events match this filter.",
+    "description": "Empty state."
+  },
+  "eventsFootnote": {
+    "message": "The log keeps the last 500 events and survives restarts. Temporary tab permissions are removed when tabs close.",
+    "description": "Footnote."
+  },
+  "eventsSeeAll": {
+    "message": "All",
+    "description": "Quiet link label."
+  },
+  "eventsEmpty": {
+    "message": "No events yet. Blocked IP logger connections appear here.",
+    "description": "Empty state for the popup event list."
+  },
+  "sourceHealthTitle": {
+    "message": "Source health",
+    "description": "Card title."
+  },
+  "sourceCount": {
+    "message": "$1 sources",
+    "description": "Source count label."
+  },
+  "sourcesCaption": {
+    "message": "List sources and last refresh status",
+    "description": "Table caption."
+  },
+  "tableSourceCol": {
+    "message": "Source",
+    "description": "Table header."
+  },
+  "tableTierCol": {
+    "message": "Tier",
+    "description": "Table header."
+  },
+  "tableLicenseCol": {
+    "message": "License",
+    "description": "Table header."
+  },
+  "tableStatusCol": {
+    "message": "Last status",
+    "description": "Table header."
+  },
+  "tableDomainsCol": {
+    "message": "Domains",
+    "description": "Table header."
+  },
+  "tierCore": {
+    "message": "Core",
+    "description": "Tier label."
+  },
+  "tierThreat": {
+    "message": "Threat",
+    "description": "Tier label."
+  },
+  "licenseUnspecified": {
+    "message": "unspecified",
+    "description": "License fallback."
+  },
+  "sourceOk": {
+    "message": "Responded",
+    "description": "Source status."
+  },
+  "sourceError": {
+    "message": "Failed",
+    "description": "Source status."
+  },
+  "sourcePending": {
+    "message": "Pending",
+    "description": "Source status."
+  },
+  "sourcesNote": {
+    "message": "$1 core sources are fetched on every refresh. The threat list refreshes only when enabled.",
+    "description": "Hint under the sources table."
+  },
+  "coreRefreshTitle": {
+    "message": "Core refresh",
+    "description": "Card title."
+  },
+  "coreRefreshHint": {
+    "message": "If sources fail, the existing list is kept and an empty list is never written.",
+    "description": "Hint text."
+  },
+  "syncNowCoreButton": {
+    "message": "Refresh now",
+    "description": "Button label."
+  },
+  "threatListTitle": {
+    "message": "Threat list",
+    "description": "Card title."
+  },
+  "threatListHint": {
+    "message": "Optional wide list. When enabled, many domains are added and false positives rise.",
+    "description": "Hint text."
+  },
+  "syncNowExtendedButton": {
+    "message": "Refresh list",
+    "description": "Button label."
+  },
+  "lastRefresh": {
+    "message": "Last refresh: $1",
+    "description": "Sync result line."
+  },
+  "protectionCardTitle": {
+    "message": "Protection",
+    "description": "Card title."
+  },
+  "settingEnabledTitle": {
+    "message": "Protection on",
+    "description": "Setting row title."
+  },
+  "settingEnabledHint": {
+    "message": "Turns all blocking and warnings on or off.",
+    "description": "Setting row hint."
+  },
+  "settingCoreTitle": {
+    "message": "Core list",
+    "description": "Setting row title."
+  },
+  "settingCoreHint": {
+    "message": "Grabify, IPLogger and similar services.",
+    "description": "Setting row hint."
+  },
+  "settingExtendedTitle": {
+    "message": "Threat list",
+    "description": "Setting row title."
+  },
+  "settingExtendedHint": {
+    "message": "Optional wide list, off by default.",
+    "description": "Setting row hint."
+  },
+  "settingBlockedPageTitle": {
+    "message": "Blocked page",
+    "description": "Setting row title."
+  },
+  "settingBlockedPageHint": {
+    "message": "Show a warning page instead of the blocked address.",
+    "description": "Setting row hint."
+  },
+  "settingWarningsTitle": {
+    "message": "In-page warning",
+    "description": "Setting row title."
+  },
+  "settingWarningsHint": {
+    "message": "Show a banner on the page for suspicious behavior.",
+    "description": "Setting row hint."
+  },
+  "privacyCardTitle": {
+    "message": "Privacy and appearance",
+    "description": "Card title."
+  },
+  "webrtcLabel": {
+    "message": "WebRTC IP policy",
+    "description": "Select label."
+  },
+  "webrtcDefault": {
+    "message": "Browser default",
+    "description": "Select option."
+  },
+  "webrtcNonProxied": {
+    "message": "Disable local IP sharing",
+    "description": "Select option."
+  },
+  "webrtcUdp": {
+    "message": "Disable WebRTC over UDP",
+    "description": "Select option."
+  },
+  "webrtcHint": {
+    "message": "This setting applies browser-wide. Some video calls may not work when it is off.",
+    "description": "Hint text."
+  },
+  "themeLabel": {
+    "message": "Theme",
+    "description": "Select label."
+  },
+  "themeSystem": {
+    "message": "System",
+    "description": "Select option."
+  },
+  "themeLight": {
+    "message": "Light",
+    "description": "Select option."
+  },
+  "themeDark": {
+    "message": "Dark",
+    "description": "Select option."
+  },
+  "webrtcNoteDefault": {
+    "message": "WebRTC policy is at the browser default. Signal watching still catches local IP leaks.",
+    "description": "Note when policy is default."
+  },
+  "webrtcNoteCustom": {
+    "message": "The WebRTC policy was changed in this browser. It returns to the default when the extension setting is cleared.",
+    "description": "Note when policy is custom."
+  },
+  "dataCardTitle": {
+    "message": "Data",
+    "description": "Card title."
+  },
+  "exportButton": {
+    "message": "Download backup",
+    "description": "Button label."
+  },
+  "importButton": {
+    "message": "Restore backup",
+    "description": "Button label."
+  },
+  "resetButton": {
+    "message": "Reset all data",
+    "description": "Button label."
+  },
+  "resetConfirmText": {
+    "message": "This wipes the allowlist, custom blocks and the event log. It cannot be undone.",
+    "description": "Confirmation text."
+  },
+  "resetConfirmButton": {
+    "message": "Confirm reset",
+    "description": "Confirmation button."
+  },
+  "resetCancelButton": {
+    "message": "Cancel",
+    "description": "Confirmation cancel button."
+  },
+  "aboutCardTitle": {
+    "message": "About",
+    "description": "Card title."
+  },
+  "aboutLine": {
+    "message": "List sources and licenses are in",
+    "description": "About line start."
+  },
+  "aboutLineEnd": {
+    "message": ". Data stays on this browser and is never sent to a server.",
+    "description": "About line end."
+  },
+  "versionLine": {
+    "message": "Version $1",
+    "description": "About version line."
+  },
+  "dataNote": {
+    "message": "Backup contains settings, counters and $1 events. Restoring only changes settings.",
+    "description": "Hint under the data buttons."
+  },
+  "allowAddButton": {
+    "message": "Allowlist this site",
+    "description": "Popup button."
+  },
+  "allowRemoveButton": {
+    "message": "Remove from allowlist",
+    "description": "Popup button."
+  },
+  "blockSiteButton": {
+    "message": "Block this site",
+    "description": "Popup button."
+  },
+  "allowTabButton": {
+    "message": "Allow once in this tab",
+    "description": "Popup button."
+  },
+  "noHostHint": {
+    "message": "Open a web page and the options appear here.",
+    "description": "Popup hint with no host."
+  },
+  "findingsTitle": {
+    "message": "Signals",
+    "description": "Popup section title."
+  },
+  "signalCount": {
+    "message": "$1 signals",
+    "description": "Popup signals count label."
+  },
+  "findingLevelDanger": {
+    "message": "high",
+    "description": "Finding level label."
+  },
+  "findingLevelWarn": {
+    "message": "suspicious",
+    "description": "Finding level label."
+  },
+  "findingLevelInfo": {
+    "message": "low",
+    "description": "Finding level label."
+  },
+  "findingLeakSignal": {
+    "message": "Leak signal",
+    "description": "Fallback finding text."
+  },
+  "statsTitle": {
+    "message": "Counters",
+    "description": "Popup section title."
+  },
+  "statsWindow": {
+    "message": "This browser",
+    "description": "Popup stats eyebrow."
+  },
+  "statBlocked": {
+    "message": "Blocked",
+    "description": "Popup stat label."
+  },
+  "statDetected": {
+    "message": "Detected",
+    "description": "Popup stat label."
+  },
+  "statDomains": {
+    "message": "List",
+    "description": "Popup stat label."
+  },
+  "statRules": {
+    "message": "Rules",
+    "description": "Popup stat label."
+  },
+  "listReady": {
+    "message": "List ready",
+    "description": "Popup footer line."
+  },
+  "listLocal": {
+    "message": "Local list",
+    "description": "Popup sync line."
+  },
+  "listUpdatedRelative": {
+    "message": "List $1",
+    "description": "Popup sync line with relative time."
+  },
+  "listPartiallyUpdated": {
+    "message": "List partly up to date",
+    "description": "Popup sync line."
+  },
+  "statusUnreadable": {
+    "message": "State cannot be read.",
+    "description": "Error state text."
+  },
+  "retryButton": {
+    "message": "Try again",
+    "description": "Error retry button."
+  },
+  "panelReadFailed": {
+    "message": "Panel data cannot be read. Try reloading the extension.",
+    "description": "Global error text."
+  },
+  "domainRequired": {
+    "message": "Enter a domain.",
+    "description": "Validation message."
+  },
+  "toastBlocked": {
+    "message": "$1 blocked.",
+    "description": "Toast after blocking a site."
+  },
+  "toastBlockFailed": {
+    "message": "The site could not be blocked.",
+    "description": "Toast on failure."
+  },
+  "toastAllowAdded": {
+    "message": "Site added to the allowlist.",
+    "description": "Toast on allowlist add."
+  },
+  "toastAllowRemoved": {
+    "message": "Allow removed.",
+    "description": "Toast on allowlist removal."
+  },
+  "toastGenericFailed": {
+    "message": "The operation did not complete.",
+    "description": "Generic failure toast."
+  },
+  "toastTabAllowed": {
+    "message": "Allowed once in this tab.",
+    "description": "Toast on tab allow."
+  },
+  "toastTabAllowFailed": {
+    "message": "Temporary allow could not be granted.",
+    "description": "Toast on tab allow failure."
+  },
+  "toastDashboardFailed": {
+    "message": "The panel could not be opened.",
+    "description": "Toast on open failure."
+  },
+  "toastSettingFailed": {
+    "message": "The setting could not be saved.",
+    "description": "Toast on setting failure."
+  },
+  "toastProtectionOn": {
+    "message": "Protection on.",
+    "description": "Toast when enabling."
+  },
+  "toastProtectionOff": {
+    "message": "Protection off.",
+    "description": "Toast when disabling."
+  },
+  "toastAddDomainFailed": {
+    "message": "The domain could not be added.",
+    "description": "Toast on add failure."
+  },
+  "toastDomainAllowed": {
+    "message": "$1 added to the allowlist.",
+    "description": "Toast on allowlist add."
+  },
+  "toastDomainBlocked": {
+    "message": "$1 added to custom blocks.",
+    "description": "Toast on custom block add."
+  },
+  "toastRemoveDomainFailed": {
+    "message": "The entry could not be removed.",
+    "description": "Toast on removal failure."
+  },
+  "toastDomainRemoved": {
+    "message": "$1 removed.",
+    "description": "Toast on removal."
+  },
+  "toastClearEventsFailed": {
+    "message": "The event log could not be cleared.",
+    "description": "Toast on clear failure."
+  },
+  "toastClearEventsDone": {
+    "message": "Event log cleared.",
+    "description": "Toast on clear."
+  },
+  "toastExportFailed": {
+    "message": "The backup could not be created.",
+    "description": "Toast on export failure."
+  },
+  "toastExportDone": {
+    "message": "Backup downloaded.",
+    "description": "Toast on export."
+  },
+  "toastImportInvalid": {
+    "message": "The file is not valid JSON.",
+    "description": "Toast on invalid import."
+  },
+  "toastImportFailed": {
+    "message": "The backup could not be restored.",
+    "description": "Toast on import failure."
+  },
+  "toastImportDone": {
+    "message": "Settings restored from the backup.",
+    "description": "Toast on import."
+  },
+  "toastImportReadFailed": {
+    "message": "The file could not be read.",
+    "description": "Toast on read failure."
+  },
+  "toastSyncFailed": {
+    "message": "Refresh failed.",
+    "description": "Toast on sync failure."
+  },
+  "toastSyncAdded": {
+    "message": "List updated: $1 new domains.",
+    "description": "Toast on sync success."
+  },
+  "toastSyncPartial": {
+    "message": "Partial refresh: some sources did not respond.",
+    "description": "Toast on partial sync."
+  },
+  "toastSyncNothing": {
+    "message": "Refresh failed: no source responded.",
+    "description": "Toast on total sync failure."
+  },
+  "toastResetFailed": {
+    "message": "Reset failed.",
+    "description": "Toast on reset failure."
+  },
+  "toastResetDone": {
+    "message": "All data reset.",
+    "description": "Toast on reset."
+  },
+  "syncingButton": {
+    "message": "Refreshing",
+    "description": "Button label while syncing."
+  },
+  "syncingSources": {
+    "message": "Fetching sources...",
+    "description": "Sync result line while syncing."
+  },
+  "syncResultAdded": {
+    "message": "$1 new domains added.",
+    "description": "Sync result line."
+  },
+  "syncResultPartial": {
+    "message": "Some sources did not respond, the existing list was kept.",
+    "description": "Sync result line."
+  },
+  "syncResultFailed": {
+    "message": "No source responded. The list did not change.",
+    "description": "Sync result line."
+  },
+  "resettingButton": {
+    "message": "Resetting",
+    "description": "Button label while resetting."
+  },
+  "verdictOffLabel": {
+    "message": "Protection off",
+    "description": "Verdict label."
+  },
+  "verdictOffHeadline": {
+    "message": "Protection is currently off.",
+    "description": "Verdict headline."
+  },
+  "verdictOffDetail": {
+    "message": "IP logger domains are not blocked and page signals are not watched.",
+    "description": "Verdict detail."
+  },
+  "verdictAllowedLabel": {
+    "message": "Allowed",
+    "description": "Verdict label."
+  },
+  "verdictAllowedHeadline": {
+    "message": "This site is on the allowlist.",
+    "description": "Verdict headline."
+  },
+  "verdictAllowedDetail": {
+    "message": "Protection is disabled for this site even if its domain is on the blocklist.",
+    "description": "Verdict detail."
+  },
+  "verdictLoggerLabel": {
+    "message": "IP logger",
+    "description": "Verdict label."
+  },
+  "verdictLoggerHeadline": {
+    "message": "This domain is on the IP logger list.",
+    "description": "Verdict headline."
+  },
+  "verdictLoggerDetail": {
+    "message": "If the connection was not blocked, the page may be trying to harvest your IP address.",
+    "description": "Verdict detail."
+  },
+  "verdictBlockedLabel": {
+    "message": "Blocked",
+    "description": "Verdict label."
+  },
+  "verdictBlockedHeadline": {
+    "message": "A connection was blocked in this tab.",
+    "description": "Verdict headline."
+  },
+  "verdictBlockedDetail": {
+    "message": "The blocked address is in the event log. Check it before reloading.",
+    "description": "Verdict detail."
+  },
+  "verdictDangerLabel": {
+    "message": "High risk",
+    "description": "Verdict label."
+  },
+  "verdictDangerHeadline": {
+    "message": "The page tried to leak your IP address.",
+    "description": "Verdict headline."
+  },
+  "verdictDangerDetail": {
+    "message": "The signals below were caught in this tab.",
+    "description": "Verdict detail."
+  },
+  "verdictWarnLabel": {
+    "message": "Suspicious",
+    "description": "Verdict label."
+  },
+  "verdictWarnHeadline": {
+    "message": "This page shows suspicious behavior.",
+    "description": "Verdict headline."
+  },
+  "verdictWarnDetail": {
+    "message": "Not a confirmed IP logger, but the signals should be watched.",
+    "description": "Verdict detail."
+  },
+  "verdictInfoLabel": {
+    "message": "Low risk",
+    "description": "Verdict label."
+  },
+  "verdictInfoHeadline": {
+    "message": "The page sent low risk signals.",
+    "description": "Verdict headline."
+  },
+  "verdictInfoDetail": {
+    "message": "A single signal such as media, location or early requests.",
+    "description": "Verdict detail."
+  },
+  "verdictCleanLabel": {
+    "message": "Clean",
+    "description": "Verdict label."
+  },
+  "verdictCleanHeadline": {
+    "message": "No leak signal in this tab.",
+    "description": "Verdict headline."
+  },
+  "verdictCleanDetail": {
+    "message": "No IP collection behavior caught since the page opened.",
+    "description": "Verdict detail."
+  },
+  "verdictIdleLabel": {
+    "message": "Waiting",
+    "description": "Verdict label."
+  },
+  "verdictIdleHeadline": {
+    "message": "This tab is not being watched.",
+    "description": "Verdict headline."
+  },
+  "verdictIdleDetail": {
+    "message": "Open a regular web page and the state shows up here.",
+    "description": "Verdict detail."
+  },
+  "findingKnownLoggerTitle": {
+    "message": "Known IP logger domain",
+    "description": "Finding title."
+  },
+  "findingKnownLoggerDetail": {
+    "message": "This domain is on the IP collecting or link grabber list.",
+    "description": "Finding detail."
+  },
+  "findingWebrtcTitle": {
+    "message": "WebRTC shared your IP",
+    "description": "Finding title."
+  },
+  "findingWebrtcDetail": {
+    "message": "The page opened a WebRTC connection that can expose your local network address.",
+    "description": "Finding detail."
+  },
+  "findingAutoFormTitle": {
+    "message": "Form submitted without a click",
+    "description": "Finding title."
+  },
+  "findingAutoFormDetail": {
+    "message": "A form submission was caught without user interaction.",
+    "description": "Finding detail."
+  },
+  "findingHiddenFrameTitle": {
+    "message": "Hidden frame loaded",
+    "description": "Finding title."
+  },
+  "findingHiddenFrameDetail": {
+    "message": "An invisible iframe connected to another domain.",
+    "description": "Finding detail."
+  },
+  "findingMetaRefreshTitle": {
+    "message": "Automatic redirect",
+    "description": "Finding title."
+  },
+  "findingMetaRefreshDetail": {
+    "message": "The page redirects to another domain without a click.",
+    "description": "Finding detail."
+  },
+  "findingHiddenPixelTitle": {
+    "message": "Hidden tracking pixel",
+    "description": "Finding title."
+  },
+  "findingHiddenPixelDetail": {
+    "message": "An invisible image sent a request to another domain.",
+    "description": "Finding detail."
+  },
+  "findingEarlyRequestsTitle": {
+    "message": "Third party requests before interaction",
+    "description": "Finding title."
+  },
+  "findingEarlyRequestsDetail": {
+    "message": "The page sent third party requests before any interaction.",
+    "description": "Finding detail."
+  },
+  "findingMediaTitle": {
+    "message": "Camera or microphone request",
+    "description": "Finding title."
+  },
+  "findingMediaDetail": {
+    "message": "The page asked for media device access.",
+    "description": "Finding detail."
+  },
+  "findingGeolocationTitle": {
+    "message": "Location request",
+    "description": "Finding title."
+  },
+  "findingGeolocationDetail": {
+    "message": "The page asked the browser for location.",
+    "description": "Finding detail."
+  },
+  "eventCoreUpdated": {
+    "message": "Core list updated: $1 new domains",
+    "description": "Event detail."
+  },
+  "eventExtendedUpdated": {
+    "message": "Threat list updated: $1 new domains",
+    "description": "Event detail."
+  },
+  "eventCustomAdded": {
+    "message": "Added to custom blocks",
+    "description": "Event detail."
+  },
+  "eventCustomRemoved": {
+    "message": "Removed from custom blocks",
+    "description": "Event detail."
+  },
+  "eventAllowedAdded": {
+    "message": "Added to the allowlist",
+    "description": "Event detail."
+  },
+  "eventAllowedRemoved": {
+    "message": "Removed from the allowlist",
+    "description": "Event detail."
+  },
+  "eventTabAllowed": {
+    "message": "Allowed once in this tab",
+    "description": "Event detail."
+  },
+  "eventNavBlocked": {
+    "message": "Top level navigation blocked",
+    "description": "Event detail."
+  },
+  "eventSubresourceBlocked": {
+    "message": "Subresource blocked",
+    "description": "Event detail."
+  },
+  "syncPartialError": {
+    "message": "Some sources did not respond; the existing list was kept.",
+    "description": "Sync error detail."
+  },
+  "syncAllFailedError": {
+    "message": "No source responded. The existing list was not changed.",
+    "description": "Sync error detail."
+  },
+  "syncAllFailedShort": {
+    "message": "No source responded.",
+    "description": "Sync error detail, short."
+  },
+  "errorInvalidDomain": {
+    "message": "Enter a valid domain.",
+    "description": "Error message."
+  },
+  "errorInvalidTabOrDomain": {
+    "message": "Tab or domain is invalid.",
+    "description": "Error message."
+  },
+  "errorTabNotFound": {
+    "message": "The tab was not found.",
+    "description": "Error message."
+  },
+  "errorInvalidTier": {
+    "message": "Invalid tier.",
+    "description": "Error message."
+  },
+  "errorInvalidSetting": {
+    "message": "Invalid setting.",
+    "description": "Error message."
+  },
+  "errorInvalidBackup": {
+    "message": "The file is not a valid backup.",
+    "description": "Error message."
+  },
+  "errorInvalidSender": {
+    "message": "The sender is not this extension.",
+    "description": "Error message."
+  },
+  "errorInvalidUrl": {
+    "message": "The address is invalid.",
+    "description": "Error message."
+  },
+  "errorUnknownMessage": {
+    "message": "Unknown message.",
+    "description": "Error message."
+  },
+  "bannerAriaLabel": {
+    "message": "Anti IP Logger warning",
+    "description": "Banner accessible name."
+  },
+  "bannerFallbackTitle": {
+    "message": "This page tried to ask for your IP address.",
+    "description": "Banner fallback title."
+  },
+  "bannerFallbackDetail": {
+    "message": "The page showed behavior that could collect your IP address.",
+    "description": "Banner fallback detail."
+  },
+  "bannerBlockSite": {
+    "message": "Block this site",
+    "description": "Banner primary action."
+  },
+  "bannerAllowSite": {
+    "message": "Allow this site",
+    "description": "Banner secondary action."
+  },
+  "bannerClose": {
+    "message": "Close",
+    "description": "Banner dismiss action."
+  },
+  "blockedStamp": {
+    "message": "BLOCKED",
+    "description": "Blocked page stamp."
+  },
+  "blockedPageTitle": {
+    "message": "This connection is on the IP logger list.",
+    "description": "Blocked page headline."
+  },
+  "blockedPageLead": {
+    "message": "The page did not open. The target was found on the list of IP collecting services, so the request was stopped in the browser.",
+    "description": "Blocked page lead."
+  },
+  "blockedUnreadableTitle": {
+    "message": "The blocked address could not be read.",
+    "description": "Blocked page fallback headline."
+  },
+  "blockedUnreadableLead": {
+    "message": "The rule fired but the target could not be carried to this page. Check the address in the browser history.",
+    "description": "Blocked page fallback lead."
+  },
+  "blockedUnknownUrl": {
+    "message": "Unknown",
+    "description": "Blocked page fallback target."
+  },
+  "blockedTargetLoading": {
+    "message": "Reading address",
+    "description": "Blocked page loading state."
+  },
+  "blockedTargetLabel": {
+    "message": "Target address",
+    "description": "Blocked page label."
+  },
+  "blockedCasePending": {
+    "message": "CASE: PENDING",
+    "description": "Blocked page case number before load."
+  },
+  "blockedCaseNumber": {
+    "message": "CASE: $1 / $2",
+    "description": "Blocked page case number."
+  },
+  "blockedNoteTitle": {
+    "message": "What this block does",
+    "description": "Blocked page section title."
+  },
+  "blockedNote1": {
+    "message": "Top level navigation is stopped, no request reached the target server.",
+    "description": "Blocked page note."
+  },
+  "blockedNote2": {
+    "message": "Allowing once in this tab only applies to this tab and is forgotten when the tab closes.",
+    "description": "Blocked page note."
+  },
+  "blockedNote3": {
+    "message": "Permanent allow removes the domain from the blocklist in every tab.",
+    "description": "Blocked page note."
+  },
+  "blockedAllowTab": {
+    "message": "Allow once in this tab and open",
+    "description": "Blocked page button."
+  },
+  "blockedAllowSite": {
+    "message": "Allowlist this site permanently",
+    "description": "Blocked page button."
+  },
+  "blockedGoBack": {
+    "message": "Go back",
+    "description": "Blocked page button."
+  },
+  "blockedOpenLists": {
+    "message": "Open the list",
+    "description": "Blocked page link."
+  },
+  "blockedFineprint": {
+    "message": "The allowlist is managed in the panel. Check the address before you decide.",
+    "description": "Blocked page fine print."
+  },
+  "blockedAllowFailed": {
+    "message": "The allow could not be saved.",
+    "description": "Blocked page error."
+  },
+  "blockedAllowTabDone": {
+    "message": "Allowed in this tab, the page is opening.",
+    "description": "Blocked page success."
+  },
+  "blockedAllowSiteDone": {
+    "message": "The domain was added to the allowlist, the page is opening.",
+    "description": "Blocked page success."
+  },
+  "blockedRecordFailed": {
+    "message": "The block record could not be sent. The block still applied; the panel counters may not update.",
+    "description": "Blocked page error."
+  },
+  "allowingButton": {
+    "message": "Allowing",
+    "description": "Button label while allowing."
+  },
+  "errorNoResponse": {
+    "message": "No response.",
+    "description": "Missing response from the extension worker."
+  }
+}

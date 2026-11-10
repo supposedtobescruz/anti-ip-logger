@@ -4,6 +4,14 @@
   if (window[FLAG]) return;
   window[FLAG] = true;
   const IS_TOP = window.top === window;
+  const gt = (key, substitutions) => {
+    try {
+      const value = chrome.i18n.getMessage(key, substitutions || []);
+      return value || key;
+    } catch {
+      return key;
+    }
+  };
 
   const local = {
     gesture: false,
@@ -288,7 +296,7 @@
     hostElement.id = "anti-ip-logger-banner";
     hostElement.setAttribute("style", bannerStyles());
     hostElement.setAttribute("role", "dialog");
-    hostElement.setAttribute("aria-label", "Anti IP Logger uyarısı");
+    hostElement.setAttribute("aria-label", gt("bannerAriaLabel"));
 
     const shadow = hostElement.attachShadow({ mode: "closed" });
     const wrap = element("div", "all: initial; display: block; color: #171512; font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif;");
@@ -302,13 +310,13 @@
     const title = element(
       "div",
       "font-size: 18px; line-height: 1.25; font-weight: 600; margin: 0 0 6px; color: #171512;",
-      response.copy && response.copy.headline ? response.copy.headline : "Bu sayfa IP adresini istemeye çalıştı.",
+      response.copy && response.copy.headline ? response.copy.headline : gt("bannerFallbackTitle"),
     );
 
     const detail = element(
       "div",
       "font-size: 13px; line-height: 1.45; color: #4c463b; margin: 0 0 14px;",
-      response.copy && response.copy.detail ? response.copy.detail : "Sayfa, IP adresini toplayabilecek davranışlar gösterdi.",
+      response.copy && response.copy.detail ? response.copy.detail : gt("bannerFallbackDetail"),
     );
 
     const actions = element("div", "display: flex; flex-wrap: wrap; gap: 8px; align-items: center;");
@@ -316,7 +324,7 @@
     const block = element(
       "button",
       "appearance: none; border: 1px solid #171512; background: #171512; color: #fbf8f1; font: 500 13px 'IBM Plex Sans', 'Segoe UI', sans-serif; padding: 9px 12px; border-radius: 2px; cursor: pointer;",
-      "Siteyi engelle",
+      gt("bannerBlockSite"),
     );
     block.type = "button";
     block.addEventListener("click", () => {
@@ -331,7 +339,7 @@
     const allow = element(
       "button",
       "appearance: none; border: 1px solid #8f8572; background: transparent; color: #171512; font: 500 13px 'IBM Plex Sans', 'Segoe UI', sans-serif; padding: 9px 12px; border-radius: 2px; cursor: pointer;",
-      "Bu siteye izin ver",
+      gt("bannerAllowSite"),
     );
     allow.type = "button";
     allow.addEventListener("click", () => {
@@ -346,7 +354,7 @@
     const close = element(
       "button",
       "appearance: none; border: 1px solid transparent; background: transparent; color: #6b6152; font: 500 13px 'IBM Plex Sans', 'Segoe UI', sans-serif; padding: 9px 8px; border-radius: 2px; cursor: pointer;",
-      "Kapat",
+      gt("bannerClose"),
     );
     close.type = "button";
     close.addEventListener("click", () => dismissBanner(hostElement));

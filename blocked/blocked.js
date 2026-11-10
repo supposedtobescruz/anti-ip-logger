@@ -1,4 +1,5 @@
 import { send, setBusy, toast } from "../assets/ui.js";
+import { t, applyI18n } from "../assets/i18n.js";
 
 const nodes = {
   sheet: document.getElementById("sheet"),
@@ -15,13 +16,13 @@ const nodes = {
   fineprint: document.getElementById("fineprint"),
 };
 
-const CATEGORY_LABELS = {
-  grabify: "Grabify benzeri link grabber",
-  iplogger: "IPLogger ailesi",
-  other: "IP toplama veya kısa bağlantı servisi",
-  tracker: "İzleyici altyapısı",
-  threat: "Tehdit listesi kaydı",
-  custom: "Özel engel kuralı",
+const CATEGORY_KEYS = {
+  grabify: "categoryGrabifyLong",
+  iplogger: "categoryIploggerLong",
+  other: "categoryOtherLong",
+  tracker: "categoryTrackerLong",
+  threat: "categoryThreatLong",
+  custom: "categoryCustomLong",
 };
 
 let target = "";
@@ -37,7 +38,7 @@ function setFeedback(message, tone) {
 function caseNumberFor(date) {
   const parts = [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")];
   const time = [String(date.getHours()).padStart(2, "0"), String(date.getMinutes()).padStart(2, "0")];
-  return `DOSYA: ${parts.join("-")} / ${time.join(":")}`;
+  return t("blockedCaseNumber", [parts.join("-"), time.join(":")]);
 }
 
 function hostFromUrl(url) {
@@ -50,11 +51,10 @@ function hostFromUrl(url) {
 
 function renderTarget() {
   if (!target) {
-    nodes.stamp.textContent = "ENGELLENDİ";
-    nodes.title.textContent = "Engellenen adres okunamadı.";
-    nodes.lead.textContent =
-      "Kural çalıştı ancak hedef adres bu sayfaya taşınamadı. Adresi tarayıcı geçmişinden kontrol edebilirsin.";
-    nodes.target.textContent = "Bilinmiyor";
+    nodes.stamp.textContent = t("blockedStamp");
+    nodes.title.textContent = t("blockedUnreadableTitle");
+    nodes.lead.textContent = t("blockedUnreadableLead");
+    nodes.target.textContent = t("blockedUnknownUrl");
     nodes.meta.textContent = "";
     nodes.allowTab.disabled = true;
     nodes.allowSite.disabled = true;
@@ -66,7 +66,7 @@ function renderTarget() {
   nodes.allowTab.disabled = false;
   nodes.allowSite.disabled = false;
 
-  nodes.lead.textContent = "Gezinme durduruldu ve hedef sunucuya istek gönderilmedi. Adresi aşağıda görebilirsin.";
+  nodes.lead.textContent = t("blockedPageLead");
 }
 
 async function describeHost() {
@@ -78,12 +78,12 @@ async function describeHost() {
   }
   const known = result.known || {};
   const parts = [];
-  if (known.category && CATEGORY_LABELS[known.category]) parts.push(CATEGORY_LABELS[known.category]);
-  if (known.confidence === "confirmed") parts.push("iki veya daha fazla kaynakla doğrulandı");
-  else if (known.confidence === "single") parts.push("tek kaynak kaydı");
-  if (known.origin === "remote") parts.push("uzak güncelleme");
-  if (!result.wouldBlock && result.allowed) parts.push("izin listesinde");
-  nodes.meta.textContent = parts.length > 0 ? parts.join(" · ") : "Alan adı listede bulundu.";
+  if (known.category && CATEGORY_KEYS[known.category]) parts.push(t(CATEGORY_KEYS[known.category]));
+  if (known.confidence === "confirmed") parts.push(t("confidenceConfirmedDetail"));
+  else if (known.confidence === "single") parts.push(t("confidenceSingleDetail"));
+  if (known.origin === "remote") parts.push(t("originRemote"));
+  if (!result.wouldBlock && result.allowed) parts.push(t("originAllowlist"));
+  nodes.meta.textContent = parts.length > 0 ? parts.join(" · ") : t("knownOnList");
 }
 
 async function init() {
@@ -96,12 +96,12 @@ async function init() {
   renderTarget();
 
   if (target) {
-    const reported = await send({ type: "reportBlock", url: target, host, reason: "Üst düzey gezinme engellendi" });
+    const reported = await send({ type: "reportBlock", url: target, host, reason: t("eventNavBlocked") });
     if (!reported || !reported.ok) {
-      setFeedback("Engel kaydı gönderilemedi. Engel yine uygulandı, panelde sayaç güncellenmeyebilir.", "error");
+      setFeedback(t("blockedRecordFailed"), "error");
     }
     await describeHost();
-    nodes.fineprint.textContent = "Engel kaydı panelde tutulur. İzin kararı bu tarayıcıda saklanır, hiçbir sunucuya gönderilmez.";
+    nodes.fineprint.textContent = t("blockedFineprint");
   }
 
   nodes.sheet.setAttribute("aria-busy", "false");
@@ -111,15 +111,15 @@ async function init() {
 async function decide(message, successText) {
   if (busy || !target) return;
   busy = true;
-  setBusy(nodes.allowTab, true, "İzin veriliyor");
-  setBusy(nodes.allowSite, true, "İzin veriliyor");
+  setBusy(nodes.allowTab, true, t("allowingButton"));
+  setBusy(nodes.allowSite, true, t("allowingButton"));
   setFeedback("");
   const result = await send(message);
   busy = false;
   setBusy(nodes.allowTab, false);
   setBusy(nodes.allowSite, false);
   if (!result || !result.ok) {
-    const text = (result && result.error) || "İzin kaydedilemedi.";
+    const text = (result && result.error) || t("blockedAllowFailed");
     setFeedback(text, "error");
     toast(text, "error");
     return;
@@ -130,19 +130,20 @@ async function decide(message, successText) {
 
 nodes.allowTab.addEventListener("click", () => {
   if (!host) return;
-  decide({ type: "allowOnce", domain: host }, "Bu sekme için izin verildi, sayfa açılıyor.");
+  decide({ type: "allowOnce", domain: host }, t("blockedAllowTabDone"));
 });
 
 nodes.allowSite.addEventListener("click", () => {
   if (!host) return;
-  decide({ type: "allowDomain", domain: host }, "Alan adı izin listesine eklendi, sayfa açılıyor.");
+  decide({ type: "allowDomain", domain: host }, t("blockedAllowSiteDone"));
 });
 
 nodes.goBack.addEventListener("click", () => {
   if (history.length > 1) history.back();
-  else location.href = "../dashboard/dashboard.html#listeler";
+  else location.href = "../dashboard/dashboard.html#lists";
 });
 
+applyI18n();
 init().catch((error) => {
   nodes.sheet.setAttribute("aria-busy", "false");
   setFeedback(error instanceof Error ? error.message : String(error), "error");

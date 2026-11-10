@@ -275,12 +275,12 @@ async function main() {
       ...countByCategory(entries),
     },
     categories: {
-      grabify: "Grabify ve benzeri link grabber servisleri",
-      iplogger: "IPLogger ailesi ve benzeri servisler",
-      other: "Diğer IP toplama ve kısa bağlantı servisleri",
-      tracker: "İzleyici altyapısı",
-      threat: "İsteğe bağlı tehdit listesi",
-      custom: "Kullanıcı kuralı",
+      grabify: "Grabify and similar link grabber services",
+      iplogger: "IPLogger family and similar services",
+      other: "Other IP collecting and short link services",
+      tracker: "Tracker infrastructure",
+      threat: "Optional threat list",
+      custom: "User rule",
     },
     sources: reports,
   };

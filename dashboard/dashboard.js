@@ -10,25 +10,26 @@ import {
   toggleTheme,
   resolvedTheme,
 } from "../assets/ui.js";
+import { t, applyI18n } from "../assets/i18n.js";
 
 const ROUTES = {
-  genel: { title: "Genel Bakış", eyebrow: "Kontrol paneli" },
-  listeler: { title: "Listeler", eyebrow: "Engel ve izin" },
-  olaylar: { title: "Olaylar", eyebrow: "Kayıt" },
-  kaynaklar: { title: "Kaynaklar", eyebrow: "Liste sağlığı" },
-  ayarlar: { title: "Ayarlar", eyebrow: "Davranış" },
+  overview: { titleKey: "routeOverviewTitle", eyebrowKey: "routeOverviewEyebrow" },
+  lists: { titleKey: "routeListsTitle", eyebrowKey: "routeListsEyebrow" },
+  events: { titleKey: "routeEventsTitle", eyebrowKey: "routeEventsEyebrow" },
+  sources: { titleKey: "routeSourcesTitle", eyebrowKey: "routeSourcesEyebrow" },
+  settings: { titleKey: "routeSettingsTitle", eyebrowKey: "routeSettingsEyebrow" },
 };
 
-const CATEGORY_LABELS = {
-  grabify: "Grabify",
-  iplogger: "IPLogger",
-  other: "Diğer",
-  tracker: "İzleyici",
-  threat: "Tehdit",
-  custom: "Özel",
+const CATEGORY_LABEL_KEYS = {
+  grabify: "categoryGrabify",
+  iplogger: "categoryIplogger",
+  other: "categoryOther",
+  tracker: "categoryTracker",
+  threat: "categoryThreat",
+  custom: "categoryCustom",
 };
 
-const CONFIDENCE_LABELS = { confirmed: "Doğrulanmış", single: "Tek kaynak" };
+const CONFIDENCE_LABEL_KEYS = { confirmed: "confidenceConfirmed", single: "confidenceSingle" };
 
 const EVENT_TONES = {
   blocked: "danger",
@@ -39,13 +40,13 @@ const EVENT_TONES = {
   info: "muted",
 };
 
-const EVENT_LABELS = {
-  blocked: "Engel",
-  detected: "Tespit",
-  allowed: "İzin",
-  custom: "Kural",
-  sync: "Güncelleme",
-  info: "Bilgi",
+const EVENT_LABEL_KEYS = {
+  blocked: "typeBlocked",
+  detected: "typeDetected",
+  allowed: "typeAllowed",
+  custom: "typeCustom",
+  sync: "typeSync",
+  info: "typeInfo",
 };
 
 const PAGE_SIZE = 40;
@@ -136,7 +137,7 @@ const nodes = {
 
 const state = {
   data: null,
-  route: "genel",
+  route: "overview",
   corePage: 1,
   coreQuery: "",
   coreCategory: "",
@@ -148,7 +149,7 @@ const state = {
 
 function currentRoute() {
   const hash = location.hash.replace(/^#/, "");
-  return Object.prototype.hasOwnProperty.call(ROUTES, hash) ? hash : "genel";
+  return Object.prototype.hasOwnProperty.call(ROUTES, hash) ? hash : "overview";
 }
 
 function navigate(route, push = true) {
@@ -163,9 +164,9 @@ function navigate(route, push = true) {
     if (link.dataset.route === route) link.setAttribute("aria-current", "page");
     else link.removeAttribute("aria-current");
   }
-  nodes.pageTitle.textContent = ROUTES[route].title;
-  nodes.pageEyebrow.textContent = ROUTES[route].eyebrow;
-  document.title = `Anti IP Logger · ${ROUTES[route].title}`;
+  nodes.pageTitle.textContent = t(ROUTES[route].titleKey);
+  nodes.pageEyebrow.textContent = t(ROUTES[route].eyebrowKey);
+  document.title = `Anti IP Logger · ${t(ROUTES[route].titleKey)}`;
   document.getElementById("view").focus({ preventScroll: true });
   window.scrollTo({ top: 0, behavior: "auto" });
 }
@@ -182,32 +183,32 @@ function hideError() {
 
 function setRailStatus(settings) {
   if (!settings) {
-    nodes.railStatus.textContent = "Yükleniyor";
+    nodes.railStatus.textContent = t("loadingText");
     nodes.railDot.dataset.tone = "muted";
     return;
   }
   if (!settings.enabled) {
-    nodes.railStatus.textContent = "Koruma kapalı";
+    nodes.railStatus.textContent = t("protectionOff");
     nodes.railDot.dataset.tone = "muted";
     return;
   }
   const core = settings.sync && settings.sync.core ? settings.sync.core : {};
   if (core.error) {
-    nodes.railStatus.textContent = "Kısmi liste";
+    nodes.railStatus.textContent = t("listPartiallyUpdated");
     nodes.railDot.dataset.tone = "warn";
     return;
   }
-  nodes.railStatus.textContent = "Koruma açık";
+  nodes.railStatus.textContent = t("protectionOn");
   nodes.railDot.dataset.tone = "safe";
 }
 
 function renderTheme(settings) {
-  const theme = settings && settings.theme ? settings.theme : "system";
-  applyTheme(theme);
-  nodes.setTheme.value = theme;
+  const themeValue = settings && settings.theme ? settings.theme : "system";
+  applyTheme(themeValue);
+  nodes.setTheme.value = themeValue;
   const resolved = resolvedTheme();
-  nodes.themeButton.textContent = resolved === "dark" ? "Açık tema" : "Koyu tema";
-  nodes.themeButton.setAttribute("aria-label", `Temayı değiştir, şu anda ${resolved === "dark" ? "koyu" : "açık"}`);
+  nodes.themeButton.textContent = resolved === "dark" ? t("themeSwitchToLight") : t("themeSwitchToDark");
+  nodes.themeButton.setAttribute("aria-label", t(resolved === "dark" ? "themeSwitchToLight" : "themeSwitchToDark"));
 }
 
 function renderOverview(data) {
@@ -215,30 +216,30 @@ function renderOverview(data) {
   const enabled = Boolean(settings.enabled);
   const coreError = Boolean(settings.sync.core && settings.sync.core.error);
   nodes.statusBand.dataset.tone = enabled ? (coreError ? "warn" : "safe") : "muted";
-  nodes.statusLine.textContent = enabled ? "Koruma açık" : "Koruma kapalı";
+  nodes.statusLine.textContent = enabled ? t("protectionOn") : t("protectionOff");
   const core = settings.sync.core || {};
   nodes.statusDetail.textContent = enabled
     ? core.error
-      ? "Liste kısmen güncel. Son güncellemede bazı kaynaklar yanıt vermedi, mevcut alan adları korundu."
-      : `Çekirdek liste ${formatNumber(meta.counts.domains)} alan adı ve ${formatNumber(dnr.dynamicRules)} dinamik kural ile çalışıyor.`
-    : "Engelleme ve sayfa içi uyarılar devre dışı. Açtığında önceki ayarlar geri gelir.";
+      ? t("statusPartialDetail")
+      : t("statusWorkingDetail", [formatNumber(meta.counts.domains), formatNumber(dnr.dynamicRules)])
+    : t("statusDisabledDetail");
   nodes.enabledToggle.checked = enabled;
-  nodes.enabledLabel.textContent = enabled ? "Açık" : "Kapalı";
+  nodes.enabledLabel.textContent = enabled ? t("switchOn") : t("switchOff");
 
   nodes.tileBlocked.textContent = formatNumber(stats.blocked);
   nodes.tileDetected.textContent = formatNumber(stats.detected);
   nodes.tileDomains.textContent = formatNumber(meta.counts.domains);
-  nodes.tileDomainsNote.textContent = `${formatNumber(meta.counts.confirmed)} doğrulanmış, ${formatNumber(meta.counts.single)} tek kaynak`;
+  nodes.tileDomainsNote.textContent = t("tileDomainsBreakdown", [formatNumber(meta.counts.confirmed), formatNumber(meta.counts.single)]);
   nodes.tileRules.textContent = formatNumber(dnr.dynamicRules + (dnr.staticRulesetEnabled ? meta.counts.rules : 0));
-  nodes.tileRulesNote.textContent = dnr.staticRulesetEnabled ? "Statik kural etkin" : "Yalnızca dinamik kural";
+  nodes.tileRulesNote.textContent = dnr.staticRulesetEnabled ? t("tileRulesStatic") : t("tileRulesDynamicOnly");
 
   nodes.coverageCore.textContent = formatNumber(lists.packaged.length);
   nodes.coverageRemote.textContent = formatNumber(lists.remoteCoreCount);
-  nodes.coverageExtended.textContent = settings.tiers.extended ? formatNumber(lists.extendedCount) : "kapalı";
+  nodes.coverageExtended.textContent = settings.tiers.extended ? formatNumber(lists.extendedCount) : t("offLabel");
   nodes.coverageAllow.textContent = formatNumber(lists.allowlist.length);
   nodes.coverageTab.textContent = formatNumber(data.tabAllowCount);
   const lastSync = settings.sync.core && settings.sync.core.at ? settings.sync.core.at : 0;
-  nodes.coverageNote.textContent = lastSync ? `Son çekirdek güncelleme ${formatRelative(lastSync)}.` : "Uzak güncelleme henüz çalışmadı, yerel liste kullanılıyor.";
+  nodes.coverageNote.textContent = lastSync ? t("coverageSynced", [formatRelative(lastSync)]) : t("coverageLocalOnly");
 
   const events = data.events.slice(0, 6);
   clear(nodes.overviewEvents);
@@ -256,24 +257,24 @@ function eventRow(event) {
   const row = el("li", "event-row");
   row.append(el("span", "event-row__time mono", formatRelative(event.ts)));
   const main = el("div", "event-row__main");
-  main.append(el("p", "event-row__host mono truncate", event.host || "genel"));
+  main.append(el("p", "event-row__host mono truncate", event.host || t("hostUnknown")));
   main.append(el("p", "event-row__detail truncate", event.detail || ""));
   row.append(main);
   const meta = el("span", "event-row__meta");
-  meta.append(el("span", `badge badge--${EVENT_TONES[event.type] || "plain"}`, EVENT_LABELS[event.type] || event.type));
+  meta.append(el("span", `badge badge--${EVENT_TONES[event.type] || "plain"}`, t(EVENT_LABEL_KEYS[event.type] || "typeInfo")));
   row.append(meta);
-  row.title = `${new Date(event.ts).toLocaleString("tr-TR")} - ${event.detail || ""}`;
+  row.title = `${new Date(event.ts).toLocaleString()} - ${event.detail || ""}`;
   return row;
 }
 
 function renderCategoryOptions(entries) {
   if (nodes.coreCategory.options.length > 1) return;
   const seen = new Set(entries.map((entry) => entry.category));
-  for (const key of Object.keys(CATEGORY_LABELS)) {
+  for (const key of Object.keys(CATEGORY_LABEL_KEYS)) {
     if (!seen.has(key)) continue;
     const option = document.createElement("option");
     option.value = key;
-    option.textContent = CATEGORY_LABELS[key];
+    option.textContent = t(CATEGORY_LABEL_KEYS[key]);
     nodes.coreCategory.append(option);
   }
 }
@@ -295,18 +296,18 @@ function renderCore() {
   renderCategoryOptions(entries);
   const filtered = filteredCore();
   const visible = filtered.slice(0, state.corePage * PAGE_SIZE);
-  nodes.coreCount.textContent = `${formatNumber(entries.length)} alan adı`;
+  nodes.coreCount.textContent = t("coreCount", [formatNumber(entries.length)]);
   nodes.coreSummary.textContent = filtered.length === entries.length
-    ? `${formatNumber(entries.length)} alan adı listeleniyor. Kategori ve güven etiketi derleme sırasında üretilir.`
-    : `${formatNumber(filtered.length)} sonuç, toplam ${formatNumber(entries.length)} alan adı.`;
+    ? t("coreSummaryAll", [formatNumber(entries.length)])
+    : t("coreSummaryFiltered", [formatNumber(filtered.length), formatNumber(entries.length)]);
 
   clear(nodes.coreRows);
   for (const entry of visible) {
     const row = document.createElement("tr");
     const domainCell = el("td", "mono", entry.domain);
-    const categoryCell = el("td", "", CATEGORY_LABELS[entry.category] || entry.category || "Diğer");
+    const categoryCell = el("td", "", t(CATEGORY_LABEL_KEYS[entry.category] || "categoryOther"));
     const confidenceCell = document.createElement("td");
-    confidenceCell.append(el("span", `badge badge--${entry.confidence === "confirmed" ? "safe" : "muted"}`, CONFIDENCE_LABELS[entry.confidence] || "Tek kaynak"));
+    confidenceCell.append(el("span", `badge badge--${entry.confidence === "confirmed" ? "safe" : "muted"}`, t(CONFIDENCE_LABEL_KEYS[entry.confidence] || "confidenceSingle")));
     const sourceCell = el("td", "mono", (entry.sources || []).join(", "));
     row.append(domainCell, categoryCell, confidenceCell, sourceCell);
     nodes.coreRows.append(row);
@@ -324,17 +325,17 @@ function renderDomainList(kind) {
   const count = kind === "allow" ? nodes.allowCount : nodes.customCount;
 
   clear(list);
-  count.textContent = `${formatNumber(items.length)} kayıt`;
+  count.textContent = t("recordCount", [formatNumber(items.length)]);
   empty.hidden = items.length > 0;
 
   for (const domain of items) {
     const item = el("li", "domain-item");
     item.append(el("span", "domain-item__name mono", domain));
-    const action = el("button", "btn btn--quiet btn--small", "Kaldır");
+    const action = el("button", "btn btn--quiet btn--small", t("removeButton"));
     action.type = "button";
     action.dataset.kind = kind;
     action.dataset.domain = domain;
-    action.setAttribute("aria-label", `${domain} kaydını ${kind === "allow" ? "izin listesinden" : "özel engellerden"} kaldır`);
+    action.setAttribute("aria-label", t(kind === "allow" ? "removeAllowAria" : "removeCustomAria", [domain]));
     item.append(action);
     list.append(item);
   }
@@ -353,7 +354,7 @@ function renderEvents() {
   if (!state.data) return;
   const events = filteredEvents();
   clear(nodes.eventsList);
-  nodes.eventsCount.textContent = `${formatNumber(events.length)} olay`;
+  nodes.eventsCount.textContent = t("eventCount", [formatNumber(events.length)]);
   nodes.eventsEmpty.hidden = events.length > 0;
   for (const event of events.slice(0, 300)) {
     nodes.eventsList.append(eventRow(event));
@@ -373,37 +374,36 @@ function renderSources(data) {
   for (const source of data.sources) {
     const row = document.createElement("tr");
     const nameCell = document.createElement("td");
-    const name = el("span", "", source.name);
-    nameCell.append(name);
+    nameCell.append(el("span", "", source.name));
     row.append(nameCell);
-    row.append(el("td", "", source.tier === "core" ? "Çekirdek" : "Tehdit"));
-    row.append(el("td", "mono", source.license || "belirtilmemiş"));
+    row.append(el("td", "", source.tier === "core" ? t("tierCore") : t("tierThreat")));
+    row.append(el("td", "mono", source.license || t("licenseUnspecified")));
 
     const statusCell = document.createElement("td");
     const report = health.get(source.id);
     if (report) {
-      statusCell.append(el("span", `badge badge--${report.ok ? "safe" : "danger"}`, report.ok ? "Yanıt verdi" : "Hata"));
+      statusCell.append(el("span", `badge badge--${report.ok ? "safe" : "danger"}`, report.ok ? t("sourceOk") : t("sourceError")));
       if (!report.ok && report.error) statusCell.append(el("p", "hint", report.error));
     } else {
-      statusCell.append(el("span", "badge badge--muted", "Bekliyor"));
+      statusCell.append(el("span", "badge badge--muted", t("sourcePending")));
     }
     row.append(statusCell);
     row.append(el("td", "mono", report ? formatNumber(report.count) : "-"));
     nodes.sourceRows.append(row);
   }
 
-  nodes.sourcesCount.textContent = `${formatNumber(data.sources.length)} kaynak`;
+  nodes.sourcesCount.textContent = t("sourceCount", [formatNumber(data.sources.length)]);
   const coreCount = data.sources.filter((source) => source.tier === "core").length;
-  nodes.sourcesNote.textContent = `${formatNumber(coreCount)} çekirdek kaynak her güncellemede çekilir. Tehdit listesi yalnızca açıkken güncellenir.`;
+  nodes.sourcesNote.textContent = t("sourcesNote", [formatNumber(coreCount)]);
 
   const extendedOn = Boolean(data.settings.tiers.extended);
-  nodes.extendedBadge.textContent = extendedOn ? "Açık" : "Kapalı";
+  nodes.extendedBadge.textContent = extendedOn ? t("badgeOn") : t("badgeOff");
   nodes.extendedBadge.className = `badge badge--${extendedOn ? "safe" : "muted"}`;
   nodes.syncCoreResult.textContent = data.settings.sync.core && data.settings.sync.core.at
-    ? `Son güncelleme: ${formatRelative(data.settings.sync.core.at)}`
+    ? t("lastRefresh", [formatRelative(data.settings.sync.core.at)])
     : "";
   nodes.syncExtendedResult.textContent = data.settings.sync.extended && data.settings.sync.extended.at
-    ? `Son güncelleme: ${formatRelative(data.settings.sync.extended.at)}`
+    ? t("lastRefresh", [formatRelative(data.settings.sync.extended.at)])
     : "";
 }
 
@@ -416,13 +416,11 @@ function renderSettings(data) {
   nodes.setWarnings.checked = Boolean(settings.warnings);
   nodes.setWebrtc.value = settings.webrtcPolicy || "default";
   nodes.setTheme.value = settings.theme || "system";
-  nodes.webrtcNote.textContent = settings.webrtcPolicy === "default"
-    ? "WebRTC politikası tarayıcı varsayılanında. Yerel IP sızıntısı için sinyal izleme yine çalışır."
-    : "WebRTC politikası bu tarayıcıda değiştirildi. Ayar kaldırıldığında tarayıcı varsayılanına döner.";
+  nodes.webrtcNote.textContent = settings.webrtcPolicy === "default" ? t("webrtcNoteDefault") : t("webrtcNoteCustom");
 
-  nodes.aboutVersion.textContent = `Sürüm ${data.version}`;
+  nodes.aboutVersion.textContent = t("versionLine", [data.version]);
   nodes.railVersion.textContent = `v${data.version}`;
-  nodes.dataNote.textContent = `Yedek; ayarları, sayaçları ve ${formatNumber(data.events.length)} olay kaydını içerir. Yükleme yalnızca ayarları değiştirir.`;
+  nodes.dataNote.textContent = t("dataNote", [formatNumber(data.events.length)]);
 }
 
 function render() {
@@ -449,7 +447,7 @@ async function load() {
   try {
     const result = await send({ type: "getDashboard" });
     if (!result || !result.ok) {
-      showError(result && result.error ? result.error : "Panel verisi okunamadı. Uzantıyı yeniden yüklemeyi dene.");
+      showError(result && result.error ? result.error : t("panelReadFailed"));
       return;
     }
     state.data = result;
@@ -466,7 +464,7 @@ async function load() {
 async function applySetting(key, value) {
   const result = await send({ type: "setSetting", key, value });
   if (!result || !result.ok) {
-    toast(result && result.error ? result.error : "Ayar kaydedilemedi.", "error");
+    toast(result && result.error ? result.error : t("toastSettingFailed"), "error");
     await load();
     return false;
   }
@@ -476,25 +474,25 @@ async function applySetting(key, value) {
 
 async function syncTier(tier, button, resultNode) {
   const target = tier === "extended" ? "extended" : "core";
-  setBusy(button, true, "Güncelleniyor");
-  resultNode.textContent = "Kaynaklar çekiliyor...";
+  setBusy(button, true, t("syncingButton"));
+  resultNode.textContent = t("syncingSources");
   const result = await send({ type: "syncNow", tier: target });
   setBusy(button, false);
   if (!result || !result.ok) {
     resultNode.textContent = "";
-    toast(result && result.error ? result.error : "Güncelleme başarısız.", "error");
+    toast(result && result.error ? result.error : t("toastSyncFailed"), "error");
     return;
   }
   const sync = result.result || {};
   if (sync.allOk) {
-    resultNode.textContent = `${formatNumber(sync.count)} yeni alan adı eklendi.`;
-    toast(`Liste güncellendi: ${formatNumber(sync.count)} yeni alan adı.`, "ok");
+    resultNode.textContent = t("syncResultAdded", [formatNumber(sync.count)]);
+    toast(t("toastSyncAdded", [formatNumber(sync.count)]), "ok");
   } else if (sync.ok) {
-    resultNode.textContent = "Bazı kaynaklar yanıt vermedi, mevcut liste korundu.";
-    toast("Kısmi güncelleme: bazı kaynaklar yanıt vermedi.", "error");
+    resultNode.textContent = t("syncResultPartial");
+    toast(t("toastSyncPartial"), "error");
   } else {
-    resultNode.textContent = "Hiçbir kaynak yanıt vermedi. Liste değişmedi.";
-    toast("Güncelleme başarısız: hiçbir kaynak yanıt vermedi.", "error");
+    resultNode.textContent = t("syncResultFailed");
+    toast(t("toastSyncNothing"), "error");
   }
   await load();
 }
@@ -514,12 +512,12 @@ function download(filename, payload) {
 async function exportData() {
   const result = await send({ type: "exportData" });
   if (!result || !result.ok) {
-    toast("Yedek oluşturulamadı.", "error");
+    toast(t("toastExportFailed"), "error");
     return;
   }
   const stamp = new Date().toISOString().slice(0, 10);
-  download(`anti-ip-logger-yedek-${stamp}.json`, result);
-  toast("Yedek indirildi.", "ok");
+  download(`anti-ip-logger-backup-${stamp}.json`, result);
+  toast(t("toastExportDone"), "ok");
 }
 
 function importData(file) {
@@ -529,18 +527,18 @@ function importData(file) {
     try {
       payload = JSON.parse(String(reader.result));
     } catch {
-      toast("Dosya geçerli JSON değil.", "error");
+      toast(t("toastImportInvalid"), "error");
       return;
     }
     const result = await send({ type: "importData", payload });
     if (!result || !result.ok) {
-      toast(result && result.error ? result.error : "Yedek yüklenemedi.", "error");
+      toast(result && result.error ? result.error : t("toastImportFailed"), "error");
       return;
     }
-    toast("Ayarlar yedekten yüklendi.", "ok");
+    toast(t("toastImportDone"), "ok");
     await load();
   };
-  reader.onerror = () => toast("Dosya okunamadı.", "error");
+  reader.onerror = () => toast(t("toastImportReadFailed"), "error");
   reader.readAsText(file);
 }
 
@@ -568,7 +566,7 @@ function bind() {
     const next = nodes.enabledToggle.checked;
     const ok = await applySetting("enabled", next);
     if (!ok) nodes.enabledToggle.checked = !next;
-    toast(next ? "Koruma açıldı." : "Koruma kapatıldı.", "ok");
+    toast(next ? t("toastProtectionOn") : t("toastProtectionOff"), "ok");
   });
 
   nodes.coreSearch.addEventListener("input", () => {
@@ -594,18 +592,18 @@ function bind() {
     nodes.allowError.hidden = true;
     if (!value) {
       nodes.allowError.hidden = false;
-      nodes.allowError.textContent = "Bir alan adı gir.";
+      nodes.allowError.textContent = t("domainRequired");
       nodes.allowInput.focus();
       return;
     }
     const result = await send({ type: "allowDomain", domain: value });
     if (!result || !result.ok) {
       nodes.allowError.hidden = false;
-      nodes.allowError.textContent = (result && result.error) || "Alan adı eklenemedi.";
+      nodes.allowError.textContent = (result && result.error) || t("toastAddDomainFailed");
       return;
     }
     nodes.allowInput.value = "";
-    toast(`${result.domain} izin listesine eklendi.`, "ok");
+    toast(t("toastDomainAllowed", [result.domain]), "ok");
     await load();
   });
 
@@ -615,18 +613,18 @@ function bind() {
     nodes.customError.hidden = true;
     if (!value) {
       nodes.customError.hidden = false;
-      nodes.customError.textContent = "Bir alan adı gir.";
+      nodes.customError.textContent = t("domainRequired");
       nodes.customInput.focus();
       return;
     }
     const result = await send({ type: "addCustomDomain", domain: value });
     if (!result || !result.ok) {
       nodes.customError.hidden = false;
-      nodes.customError.textContent = (result && result.error) || "Alan adı eklenemedi.";
+      nodes.customError.textContent = (result && result.error) || t("toastAddDomainFailed");
       return;
     }
     nodes.customInput.value = "";
-    toast(`${result.domain} engel listesine eklendi.`, "ok");
+    toast(t("toastDomainBlocked", [result.domain]), "ok");
     await load();
   });
 
@@ -638,10 +636,10 @@ function bind() {
       const message = kind === "allow" ? { type: "removeAllowedDomain", domain } : { type: "removeCustomDomain", domain };
       const result = await send(message);
       if (!result || !result.ok) {
-        toast((result && result.error) || "Kayıt kaldırılamadı.", "error");
+        toast((result && result.error) || t("toastRemoveDomainFailed"), "error");
         return;
       }
-      toast(`${domain} kaldırıldı.`, "ok");
+      toast(t("toastDomainRemoved", [domain]), "ok");
       await load();
     });
   }
@@ -659,10 +657,10 @@ function bind() {
   nodes.eventsClear.addEventListener("click", async () => {
     const result = await send({ type: "clearEvents" });
     if (!result || !result.ok) {
-      toast("Olay kaydı temizlenemedi.", "error");
+      toast(t("toastClearEventsFailed"), "error");
       return;
     }
-    toast("Olay kaydı temizlendi.", "ok");
+    toast(t("toastClearEventsDone"), "ok");
     await load();
   });
 
@@ -696,19 +694,20 @@ function bind() {
   });
 
   nodes.resetConfirmButton.addEventListener("click", async () => {
-    setBusy(nodes.resetConfirmButton, true, "Sıfırlanıyor");
+    setBusy(nodes.resetConfirmButton, true, t("resettingButton"));
     const result = await send({ type: "resetAll" });
     setBusy(nodes.resetConfirmButton, false);
     nodes.resetConfirm.hidden = true;
     if (!result || !result.ok) {
-      toast("Sıfırlama başarısız.", "error");
+      toast(t("toastResetFailed"), "error");
       return;
     }
-    toast("Tüm veriler sıfırlandı.", "ok");
+    toast(t("toastResetDone"), "ok");
     await load();
   });
 }
 
+applyI18n();
 navigate(currentRoute(), false);
 bind();
 load();

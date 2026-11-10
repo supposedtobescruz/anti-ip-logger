@@ -1,9 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "Anti IP Logger",
-  "short_name": "Anti IP Logger",
+  "name": "__MSG_appName__",
+  "short_name": "__MSG_appShortName__",
   "version": "2.0.0",
-  "description": "IP logger ve link grabber alan adlarini engeller, sayfa icinde IP sizintisi denemelerini raporlar.",
+  "description": "__MSG_appDescription__",
+  "default_locale": "en",
   "minimum_chrome_version": "111",
   "permissions": [
     "storage",
@@ -20,7 +21,7 @@
     "type": "module"
   },
   "action": {
-    "default_title": "Anti IP Logger",
+    "default_title": "__MSG_appName__",
     "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "assets/icons/icon-16.png",
