@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildDynamicRuleSet, summarizeRules } from "../lib/rules.js";
-import { DEFAULT_SETTINGS, MAX_DOMAINS_PER_RULE, PRIORITY, RULE_BASE } from "../lib/constants.js";
+import { buildDynamicRuleSet, buildDynamicRuleSetDetailed, summarizeRules } from "../lib/rules.js";
+import { DEFAULT_SETTINGS, MAX_DOMAINS_PER_RULE, MAX_DYNAMIC_RULES, PRIORITY, RULE_BASE } from "../lib/constants.js";
 
 function settings(overrides = {}) {
   return {
@@ -76,6 +76,38 @@ test("custom blocks outrank the core rule", () => {
   const custom = rules.filter((rule) => rule.priority === PRIORITY.custom);
   assert.equal(custom.length, 1);
   assert.ok(custom[0].priority > PRIORITY.core);
+});
+
+test("detailed builder clips to a small budget without throwing", () => {
+  const remoteCore = Array.from({ length: 40 * MAX_DOMAINS_PER_RULE }, (_, i) => `d${i}.example.com`);
+  const deep = buildDynamicRuleSetDetailed(
+    lists({ packagedCore: ["packaged.example.com"], remoteCore, extended: ["threat-1.example.com"] }),
+    settings({
+      allowlist: ["keep.example.com"],
+      customBlocks: ["mine.example.com"],
+      tiers: { core: true, extended: true },
+      showBlockedPage: true,
+    }),
+    12,
+  );
+  assert.equal(deep.rules.length, 12);
+  assert.equal(deep.dropped.remoteCoreDomains, 3000);
+  assert.equal(deep.dropped.redirectDomains, 4003);
+  assert.equal(deep.dropped.extendedDomains, 1);
+  const allowRule = deep.rules.find((rule) => rule.priority === PRIORITY.allow);
+  assert.ok(allowRule, "allow rule is always kept");
+  const customRule = deep.rules.find((rule) => rule.priority === PRIORITY.custom);
+  assert.ok(customRule, "custom rule is kept when it fits");
+});
+
+test("under the budget the detailed builder drops nothing", () => {
+  const deep = buildDynamicRuleSetDetailed(
+    lists({ packagedCore: ["packaged.example.com"], remoteCore: ["b.com"], extended: ["c.com"] }),
+    settings({ allowlist: ["keep.example.com"], customBlocks: ["mine.example.com"], tiers: { core: true, extended: true } }),
+    MAX_DYNAMIC_RULES,
+  );
+  const total = deep.dropped.customDomains + deep.dropped.redirectDomains + deep.dropped.remoteCoreDomains + deep.dropped.extendedDomains;
+  assert.equal(total, 0);
 });
 
 test("summary counts rule identities by base range", () => {

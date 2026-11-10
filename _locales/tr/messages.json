@@ -664,7 +664,7 @@
     "description": "Seçim seçeneği."
   },
   "webrtcHint": {
-    "message": "Bu ayar tarayıcı genelinde geçerlidir. Kapatıldığında bazı görüntülü görüşmeler çalışmayabilir.",
+    "message": "Bu ayar tarayıcı genelinde geçerlidir ve uzantı kaldırıldıktan sonra da yerinde kalabilir. Kapatıldığında bazı görüntülü görüşmeler çalışmayabilir.",
     "description": "İpucu metni."
   },
   "themeLabel": {
@@ -1370,5 +1370,9 @@
   "errorNoResponse": {
     "message": "Yanıt alınamadı.",
     "description": "Missing response from the extension worker."
+  },
+  "rulesClipped": {
+    "message": "$4 kural sınırına ulaşıldı: $1 alan adı düşürüldü ($2 çekirdek, $3 tehdit listesi).",
+    "description": "Event when dynamic rules are clipped to the limit."
   }
 }

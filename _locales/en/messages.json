@@ -664,7 +664,7 @@
     "description": "Select option."
   },
   "webrtcHint": {
-    "message": "This setting applies browser-wide. Some video calls may not work when it is off.",
+    "message": "This setting applies browser-wide and may remain in place when the extension is removed. Some video calls may not work when it is off.",
     "description": "Hint text."
   },
   "themeLabel": {
@@ -1370,5 +1370,9 @@
   "errorNoResponse": {
     "message": "No response.",
     "description": "Missing response from the extension worker."
+  },
+  "rulesClipped": {
+    "message": "Rule limit of $4 reached: dropped $1 domains ($2 core feed, $3 threat list).",
+    "description": "Event when dynamic rules are clipped to the limit."
   }
 }

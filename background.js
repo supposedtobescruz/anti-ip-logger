@@ -6,7 +6,7 @@ import {
 import { normalizeHost, parseList, parseDnrJson, dedupeSubdomains } from "./lib/parser.js";
 import { t } from "./assets/i18n.js";
 import { hostMatchesDomain, matchDomain, urlToHost } from "./lib/domains.js";
-import { buildDynamicRuleSet } from "./lib/rules.js";
+import { buildDynamicRuleSetDetailed } from "./lib/rules.js";
 import {
   applyDynamicRules,
   applyStaticRuleset,
@@ -175,22 +175,41 @@ async function applyState(force = false) {
   if (!force && signature === state.appliedSignature && state.dnr) return { skipped: true, ...state.dnr };
 
   const settings = state.settings;
+  const detailed = settings.enabled
+    ? buildDynamicRuleSetDetailed(
+        {
+          packagedCore: state.packagedDomains,
+          remoteCore: state.remoteCore,
+          extended: state.extended,
+        },
+        settings,
+      )
+    : { rules: [], dropped: null, maxRules: 0 };
   const rules = settings.enabled
     ? [
-        ...buildDynamicRuleSet(
-          {
-            packagedCore: state.packagedDomains,
-            remoteCore: state.remoteCore,
-            extended: state.extended,
-          },
-          settings,
-        ),
+        ...detailed.rules,
         ...buildTabAllowRules(state.tabAllows),
       ]
     : [];
 
   await applyStaticRuleset(settings.enabled && settings.tiers.core);
   const applied = await applyDynamicRules(rules);
+  if (detailed.dropped) {
+    const drops = detailed.dropped;
+    const total = drops.customDomains + drops.redirectDomains + drops.remoteCoreDomains + drops.extendedDomains;
+    if (total > 0) {
+      await appendEvent({
+        type: "sync",
+        host: "",
+        detail: t("rulesClipped", [
+          String(total),
+          String(drops.remoteCoreDomains),
+          String(drops.extendedDomains),
+          String(detailed.maxRules),
+        ]),
+      });
+    }
+  }
   await applyWebRtcSetting();
   state.dnr = await dnrStatus();
   state.appliedSignature = signature;
@@ -361,8 +380,7 @@ async function getPopupData(tabId) {
     getEvents(),
     dnrStatus(),
   ]);
-  const tabEvents = events.filter((event) => event.tabId === tabInfo.tabId);
-  const recent = (tabEvents.length > 0 ? tabEvents : events).slice(0, 4);
+  const recent = events.filter((event) => event.tabId === tabInfo.tabId).slice(0, 4);
   return {
     ...tabInfo,
     stats,
@@ -404,6 +422,7 @@ async function getDashboardData() {
 }
 
 async function fetchSource(source) {
+  const MAX_BYTES = source.maxBytes || 12 * 1024 * 1024;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 60_000);
   try {
@@ -413,8 +432,29 @@ async function fetchSource(source) {
       cache: "no-store",
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const text = await response.text();
-    if (text.length > (source.maxBytes || 12 * 1024 * 1024)) throw new Error("response too large");
+    const declared = Number(response.headers.get("content-length") || 0);
+    if (declared > MAX_BYTES) throw new Error("response too large");
+
+    const reader = response.body.getReader();
+    const chunks = [];
+    let received = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      received += value.byteLength;
+      if (received > MAX_BYTES) {
+        await reader.cancel();
+        throw new Error("response too large");
+      }
+      chunks.push(value);
+    }
+    const bytes = new Uint8Array(received);
+    let offset = 0;
+    for (const chunkBytes of chunks) {
+      bytes.set(chunkBytes, offset);
+      offset += chunkBytes.byteLength;
+    }
+    const text = new TextDecoder().decode(bytes);
     return source.format === "dnr-json" ? parseDnrJson(text) : parseList(text);
   } finally {
     clearTimeout(timer);
@@ -454,6 +494,10 @@ async function syncTier(tier) {
 
   let count = 0;
   if (anyOk) {
+    const previous = tier === "core"
+      ? { tier, domains: state.remoteCore, set: state.remoteCoreSet, at: state.remoteCoreAt, settings: state.settings }
+      : { tier, domains: state.extended, set: state.extendedSet, at: state.extendedAt, settings: state.settings };
+
     if (tier === "core") {
       const packaged = new Set(state.packagedDomains);
       const delta = cleaned.filter((domain) => !packaged.has(domain));
@@ -461,13 +505,34 @@ async function syncTier(tier) {
       state.remoteCoreSet = new Set(delta);
       state.remoteCoreAt = now;
       count = delta.length;
-      await setRemoteCache("core", { domains: delta, at: now, reports });
     } else {
       state.extended = cleaned;
       state.extendedSet = new Set(cleaned);
       state.extendedAt = now;
       count = cleaned.length;
-      await setRemoteCache("extended", { domains: cleaned, at: now, reports });
+    }
+
+    try {
+      await applyState(true);
+    } catch (error) {
+      // A failed apply must not poison in-memory state or the on-disk cache.
+      if (previous.tier === "core") {
+        state.remoteCore = previous.domains;
+        state.remoteCoreSet = previous.set;
+        state.remoteCoreAt = previous.at;
+      } else {
+        state.extended = previous.domains;
+        state.extendedSet = previous.set;
+        state.extendedAt = previous.at;
+      }
+      state.settings = previous.settings;
+      throw error;
+    }
+
+    if (tier === "core") {
+      await setRemoteCache("core", { domains: state.remoteCore, at: now, reports });
+    } else {
+      await setRemoteCache("extended", { domains: state.extended, at: now, reports });
     }
     state.settings = await updateSettings({
       lastSync: now,
@@ -482,7 +547,6 @@ async function syncTier(tier) {
         },
       },
     });
-    await applyState(true);
     await appendEvent({
       type: "sync",
       host: "",
@@ -775,8 +839,32 @@ async function handleMessage(message, sender) {
   if (!sender || sender.id !== chrome.runtime.id) {
     return { ok: false, error: t("errorInvalidSender") };
   }
-  await ensureInit();
   const type = message && message.type;
+  const isExtensionPage = typeof sender.url === "string" && sender.url.startsWith(chrome.runtime.getURL(""));
+  const PRIVILEGED = new Set([
+    "clearEvents",
+    "setSetting",
+    "syncNow",
+    "allowOnce",
+    "removeTabAllow",
+    "panic",
+    "restore",
+    "resetAll",
+    "importData",
+    "exportData",
+  ]);
+  const SELF_ONLY = new Set(["addCustomDomain", "removeCustomDomain", "allowDomain", "removeAllowedDomain"]);
+  if (PRIVILEGED.has(type) && !isExtensionPage) {
+    return { ok: false, error: t("errorInvalidSender") };
+  }
+  if (SELF_ONLY.has(type) && !isExtensionPage) {
+    const tabHost = sender.tab && typeof sender.tab.url === "string" ? urlToHost(sender.tab.url) : "";
+    const domain = normalizeDomainInput(message && message.domain) || "";
+    if (!tabHost || !domain || (tabHost !== domain && !tabHost.endsWith(`.${domain}`))) {
+      return { ok: false, error: t("errorInvalidSender") };
+    }
+  }
+  await ensureInit();
   switch (type) {
     case "getState":
       return { ok: true, settings: publicSettings(), meta: state.meta, dnr: state.dnr, ...publicSyncState() };
