@@ -1,0 +1,33 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Static checks and tests
+        run: npm run verify:all
+
+      - name: Browser check (Chrome)
+        run: |
+          if ! command -v xvfb-run >/dev/null; then
+            sudo apt-get update -y && sudo apt-get install -y xvfb
+          fi
+          xvfb-run -a node tools/verify-browser.mjs
+
+      - name: Upload screenshots and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-output
+          path: verify-output/
+          if-no-files-found: ignore

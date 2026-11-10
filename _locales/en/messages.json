@@ -1490,5 +1490,37 @@
   "welcomeStep6Body": {
     "message": "No telemetry, no analytics, no accounts. Settings, counters and the 500-entry event log stay in this browser. The WebRTC policy is optional and browser-wide.",
     "description": "Welcome step 6 body."
+  },
+  "updateAvailableTitle": {
+    "message": "New version available",
+    "description": "Dashboard notice title for the update nag."
+  },
+  "updateAvailableBody": {
+    "message": "Version $1 is available. You are on $2.",
+    "description": "Dashboard notice body. Substitutions: latest version, current version."
+  },
+  "updateDismiss": {
+    "message": "Dismiss",
+    "description": "Dismiss button for the update notice."
+  },
+  "updateReleaseNotes": {
+    "message": "Release notes",
+    "description": "Link to the releases page."
+  },
+  "popupReplayTourLabel": {
+    "message": "Replay the welcome tour",
+    "description": "Popup footer button label."
+  },
+  "popupReplayTourTitle": {
+    "message": "Replay the welcome tour",
+    "description": "Popup footer button tooltip."
+  },
+  "copyAddressButton": {
+    "message": "Copy address",
+    "description": "Blocked page button to copy the target URL into the clipboard."
+  },
+  "copyAddressDone": {
+    "message": "Address copied to clipboard.",
+    "description": "Blocked page feedback after copying."
   }
 }

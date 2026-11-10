@@ -44,7 +44,8 @@ About the list
 
 Languages
 
-- Full English and Turkish interface. The browser UI language is respected automatically.
+- Full English and Turkish interface. The browser UI language is respected automatically, or you can force one from Settings.
+- Opens a six-step welcome tour on first install, with Scruize, an on-brand goth mascot. Replay it from Settings → About any time.
 
 Privacy and permissions
 

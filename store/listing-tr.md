@@ -44,7 +44,8 @@ Liste hakkında
 
 Diller
 
-- Tam İngilizce ve Türkçe arayüz. Tarayıcının arayüz dili otomatik olarak uygulanır.
+- Tam İngilizce ve Türkçe arayüz. Tarayıcının arayüz dili otomatik uygulanır ya da Ayarlar'dan zorlayabilirsiniz.
+- İlk kurulumda altı adımlık bir hoşgeldin turu açar; Scruize, uzantının maskotu. Ayarlar → Hakkında bölümünden istediğinizde yeniden izleyebilirsiniz.
 
 Gizlilik ve izinler
 

@@ -1,10 +1,13 @@
+[![verify](https://github.com/supposedtobescruz/anti-ip-logger/actions/workflows/verify.yml/badge.svg)](https://github.com/supposedtobescruz/anti-ip-logger/actions/workflows/verify.yml)
+[![no telemetry](https://img.shields.io/badge/telemetri%20yok-evet-brightgreen)](https://github.com/supposedtobescruz/anti-ip-logger/blob/main/PRIVACY.md)
+
 # Anti IP Logger
 
 **Diller:** [English](../README.md) | Türkçe
 
 Anti IP Logger, bilinen IP logger ve link grabber alan adlarını engelleyen, ardından sayfada bulduğu IP sızıntısı girişimlerini raporlayan bir Chrome uzantısıdır. Manifest V3, vanilla JavaScript, derleme adımı yok.
 
-Sürüm 1.1.0. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisna içerir.
+Sürüm 1.2.0. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisna içerir.
 
 ## Ne yapar
 
@@ -15,6 +18,8 @@ Sürüm 1.1.0. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisn
 - Panelde olay kaydı ve toplam sayaçlar tutulur, son 500 olayla sınırlıdır.
 - Alan adlarını izin listesine eklemenize, özel alan adlarını engellemenize ve tek sekmeye geçici geçiş izni vermenize olanak tanır.
 - Çekirdek listeyi bakımı yapılan kaynaklardan yeniler. Kaynaklar başarısız olursa önceki liste korunur; hiçbir zaman iyi bir listenin üstüne boş liste yazmaz.
+- Sekme durumuna göre araç çubuğu simgesi renk değiştirir (engellendi, uyarı, temiz).
+- Yeni sürüm çıktığında panelde kapatılabilir bir bildirim gösterir.
 - İlk kurulumda altı adımlık bir hoşgeldin turu açar; Scruize, maskot. Ayarlar → Hakkında bölümünden istediğinizde yineleyebilirsiniz.
 - Arayüz varsayılanı İngilizcedir, tam Türkçe desteği vardır. Tarayıcıyla aynı / English / Türkçe seçimini Ayarlar → Gizlilik ve görünüm bölümünden yapabilirsiniz.
 
@@ -32,6 +37,7 @@ Sürüm 1.1.0. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisn
 
 <img src="assets/lists.png" alt="Aranabilir çekirdek liste ve izin listesi yönetimiyle panel Listeler görünümü" width="720" />
 <img src="assets/blocked.png" alt="Grabify bağlantısı için engel sayfası, hedef URL ve karar düğmeleri" width="520" />
+<img src="assets/welcome.png" alt="Hoşgeldin turu son adımı: maskot yerel gizliliği anlatıyor" width="280" />
 
 ## Kurulum
 
@@ -133,7 +139,7 @@ Kural öncelik merdiveni: sekme izni 110 > izin listesi 100 > özel engel 50 > e
 
 Liste hazır ama bilinçli bir kararla henüz gönderilmedi. Hazır olanlar:
 
-- `npm run package`, `dist/anti-ip-logger-1.1.0-cws.zip` üretir (yalnızca çalışma zamanı dosyaları; çıkarılan zip tüm tarayıcı kontrollerinden geçer).
+- `npm run package`, `dist/anti-ip-logger-1.2.0-cws.zip` üretir (yalnızca çalışma zamanı dosyaları; çıkarılan zip tüm tarayıcı kontrollerinden geçer).
 - `store/` klasöründe mağaza kiti: İngilizce ve Türkçe başlık metinleri, izin gerekçeleri, her dil için beşer 1280×800 ekran görüntüsü ve tanıtım karoları (440×280 ve 1400×560).
 - Gizlilik politikası `PRIVACY.md` içinde ve bağımsız `docs/privacy.html` sayfasında durur. Gönderim için herkese açık bir URL gerekir; depo şu an gizli, seçenekler için `store/README.md`'ye bakın.
 - Başvuru kontrol listesi, geliştirici kayıt ücreti notu ve yayın adımları `store/README.md` içinde.

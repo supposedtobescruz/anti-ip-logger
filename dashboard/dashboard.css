@@ -620,3 +620,27 @@ body {
     border-radius: 14px;
   }
 }
+
+.update-notice__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.update-notice__title {
+  font-weight: 600;
+  margin: 0;
+}
+
+.update-notice__body {
+  margin: 2px 0 0;
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.update-notice__actions {
+  display: flex;
+  gap: 8px;
+}

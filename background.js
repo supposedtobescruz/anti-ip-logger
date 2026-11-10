@@ -2,6 +2,7 @@ import {
   SYNC_ALARM_MINUTES,
   CLEANUP_ALARM_MINUTES,
   PAGE_STATE_TTL_MS,
+  GIST_VERSION_URL,
 } from "./lib/constants.js";
 import { normalizeHost, parseList, parseDnrJson, dedupeSubdomains } from "./lib/parser.js";
 import { t } from "./assets/i18n.js";
@@ -14,6 +15,7 @@ import {
   buildTabAllowRules,
   dnrStatus,
   setActionBadge,
+  setTabIcon,
 } from "./lib/dnr.js";
 import { assessRisk, describeVerdict, emptySignals, mergeSignals, verdictFor } from "./lib/risk.js";
 import {
@@ -23,6 +25,10 @@ import {
   clearTabAllow,
   clearTabState,
   getEvents,
+  getUpdateNag,
+  getUpdateNagDismiss,
+  setUpdateNag,
+  setUpdateNagDismiss,
   getPendingNav,
   getRemoteCache,
   getSettings,
@@ -60,6 +66,7 @@ const state = {
   appliedSignature: "",
   syncing: null,
   recentBlocks: new Map(),
+  updateNag: null,
 };
 
 const SYNC_ALARM = "sync-sources";
@@ -130,6 +137,7 @@ async function loadState() {
   state.extendedAt = extended && Number.isFinite(extended.at) ? extended.at : 0;
   state.tabAllows = loadTabAllows(sessionData);
   state.appliedSignature = typeof sessionData[APPLIED_SIGNATURE_KEY] === "string" ? sessionData[APPLIED_SIGNATURE_KEY] : "";
+  state.updateNag = await getUpdateNag();
   state.initialized = true;
 }
 
@@ -357,6 +365,10 @@ async function getTabInfo(tabId) {
     risk,
     blockedThisNavigation: Boolean(tabState && tabState.blockedThisNavigation),
   });
+  if (tabState && tabState.blockedThisNavigation) setTabIcon(tab.id, "blocked");
+  else if (risk.level === "danger" || verdict === "logger") setTabIcon(tab.id, "blocked");
+  else if (risk.level === "warn") setTabIcon(tab.id, "warn");
+  else setTabIcon(tab.id, "idle");
   return {
     tabId: tab.id,
     url,
@@ -419,7 +431,44 @@ async function getDashboardData() {
     })),
     version: chrome.runtime.getManifest().version,
     tabAllowCount: Object.keys(state.tabAllows).length,
+    updateAvailable: await visibleUpdateNag(),
   };
+}
+
+function isNewerVersion(latest, current) {
+  const a = String(latest).split(".").map((value) => Number(value) || 0);
+  const b = String(current).split(".").map((value) => Number(value) || 0);
+  for (let index = 0; index < 3; index += 1) {
+    const diff = (a[index] || 0) - (b[index] || 0);
+    if (diff !== 0) return diff > 0;
+  }
+  return false;
+}
+
+async function visibleUpdateNag() {
+  const dismiss = await getUpdateNagDismiss();
+  if (!state.updateNag || dismiss === state.updateNag.latest) return null;
+  return { latest: state.updateNag.latest, at: state.updateNag.at };
+}
+
+async function checkForUpdate() {
+  const response = await fetch(GIST_VERSION_URL, { cache: "no-store" });
+  if (!response.ok) return;
+  const payload = await response.json().catch(() => null);
+  const latest = payload && typeof payload.latest === "string" ? payload.latest.trim() : "";
+  if (!latest) return;
+  const current = chrome.runtime.getManifest().version;
+  if (!isNewerVersion(latest, current)) {
+    if (state.updateNag) {
+      state.updateNag = null;
+      await setUpdateNag(null);
+    }
+    return;
+  }
+  const dismiss = await getUpdateNagDismiss();
+  if (dismiss === latest) return;
+  state.updateNag = { latest, at: Date.now() };
+  await setUpdateNag(state.updateNag);
 }
 
 async function fetchSource(source) {
@@ -666,6 +715,7 @@ async function reportBlock(message, sender) {
     tabId,
   });
   setActionBadge(tabId, "1");
+  setTabIcon(tabId, "blocked");
   return { ok: true, target, host };
 }
 
@@ -733,6 +783,10 @@ async function reportSignals(message, sender) {
     risk,
     blockedThisNavigation: Boolean(next.blockedThisNavigation),
   });
+  if (next.blockedThisNavigation) setTabIcon(tabId, "blocked");
+  else if (risk.level === "danger" || verdict === "logger") setTabIcon(tabId, "blocked");
+  else if (risk.level === "warn") setTabIcon(tabId, "warn");
+  else setTabIcon(tabId, "idle");
   return {
     ok: true,
     enabled: state.settings.enabled,
@@ -855,6 +909,7 @@ async function handleMessage(message, sender) {
     "importData",
     "exportData",
     "openWelcome",
+    "dismissUpdate",
   ]);
   const SELF_ONLY = new Set(["addCustomDomain", "removeCustomDomain", "allowDomain", "removeAllowedDomain"]);
   if (PRIVILEGED.has(type) && !isExtensionPage) {
@@ -949,6 +1004,13 @@ async function handleMessage(message, sender) {
     case "openWelcome":
       await chrome.tabs.create({ url: chrome.runtime.getURL("welcome/welcome.html") });
       return { ok: true };
+    case "dismissUpdate":
+      if (state.updateNag) {
+        await setUpdateNagDismiss(state.updateNag.latest);
+        await setUpdateNag(null);
+        state.updateNag = null;
+      }
+      return { ok: true };
     default:
       return { ok: false, error: t("errorUnknownMessage") };
   }
@@ -972,6 +1034,7 @@ chrome.runtime.onInstalled.addListener((details) => {
     await applyState(true);
     chrome.alarms.create(SYNC_ALARM, { periodInMinutes: SYNC_ALARM_MINUTES });
     chrome.alarms.create(CLEANUP_ALARM, { periodInMinutes: CLEANUP_ALARM_MINUTES });
+    checkForUpdate().catch((error) => reportBackgroundError("update-check", error));
     if (details.reason === "install" && state.settings.onboardingSeen !== true) {
       chrome.tabs.create({ url: chrome.runtime.getURL("welcome/welcome.html") });
     }
@@ -987,6 +1050,7 @@ chrome.runtime.onStartup.addListener(() => {
     ]);
     if (!syncAlarm) chrome.alarms.create(SYNC_ALARM, { periodInMinutes: SYNC_ALARM_MINUTES });
     if (!cleanupAlarm) chrome.alarms.create(CLEANUP_ALARM, { periodInMinutes: CLEANUP_ALARM_MINUTES });
+    checkForUpdate().catch((error) => reportBackgroundError("update-check", error));
   })().catch((error) => reportBackgroundError("startup", error));
 });
 
@@ -996,6 +1060,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === SYNC_ALARM) {
       await syncNow("core");
       if (state.settings.tiers.extended) await syncNow("extended");
+      checkForUpdate().catch((error) => reportBackgroundError("update-check", error));
     }
     if (alarm.name === CLEANUP_ALARM) {
       await pruneSession();
@@ -1034,6 +1099,7 @@ chrome.webNavigation.onBeforeNavigate.addListener((details) => {
     await setPendingNav(details.tabId, { url: details.url, at: Date.now() });
     await clearTabState(details.tabId);
     setActionBadge(details.tabId, "");
+    setTabIcon(details.tabId, "idle");
   }).catch((error) => reportBackgroundError("navigation", error));
 });
 

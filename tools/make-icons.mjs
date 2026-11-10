@@ -10,6 +10,8 @@ const SCALE = 4;
 
 const INK = [0x17, 0x15, 0x12, 0xff];
 const ACCENT = [0xa5, 0x1f, 0x1f, 0xff];
+const WARN = [0x7d, 0x52, 0x10, 0xff];
+const CLEAN = [0x6b, 0x61, 0x52, 0xff];
 const CLEAR = [0, 0, 0, 0];
 
 const CRC_TABLE = new Uint32Array(256);
@@ -65,25 +67,25 @@ function pointInRotatedBar(x, y) {
   return Math.abs(rx) <= 0.075 && Math.abs(ry) <= 0.36;
 }
 
-function draw(size) {
+function draw(size, accent) {
   const pixels = Buffer.alloc(size * size * 4);
   for (let y = 0; y < size; y += 1) {
     for (let x = 0; x < size; x += 1) {
       const offset = (y * size + x) * 4;
       let ink = 0;
-      let accent = 0;
+      let accentCount = 0;
       for (let sy = 0; sy < SCALE; sy += 1) {
         for (let sx = 0; sx < SCALE; sx += 1) {
           const u = (x + (sx + 0.5) / SCALE) / size;
           const v = (y + (sy + 0.5) / SCALE) / size;
           if (u < 0.055 || u > 0.945 || v < 0.055 || v > 0.945) continue;
-          if (pointInRotatedBar(u, v)) accent += 1;
+          if (pointInRotatedBar(u, v)) accentCount += 1;
           else ink += 1;
         }
       }
       const total = SCALE * SCALE;
-      const color = accent > ink ? ACCENT : INK;
-      const coverage = (ink + accent) / total;
+      const color = accentCount > ink ? accent : INK;
+      const coverage = (ink + accentCount) / total;
       if (coverage === 0) {
         CLEAR.forEach((value, index) => {
           pixels[offset + index] = value;
@@ -99,9 +101,17 @@ function draw(size) {
   return encodePng(size, size, pixels);
 }
 
-await mkdir(OUT, { recursive: true });
-for (const size of SIZES) {
-  const file = join(OUT, `icon-${size}.png`);
-  await writeFile(file, draw(size));
-  process.stdout.write(`${file.replace(ROOT, ".")} ${size}x${size}\n`);
+const iconSets = [
+  { dir: "icons", accent: ACCENT },
+  { dir: "icons-warn", accent: WARN },
+  { dir: "icons-clean", accent: CLEAN },
+];
+for (const set of iconSets) {
+  const dir = join(OUT, "..", set.dir);
+  await mkdir(dir, { recursive: true });
+  for (const size of SIZES) {
+    const file = join(dir, `icon-${size}.png`);
+    await writeFile(file, draw(size, set.accent));
+    process.stdout.write(`${file.replace(ROOT, ".")} ${size}x${size}\n`);
+  }
 }

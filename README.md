@@ -1,10 +1,13 @@
+[![verify](https://github.com/supposedtobescruz/anti-ip-logger/actions/workflows/verify.yml/badge.svg)](https://github.com/supposedtobescruz/anti-ip-logger/actions/workflows/verify.yml)
+[![no telemetry](https://img.shields.io/badge/no%20telemetry-yes-brightgreen)](https://github.com/supposedtobescruz/anti-ip-logger/blob/main/PRIVACY.md)
+
 # Anti IP Logger
 
 **Languages:** English | [Türkçe](readme/readmeTR.md)
 
 Anti IP Logger is a Chrome extension that blocks known IP logger and link grabber domains, then reports IP leak attempts it finds on the page. Manifest V3, vanilla JavaScript, no build step.
 
-Version 1.1.0. The bundled list ships 125 domains in 2 static rules, with 61 exceptions.
+Version 1.2.0. The bundled list ships 125 domains in 2 static rules, with 61 exceptions.
 
 ## What it does
 
@@ -15,6 +18,8 @@ Version 1.1.0. The bundled list ships 125 domains in 2 static rules, with 61 exc
 - Keeps an event log and lifetime counters in the panel, capped at the last 500 events.
 - Lets you allowlist domains, block custom domains, and grant one-tab temporary fixes.
 - Refreshes the core list from maintained sources. If sources fail, the previous list is kept; it never writes an empty list over a good one.
+- Shows a verdict-colored toolbar icon per tab (blocked, warning or idle).
+- Shows a dismissible notice in the panel when a newer version is available.
 - Opens a six-step welcome tour on first install, with Scruize, the mascot. Replay it any time from Settings → About.
 - The interface is in English by default, with full Turkish support. Override it (Same as browser, English, Türkçe) from Settings → Privacy and appearance.
 
@@ -32,6 +37,7 @@ Version 1.1.0. The bundled list ships 125 domains in 2 static rules, with 61 exc
 
 <img src="readme/assets/lists.png" alt="Dashboard lists view with searchable core list and allowlist management" width="720" />
 <img src="readme/assets/blocked.png" alt="Blocked page for a Grabify link with target URL and decision buttons" width="520" />
+<img src="readme/assets/welcome.png" alt="Welcome tour final step with the mascot teaching anti-logging basics" width="280" />
 
 ## Install
 
@@ -133,7 +139,7 @@ Rule priority ladder: tab allow 110 > allowlist 100 > custom block 50 > blocked 
 
 The listing is prepared but not submitted yet, by deliberate decision. What is ready:
 
-- `npm run package` builds `dist/anti-ip-logger-1.1.0-cws.zip` (runtime files only; the extracted zip passes all browser checks).
+- `npm run package` builds `dist/anti-ip-logger-1.2.0-cws.zip` (runtime files only; the extracted zip passes all browser checks).
 - Store kit in `store/`: English and Turkish listings, permission justifications, five 1280×800 screenshots each, and promotional tiles (440×280 and 1400×560).
 - The privacy policy lives in `PRIVACY.md` and a standalone `docs/privacy.html`. It must be served from a public URL to submit; the repository is private, see `store/README.md` for the options.
 - A submission checklist, the developer registration fee note and the rollout steps are in `store/README.md`.

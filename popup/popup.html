@@ -93,13 +93,21 @@
             <a class="section__link" id="events-link" href="../dashboard/dashboard.html#events" target="_blank" rel="noreferrer" data-i18n="eventsSeeAll">All</a>
           </div>
           <ul class="events" id="events"></ul>
-          <p class="empty" id="events-empty" hidden data-i18n="eventsEmpty">No events yet. Blocked IP logger connections appear here.</p>
+          <p class="empty empty--mascot" id="events-empty" hidden>
+            <img src="../assets/mascot-scruize.svg" class="empty-mascot" alt="" width="72" height="72" aria-hidden="true" />
+            <span data-i18n="eventsEmpty">No events yet. Blocked IP logger connections appear here.</span>
+          </p>
         </section>
       </main>
 
       <footer class="popup__foot">
         <span class="mono" id="sync-line" data-i18n="listReady">List ready</span>
-        <span class="mono" id="version-line"></span>
+        <span class="row">
+          <button class="btn btn--quiet btn--icon popup__tour" id="replay-tour" type="button" data-i18n-aria-label="popupReplayTourLabel" data-i18n-title="popupReplayTourTitle" aria-label="Replay the welcome tour" title="Replay the welcome tour">
+            <span class="mono" aria-hidden="true">?</span>
+          </button>
+          <span class="mono" id="version-line"></span>
+        </span>
       </footer>
     </div>
 

@@ -306,3 +306,23 @@ body {
     opacity: 0.55;
   }
 }
+
+.popup__tour {
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+}
+
+.empty--mascot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.empty-mascot {
+  display: block;
+  opacity: 0.92;
+  margin: 0 auto;
+}

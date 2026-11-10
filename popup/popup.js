@@ -46,6 +46,7 @@ const nodes = {
   themeToggle: document.getElementById("theme-toggle"),
   themeGlyph: document.getElementById("theme-glyph"),
   dashboard: document.getElementById("open-dashboard"),
+  replayTour: document.getElementById("replay-tour"),
 };
 
 const BADGE_TONE = { danger: "danger", warn: "warn", info: "plain", safe: "safe", muted: "muted" };
@@ -271,6 +272,13 @@ async function openDashboardFrom() {
 
 nodes.dashboard.addEventListener("click", () => {
   openDashboardFrom();
+});
+
+nodes.replayTour.addEventListener("click", async () => {
+  const result = await send({ type: "openWelcome" });
+  if (!result || !result.ok) {
+    toast((result && result.error) || t("toastGenericFailed"), "error");
+  }
 });
 
 nodes.themeToggle.addEventListener("click", async () => {

@@ -1490,5 +1490,37 @@
   "welcomeStep6Body": {
     "message": "Telemetri yok, analitik yok, hesap yok. Ayarlar, sayaclar ve 500 kayıtlık olay kaydı yalnızca bu tarayıcıda kalır. WebRTC politikası isteğe bağlıdır ve tarayıcı genelindedir.",
     "description": "Welcome step 6 body."
+  },
+  "updateAvailableTitle": {
+    "message": "Yeni sürüm mevcut",
+    "description": "Dashboard notice title for the update nag."
+  },
+  "updateAvailableBody": {
+    "message": "$1 sürümü mevcut, siz $2 kullanıyorsunuz.",
+    "description": "Dashboard notice body. Substitutions: latest version, current version."
+  },
+  "updateDismiss": {
+    "message": "Gizle",
+    "description": "Dismiss button for the update notice."
+  },
+  "updateReleaseNotes": {
+    "message": "Sürüm notları",
+    "description": "Link to the releases page."
+  },
+  "popupReplayTourLabel": {
+    "message": "Hoşgeldin turunu tekrarla",
+    "description": "Popup footer button label."
+  },
+  "popupReplayTourTitle": {
+    "message": "Hoşgeldin turunu tekrarla",
+    "description": "Popup footer button tooltip."
+  },
+  "copyAddressButton": {
+    "message": "Adresi kopyala",
+    "description": "Blocked page button to copy the target URL into the clipboard."
+  },
+  "copyAddressDone": {
+    "message": "Adres panoya kopyalandı.",
+    "description": "Blocked page feedback after copying."
   }
 }

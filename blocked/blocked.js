@@ -12,6 +12,7 @@ const nodes = {
   allowTab: document.getElementById("allow-tab"),
   allowSite: document.getElementById("allow-site"),
   goBack: document.getElementById("go-back"),
+  copyTarget: document.getElementById("copy-target"),
   feedback: document.getElementById("feedback"),
   fineprint: document.getElementById("fineprint"),
 };
@@ -58,6 +59,7 @@ function renderTarget() {
     nodes.meta.textContent = "";
     nodes.allowTab.disabled = true;
     nodes.allowSite.disabled = true;
+    nodes.copyTarget.disabled = true;
     return;
   }
 
@@ -65,6 +67,7 @@ function renderTarget() {
   nodes.target.title = target;
   nodes.allowTab.disabled = false;
   nodes.allowSite.disabled = false;
+  nodes.copyTarget.disabled = false;
 
   nodes.lead.textContent = t("blockedPageLead");
 }
@@ -136,6 +139,16 @@ nodes.allowTab.addEventListener("click", () => {
 nodes.allowSite.addEventListener("click", () => {
   if (!host) return;
   decide({ type: "allowDomain", domain: host }, t("blockedAllowSiteDone"));
+});
+
+nodes.copyTarget.addEventListener("click", async () => {
+  if (!target) return;
+  try {
+    await navigator.clipboard.writeText(target);
+    setFeedback(t("copyAddressDone"));
+  } catch {
+    setFeedback(t("toastGenericFailed"), "error");
+  }
 });
 
 nodes.goBack.addEventListener("click", () => {

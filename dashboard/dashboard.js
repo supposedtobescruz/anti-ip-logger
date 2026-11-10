@@ -58,6 +58,9 @@ const nodes = {
   railVersion: document.getElementById("rail-version"),
   pageTitle: document.getElementById("page-title"),
   pageEyebrow: document.getElementById("page-eyebrow"),
+  updateNotice: document.getElementById("update-notice"),
+  updateNoticeBody: document.getElementById("update-notice-body"),
+  updateDismiss: document.getElementById("update-notice-dismiss"),
   globalError: document.getElementById("global-error"),
   syncButton: document.getElementById("sync-button"),
   themeButton: document.getElementById("theme-button"),
@@ -235,6 +238,11 @@ function renderOverview(data) {
     : t("statusDisabledDetail");
   nodes.enabledToggle.checked = enabled;
   nodes.enabledLabel.textContent = enabled ? t("switchOn") : t("switchOff");
+
+  nodes.updateNotice.hidden = !data.updateAvailable;
+  if (data.updateAvailable) {
+    nodes.updateNoticeBody.textContent = t("updateAvailableBody", [data.updateAvailable.latest, data.version || ""]);
+  }
 
   nodes.tileBlocked.textContent = formatNumber(stats.blocked);
   nodes.tileDetected.textContent = formatNumber(stats.detected);
@@ -691,6 +699,11 @@ function bind() {
 
   nodes.replayTour.addEventListener("click", async () => {
     await send({ type: "openWelcome" });
+  });
+
+  nodes.updateDismiss.addEventListener("click", async () => {
+    await send({ type: "dismissUpdate" });
+    await load();
   });
 
   nodes.mascotCorner.addEventListener("click", () => {

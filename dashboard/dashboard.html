@@ -62,6 +62,19 @@
             </label>
           </div>
 
+          <div class="notice notice--warn" id="update-notice" hidden role="status">
+            <div class="update-notice__row">
+              <div>
+                <p class="update-notice__title" data-i18n="updateAvailableTitle">New version available</p>
+                <p class="update-notice__body" id="update-notice-body"></p>
+              </div>
+              <div class="update-notice__actions">
+                <a class="btn btn--quiet btn--small" href="https://github.com/supposedtobescruz/anti-ip-logger/releases" target="_blank" rel="noreferrer" id="update-notice-link" data-i18n="updateReleaseNotes">Release notes</a>
+                <button class="btn btn--quiet btn--small" id="update-notice-dismiss" type="button" data-i18n="updateDismiss">Dismiss</button>
+              </div>
+            </div>
+          </div>
+
           <dl class="tiles">
             <div class="tile">
               <dt data-i18n="tileBlocked">Blocked requests</dt>
