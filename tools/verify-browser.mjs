@@ -16,13 +16,13 @@ const BROWSER_CANDIDATES = [
   "C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\brave.exe",
   "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
   "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+  "/usr/bin/brave-browser",
+  "/opt/brave.com/brave/brave-browser",
   "/usr/bin/google-chrome",
   "/usr/bin/google-chrome-stable",
   "/usr/bin/chromium",
   "/usr/bin/chromium-browser",
   "/snap/bin/chromium",
-  "/opt/brave.com/brave/brave-browser",
-  "/usr/bin/brave-browser",
 ].filter(Boolean);
 
 const failures = [];
