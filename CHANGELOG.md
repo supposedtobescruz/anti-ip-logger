@@ -6,14 +6,18 @@ Versions follow SemVer. The project starts at 1.0.0 and has no earlier history t
 Releases are tagged `v<version>` in git; the dates below are the tag dates.
 The extension has no telemetry. Settings, counters and the event log stay in `chrome.storage.local`. See PRIVACY.md.
 
-## [Unreleased]
+## [1.3.0] - 2026-11-11
 
 ### Added
 
+- Dashboard language switch applies immediately without a reload. The language select reinitializes the locale, reapplies the static translations, rerenders the route and reloads the data. The category filter options are rebuilt when the language or the visible categories change, so their labels no longer stay in the old locale (55f25d1).
+- The welcome tour takes the total step count from its own constant instead of a hardcoded 6 in both messages (55f25d1).
+- `tests/store.test.mjs` covers the store layer with fifteen node:test cases against an in-memory chrome.storage fake: settings defaults and partial merges, list normalization with dedupe and cap, event clamping and retention, clearing events, resetAll and tab state round trip plus stale pruning (2beba10).
+- This changelog documents the released history in Keep a Changelog format (9f50d8a).
 - Backup restore can replace or merge the allowlist and custom blocklist. The background applies the union; the dashboard preview is not trusted. The summary shows the mode, the resulting list counts, the WebRTC policy and the backup version when it is a valid x.y.z string. A backup language is restored only when it is system, en or tr. Stats and events stay untouched (5d85908).
 - `lib/backup.js` holds restore normalization and merge; `lib/privilege.js` holds the privileged message set and the extension-page sender check. Adds 30 node:test cases covering mode validation, list normalization, caps, replace and merge semantics, every privileged message name and lookalike sender URLs (212816f).
 - `tools/check-i18n.mjs` compares locale key sets, placeholders, empty strings and the committed fallback modules against the generator. A locale edit without regeneration now fails verify:all (3648794).
-- `tools/verify-package.mjs` rebuilds the store zip, parses its central directory and checks every manifest-declared path is inside and no test, tool, doc or store file leaked in. CI runs it after the static checks (3648794).
+- `tools/verify-package.mjs` rebuilds the store zip, parses its central directory and checks every manifest-declared path is inside and no test, tool, docs directory, store or changelog file leaked in. CI runs it after the static checks (3648794).
 
 ### Changed
 
