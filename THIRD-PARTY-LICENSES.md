@@ -11,7 +11,7 @@ Bu depo MIT lisansı ile yayınlanır (bkz. `LICENSE`). Aşağıdaki veri kümel
 | PhishDestroy destroylist | MIT | Yalnızca isteğe bağlı tehdit listesi | https://github.com/phishdestroy/destroylist |
 | DeGrabify | Açık lisans belirtilmemiş | Grabify alan adları, atıf ile kullanılır | https://github.com/JonasLong/DeGrabify |
 | IBM Plex Sans, IBM Plex Mono | SIL OFL-1.1 | `assets/fonts/` altında gömülü yazı tipleri | https://github.com/IBM/plex |
-| antislop | MIT | `antislop.md` tasarım ve yazım kuralları | https://github.com/miqdadbadjuber/anti-slop |
+| antislop | MIT | Geliştirme sırasında uygulanan tasarım ve yazım kuralları; dağıtılan pakette yer almaz | https://github.com/miqdadbadjuber/anti-slop |
 
 ## Veri kümeleri
 
@@ -107,7 +107,7 @@ Yazı tipleri değiştirilmemiş WOFF2 dosyaları olarak gömülüdür. Alt küm
 
 ### antislop (MIT)
 
-`antislop.md` dosyası Miqdad Badjuber tarafından yayınlanan anti-slop deposundan alınmıştır. Tasarım, yazım ve erişilebilirlik kuralları bu projede uygulanmıştır.
+anti-slop deposundan alınan kurallar bu projede tasarım, yazım ve erişilebilirlik düzeyinde uygulanmıştır. Kural metni dağıtılan uzantı paketinde ve kaynak depoda yer almaz.
 
 Copyright (c) 2026 Miqdad Badjuber
 

@@ -9,7 +9,7 @@ Thanks for your interest. This document explains how to propose changes.
 
 ## Before you start
 
-- Check `AGENTS.md` for project invariants. In particular: Manifest V3, network requests only to the defined list sources, no telemetry, no remote code, WCAG AA contrast for UI, no em dashes in project files.
+- Project invariants that still apply: Manifest V3, network requests only to the defined list sources, no telemetry, no remote code, WCAG AA contrast for UI, no em dashes in project files.
 - Open an issue before starting a large change so we can agree on the shape of it.
 
 ## Making a change
@@ -25,7 +25,7 @@ Thanks for your interest. This document explains how to propose changes.
    npm run verify:browser
    ```
    If Brave/Chrome is not in the default location, set `BRAVE_PATH`.
-4. Update documentation you invalidate: `README.md`, `readme/readmeTR.md`, `AGENTS.md`, `THIRD-PARTY-LICENSES.md` (data sources or fonts).
+4. Update documentation you invalidate: `README.md`, `readme/readmeTR.md`, `THIRD-PARTY-LICENSES.md` (data sources or fonts).
 
 ## Commits
 

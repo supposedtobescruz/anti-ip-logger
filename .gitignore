@@ -6,3 +6,8 @@ Thumbs.db
 verify-output/
 graphify-out/
 dist/
+.opencode/
+AGENTS.md
+antislop.md
+DESIGN.md
+
