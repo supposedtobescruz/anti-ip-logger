@@ -629,7 +629,6 @@ async function syncTier(tier) {
     allOk,
     tier,
     count,
-    total: tier === "core" ? state.remoteCore.length : state.extended.length,
     reports,
     error: anyOk ? "" : t("syncAllFailedShort"),
   };
