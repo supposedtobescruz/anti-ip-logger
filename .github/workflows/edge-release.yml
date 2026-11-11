@@ -1,0 +1,192 @@
+# Publish a new version to Microsoft Edge Add-ons on version tags.
+# Uses the Edge Add-ons Update REST API (v1.1) with an API key and a Client ID.
+# A successful run submits the update for certification review.
+# It does NOT skip certification review and does NOT make the extension live instantly.
+# Store listing metadata (description, logo, screenshots, search terms) is not updated here;
+# those stay in Partner Center.
+
+name: edge-release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Safety gate (tag must match manifest version)
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_REF}" != refs/tags/v* ]]; then
+            echo "Not a tag ref (${GITHUB_REF}); skipping the tag/manifest version gate."
+            exit 0
+          fi
+          tag="${GITHUB_REF_NAME#v}"
+          mv=$(node -p "require('./manifest.json').version")
+          if [ "$tag" != "$mv" ]; then
+            echo "Tag $tag does not match manifest version $mv; refusing to publish."
+            exit 1
+          fi
+          echo "Tag $tag matches manifest version $mv."
+
+      - name: Verify
+        run: npm run verify:all
+
+      - name: Package
+        run: npm run package
+
+      - name: Verify package
+        run: npm run verify:package
+
+      - name: Upload package to draft submission
+        env:
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+          EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+        run: |
+          set -euo pipefail
+          for v in EDGE_CLIENT_ID EDGE_API_KEY EDGE_PRODUCT_ID; do
+            if [ -z "${!v:-}" ]; then
+              echo "Missing required secret: $v. Set it in Settings > Secrets and variables > Actions."
+              exit 1
+            fi
+          done
+
+          api_base="https://api.addons.microsoftedge.microsoft.com"
+          ZIP=$(ls dist/anti-ip-logger-*-cws.zip)
+          body_file=$(mktemp)
+          headers_file=$(mktemp)
+          poll_body_file=$(mktemp)
+
+          http_code=$(curl -sS -o "$body_file" -D "$headers_file" -w "%{http_code}" \
+            -X POST \
+            -H "Authorization: ApiKey $EDGE_API_KEY" \
+            -H "X-ClientID: $EDGE_CLIENT_ID" \
+            -H "Content-Type: application/zip" \
+            --data-binary @"$ZIP" \
+            "$api_base/v1/products/$EDGE_PRODUCT_ID/submissions/draft/package")
+          if [ "$http_code" != "202" ]; then
+            echo "Upload failed with HTTP $http_code."
+            cat "$body_file"
+            exit 1
+          fi
+
+          location=$(sed -n 's/^[Ll]ocation:[[:space:]]*//p' "$headers_file" | tr -d '\r')
+          location="${location%/}"
+          operation_id="${location##*/}"
+          if [ -z "$operation_id" ]; then
+            echo "Could not parse the operation id from the Location header."
+            exit 1
+          fi
+          echo "Upload accepted (operation $operation_id). Polling for completion."
+
+          status=""
+          attempts=0
+          while [ $attempts -lt 40 ]; do
+            attempts=$((attempts + 1))
+            curl -sS -o "$poll_body_file" -w "%{http_code}" \
+              -H "Authorization: ApiKey $EDGE_API_KEY" \
+              -H "X-ClientID: $EDGE_CLIENT_ID" \
+              "$api_base/v1/products/$EDGE_PRODUCT_ID/submissions/draft/package/operations/$operation_id" > /dev/null
+            status=$(node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);process.stdout.write(typeof j.status==="string"?j.status:"")}catch{process.stdout.write("")}})' < "$poll_body_file")
+            if [ "$status" = "Succeeded" ]; then
+              break
+            fi
+            if [ "$status" = "InProgress" ] || [ -z "$status" ]; then
+              sleep 10
+              continue
+            fi
+            echo "Upload operation failed with status: $status"
+            cat "$poll_body_file"
+            exit 1
+          done
+          if [ "$status" != "Succeeded" ]; then
+            echo "Upload operation did not succeed after $attempts attempts (last status: ${status:-none})."
+            cat "$poll_body_file"
+            exit 1
+          fi
+          echo "Upload operation succeeded."
+
+      - name: Publish submission
+        env:
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+          EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          for v in EDGE_CLIENT_ID EDGE_API_KEY EDGE_PRODUCT_ID; do
+            if [ -z "${!v:-}" ]; then
+              echo "Missing required secret: $v. Set it in Settings > Secrets and variables > Actions."
+              exit 1
+            fi
+          done
+
+          api_base="https://api.addons.microsoftedge.microsoft.com"
+          body_file=$(mktemp)
+          headers_file=$(mktemp)
+          poll_body_file=$(mktemp)
+
+          notes=$(node -e 'process.stdout.write(JSON.stringify({notes: `Automated release update ${process.env.TAG} from the GitHub release pipeline. See CHANGELOG.md for changes.`}))')
+
+          http_code=$(curl -sS -o "$body_file" -D "$headers_file" -w "%{http_code}" \
+            -X POST \
+            -H "Authorization: ApiKey $EDGE_API_KEY" \
+            -H "X-ClientID: $EDGE_CLIENT_ID" \
+            -H "Content-Type: application/json" \
+            --data-binary "$notes" \
+            "$api_base/v1/products/$EDGE_PRODUCT_ID/submissions")
+          if [ "$http_code" != "202" ]; then
+            echo "Publish request failed with HTTP $http_code."
+            cat "$body_file"
+            exit 1
+          fi
+
+          location=$(sed -n 's/^[Ll]ocation:[[:space:]]*//p' "$headers_file" | tr -d '\r')
+          location="${location%/}"
+          operation_id="${location##*/}"
+          if [ -z "$operation_id" ]; then
+            echo "Could not parse the operation id from the Location header."
+            exit 1
+          fi
+          echo "Publish accepted (operation $operation_id). Polling for completion."
+
+          status=""
+          attempts=0
+          while [ $attempts -lt 40 ]; do
+            attempts=$((attempts + 1))
+            curl -sS -o "$poll_body_file" -w "%{http_code}" \
+              -H "Authorization: ApiKey $EDGE_API_KEY" \
+              -H "X-ClientID: $EDGE_CLIENT_ID" \
+              "$api_base/v1/products/$EDGE_PRODUCT_ID/submissions/operations/$operation_id" > /dev/null
+            status=$(node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);process.stdout.write(typeof j.status==="string"?j.status:"")}catch{process.stdout.write("")}})' < "$poll_body_file")
+            if [ "$status" = "Succeeded" ]; then
+              break
+            fi
+            if [ "$status" = "InProgress" ] || [ -z "$status" ]; then
+              sleep 10
+              continue
+            fi
+            echo "Publish operation failed with status: $status"
+            cat "$poll_body_file"
+            exit 1
+          done
+          if [ "$status" != "Succeeded" ]; then
+            echo "Publish operation did not succeed after $attempts attempts (last status: ${status:-none})."
+            cat "$poll_body_file"
+            exit 1
+          fi
+          echo "Publish operation succeeded."
+
+      - name: Summary
+        run: echo "Submission for ${GITHUB_REF_NAME} is in the Edge Add-ons certification queue; it is not live until review completes."

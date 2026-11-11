@@ -58,3 +58,27 @@ npm run package                          # rebuild the zip
 ## Versioning note
 
 `manifest.json` is 1.3.0. Bump both the manifest and the tag before any new submission.
+
+## Automated Edge Add-ons publish (GitHub Actions)
+
+`.github/workflows/edge-release.yml` publishes a new version to Microsoft Edge Add-ons when a `v*` tag is pushed (or via manual `workflow_dispatch`). It uses the Edge Add-ons Update REST API v1.1 with an API key and a Client ID.
+
+What it does, in order: `npm run verify:all`, `npm run package`, `npm run verify:package`, uploads the `dist/anti-ip-logger-*-cws.zip` to the existing product's draft submission, polls the upload operation to completion, then submits for publishing with release notes (tag + pointer to CHANGELOG.md) and polls that operation to completion.
+
+What it cannot do:
+
+- It cannot create the product. The API only updates existing products.
+- It cannot update listing metadata: description, logo, screenshots, search terms. Those stay in Partner Center manually.
+- It cannot skip certification. A published submission still goes through Edge review before going live.
+
+How to enable it:
+
+1. In Partner Center, go to Microsoft Edge, Publish API, enable the new experience, then Enable, then Create API credentials. Note the Client ID and the API key.
+2. Find the product ID (a guid) of the existing Edge Add-ons product.
+3. In the GitHub repository, Settings > Secrets and variables > Actions, create three secrets: `EDGE_CLIENT_ID`, `EDGE_API_KEY`, `EDGE_PRODUCT_ID`.
+
+Tag rule: tag must equal the manifest version, e.g. `git tag v1.4.0 && git push origin main --follow-tags`. The workflow has a safety gate: on a tag push, the tag (without the leading `v`) must equal `manifest.json` `version`, otherwise the job fails before uploading. Manual `workflow_dispatch` runs on a non-tag ref skip the gate.
+
+The update-check gist is NOT synced by this workflow. An earlier gist-sync automation was reverted (6a3381a, df1b40e) for lack of a gist-scoped token; gist sync remains manual.
+
+The first publish of 1.3.0 was done manually, because the API only updates existing products and cannot create one.
