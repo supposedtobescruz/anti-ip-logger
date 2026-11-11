@@ -15,7 +15,9 @@ import {
   applyStaticRuleset,
   applyWebRtcPolicy,
   buildTabAllowRules,
+  chooseWebRtcAction,
   dnrStatus,
+  readWebRtcPolicy,
   setActionBadge,
   setTabIcon,
 } from "./lib/dnr.js";
@@ -168,15 +170,24 @@ async function applyWebRtcSetting() {
   const data = await chrome.storage.local.get(WEBRTC_MARKER_KEY);
   const last = typeof data[WEBRTC_MARKER_KEY] === "string" ? data[WEBRTC_MARKER_KEY] : "";
 
-  if (policy === "default") {
-    if (last && last !== "default") {
-      const result = await applyWebRtcPolicy("default");
-      if (result.ok) await chrome.storage.local.set({ [WEBRTC_MARKER_KEY]: "default" });
+  const current = await readWebRtcPolicy();
+  if (!current.ok) {
+    if (policy !== "default" && state.webrtcErrorFor !== policy) {
+      state.webrtcErrorFor = policy;
+      await appendEvent({ type: "error", host: "", detail: t("errorWebrtcNotApplied") });
     }
     return;
   }
 
-  if (last === policy) return;
+  const action = chooseWebRtcAction({ policy, last, currentValue: current.value });
+  if (action === "skip") return;
+
+  if (action === "clear") {
+    const result = await applyWebRtcPolicy("default");
+    if (result.ok) await chrome.storage.local.set({ [WEBRTC_MARKER_KEY]: "default" });
+    return;
+  }
+
   const result = await applyWebRtcPolicy(policy);
   if (result.ok) {
     await chrome.storage.local.set({ [WEBRTC_MARKER_KEY]: policy });
