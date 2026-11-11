@@ -7,7 +7,7 @@
 
 Anti IP Logger, bilinen IP logger ve link grabber alan adlarını engelleyen, ardından sayfada bulduğu IP sızıntısı girişimlerini raporlayan bir Chrome uzantısıdır. Manifest V3, vanilla JavaScript, derleme adımı yok.
 
-Sürüm 1.2.0. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisna içerir.
+Sürüm 1.2.1. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisna içerir.
 
 ## Ne yapar
 
@@ -133,13 +133,13 @@ Kural öncelik merdiveni: sekme izni 110 > izin listesi 100 > özel engel 50 > e
 - Banner, sayfa tarafından CSS veya JavaScript ile gizlenebilir veya kaldırılabilir. Engel listesi bundan etkilenmez; panel ve açılır pencere gerçeği göstermeye devam eder.
 - İçerik betiği MAIN world'de çalışır, bu yüzden sayfa JavaScript'i sinyal kanalını taklit edebilir. Engel listesi (DNR) yolu bundan etkilenmez; banner ve olay kaydı etkilenir.
 - `host_permissions`, içerik betikleriyle aynı kapsam olan `http://*/*` ve `https://*/*` değerlerini kapsar. `webNavigation`, değerlendirilen gezinmenin URL'sini açığa çıkarmak için kullanılır. Uzantı, tanımlı liste kaynakları ve günlük sürüm kontrolü dışında ağ isteği yapmaz.
-- Sinyaller her karede (iframe'ler dahil) toplanır ve üst sekmeye bağlanır. Banner yalnızca üst karede görünür.
+- Sinyaller yalnızca üst düzey belgede toplanır. Alt çerçevenin kendi WebRTC, form veya istek etkinliği incelenmez; böylece sahte bir iframe uyarı şeridini yönlendiremez veya içinde bulunduğu sayfa için kural oluşturamaz. Ağ engelleme her çerçevede geçerlidir.
 
 ## Chrome Web Store
 
 Liste hazır ama bilinçli bir kararla henüz gönderilmedi. Hazır olanlar:
 
-- `npm run package`, `dist/anti-ip-logger-1.2.0-cws.zip` üretir (yalnızca çalışma zamanı dosyaları; çıkarılan zip tüm tarayıcı kontrollerinden geçer).
+- `npm run package`, `dist/anti-ip-logger-1.2.1-cws.zip` üretir (yalnızca çalışma zamanı dosyaları; çıkarılan zip tüm tarayıcı kontrollerinden geçer).
 - `store/` klasöründe mağaza kiti: İngilizce ve Türkçe başlık metinleri, izin gerekçeleri, her dil için beşer 1280×800 ekran görüntüsü ve tanıtım karoları (440×280 ve 1400×560).
 - Gizlilik politikası `PRIVACY.md` içinde ve bağımsız `docs/privacy.html` sayfasında durur. Gönderim için herkese açık bir URL gerekir; depo şu an gizli, seçenekler için `store/README.md`'ye bakın.
 - Başvuru kontrol listesi, geliştirici kayıt ücreti notu ve yayın adımları `store/README.md` içinde.

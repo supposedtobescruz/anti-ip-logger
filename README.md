@@ -7,7 +7,7 @@
 
 Anti IP Logger is a Chrome extension that blocks known IP logger and link grabber domains, then reports IP leak attempts it finds on the page. Manifest V3, vanilla JavaScript, no build step.
 
-Version 1.2.0. The bundled list ships 125 domains in 2 static rules, with 61 exceptions.
+Version 1.2.1. The bundled list ships 125 domains in 2 static rules, with 61 exceptions.
 
 ## What it does
 
@@ -133,13 +133,13 @@ Rule priority ladder: tab allow 110 > allowlist 100 > custom block 50 > blocked 
 - The banner can be hidden or removed by the page via CSS or JavaScript. The blocklist is not affected; the panel and popup still show the truth.
 - The content script runs in the MAIN world, so page JavaScript can forge the signal channel. The blocklist (DNR) path is not affected; the banner and event log are.
 - `host_permissions` covers `http://*/*` and `https://*/*`, the same scope as the content scripts. `webNavigation` exposes the URL of the navigation being judged. The extension makes no network requests beyond the defined list sources and the daily version check.
-- Signals are collected in every frame (iframes included) and attached to the top tab. The banner only shows in the top frame.
+- Signals are collected in the top-level document only. A subframe's own WebRTC, form or request activity is not inspected, so a forged iframe cannot steer the banner or create a rule for the page it sits in. Network blocking still applies in every frame.
 
 ## Chrome Web Store
 
 The listing is prepared but not submitted yet, by deliberate decision. What is ready:
 
-- `npm run package` builds `dist/anti-ip-logger-1.2.0-cws.zip` (runtime files only; the extracted zip passes all browser checks).
+- `npm run package` builds `dist/anti-ip-logger-1.2.1-cws.zip` (runtime files only; the extracted zip passes all browser checks).
 - Store kit in `store/`: English and Turkish listings, permission justifications, five 1280×800 screenshots each, and promotional tiles (440×280 and 1400×560).
 - The privacy policy lives in `PRIVACY.md` and a standalone `docs/privacy.html`. It must be served from a public URL to submit; the repository is private, see `store/README.md` for the options.
 - A submission checklist, the developer registration fee note and the rollout steps are in `store/README.md`.
