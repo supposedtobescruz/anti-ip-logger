@@ -9,7 +9,7 @@
     "build:offline": "node tools/build-lists.mjs --offline && node tools/build-i18n-fallback.mjs",
     "check": "node tools/build-lists.mjs --offline --check",
     "check:i18n": "node tools/check-i18n.mjs",
-    "test": "node --test tests/domains.test.mjs tests/parser.test.mjs tests/risk.test.mjs tests/rules.test.mjs",
+    "test": "node --test tests/backup.test.mjs tests/domains.test.mjs tests/parser.test.mjs tests/privilege.test.mjs tests/risk.test.mjs tests/rules.test.mjs",
     "verify": "node tools/verify-extension.mjs",
     "verify:ui": "node tools/verify-ui.mjs",
     "verify:browser": "node tools/verify-browser.mjs",

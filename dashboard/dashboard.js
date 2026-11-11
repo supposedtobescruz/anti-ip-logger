@@ -12,8 +12,7 @@ import {
   resolvedTheme,
 } from "../assets/ui.js";
 import { t, applyI18n, initLanguage } from "../assets/i18n.js";
-import { normalizeHost } from "../lib/parser.js";
-import { MAX_LIST_ENTRIES } from "../lib/constants.js";
+import { normalizeBackupList, mergeLists } from "../lib/backup.js";
 
 const ROUTES = {
   overview: { titleKey: "routeOverviewTitle", eyebrowKey: "routeOverviewEyebrow" },
@@ -555,22 +554,12 @@ async function exportData() {
   toast(t("toastExportDone"), "ok");
 }
 
-function normalizeBackupList(value) {
-  if (!Array.isArray(value)) return null;
-  const normalized = value.map(normalizeHost).filter(Boolean);
-  return [...new Set(normalized)].sort().slice(0, MAX_LIST_ENTRIES);
-}
-
-function unionLists(existing, incoming) {
-  return [...new Set([...(existing || []), ...(incoming || [])])].sort().slice(0, MAX_LIST_ENTRIES);
-}
-
 function currentImportMode() {
   return nodes.importMode && nodes.importMode.value === "merge" ? "merge" : "replace";
 }
 
 function resultListCount(current, incoming, mode) {
-  if (mode === "merge") return unionLists(current, incoming).length;
+  if (mode === "merge") return mergeLists(current, incoming).length;
   if (incoming === null) return Array.isArray(current) ? current.length : 0;
   return incoming.length;
 }

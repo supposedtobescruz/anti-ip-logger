@@ -3,8 +3,9 @@ import {
   CLEANUP_ALARM_MINUTES,
   PAGE_STATE_TTL_MS,
   GIST_VERSION_URL,
-  MAX_LIST_ENTRIES,
 } from "./lib/constants.js";
+import { restoreLists, normalizeRestoreMode } from "./lib/backup.js";
+import { requiresPrivilege, isExtensionPageSender } from "./lib/privilege.js";
 import { normalizeHost, parseList, parseDnrJson, dedupeSubdomains } from "./lib/parser.js";
 import { t } from "./assets/i18n.js";
 import { hostMatchesDomain, matchDomain, urlToHost } from "./lib/domains.js";
@@ -897,27 +898,16 @@ async function exportData() {
   };
 }
 
-function normalizeBackupList(value) {
-  if (!Array.isArray(value)) return null;
-  const normalized = value.map(normalizeDomainInput).filter(Boolean);
-  return [...new Set(normalized)].sort().slice(0, MAX_LIST_ENTRIES);
-}
-
-function unionLists(existing, incoming) {
-  return [...new Set([...(existing || []), ...(incoming || [])])].sort().slice(0, MAX_LIST_ENTRIES);
-}
-
 async function importData(payload, mode) {
   if (!payload || typeof payload !== "object" || !payload.settings) {
     return { ok: false, error: t("errorInvalidBackup") };
   }
-  const restoreMode = mode === undefined || mode === null || mode === "" ? "replace" : mode;
-  if (restoreMode !== "replace" && restoreMode !== "merge") {
+  const restoreMode = normalizeRestoreMode(mode);
+  if (restoreMode === null) {
     return { ok: false, error: t("errorInvalidBackup") };
   }
   const incoming = payload.settings;
-  const incomingAllowlist = normalizeBackupList(incoming.allowlist);
-  const incomingCustomBlocks = normalizeBackupList(incoming.customBlocks);
+  const restored = restoreLists(state.settings, incoming, restoreMode);
   const patch = {
     enabled: incoming.enabled,
     tiers: incoming.tiers,
@@ -925,16 +915,11 @@ async function importData(payload, mode) {
     warnings: incoming.warnings,
     webrtcPolicy: incoming.webrtcPolicy,
     theme: incoming.theme,
+    allowlist: restored.allowlist,
+    customBlocks: restored.customBlocks,
   };
   if (["system", "en", "tr"].includes(incoming.language)) {
     patch.language = incoming.language;
-  }
-  if (restoreMode === "merge") {
-    patch.allowlist = unionLists(state.settings.allowlist, incomingAllowlist);
-    patch.customBlocks = unionLists(state.settings.customBlocks, incomingCustomBlocks);
-  } else {
-    patch.allowlist = incomingAllowlist === null ? state.settings.allowlist : incomingAllowlist;
-    patch.customBlocks = incomingCustomBlocks === null ? state.settings.customBlocks : incomingCustomBlocks;
   }
   state.settings = await updateSettings(patch);
   await applyState(true);
@@ -967,30 +952,9 @@ async function handleMessage(message, sender) {
     return { ok: false, error: t("errorInvalidSender") };
   }
   const type = message && message.type;
-  const isExtensionPage = typeof sender.url === "string" && sender.url.startsWith(chrome.runtime.getURL(""));
-  const PRIVILEGED = new Set([
-    "getState",
-    "getPopup",
-    "getDashboard",
-    "getTabInfo",
-    "getEvents",
-    "checkUrl",
-    "getBlockedTarget",
-    "clearEvents",
-    "setSetting",
-    "syncNow",
-    "allowOnce",
-    "removeTabAllow",
-    "panic",
-    "restore",
-    "resetAll",
-    "importData",
-    "exportData",
-    "openWelcome",
-    "dismissUpdate",
-  ]);
+  const isExtensionPage = isExtensionPageSender(sender.url, chrome.runtime.getURL(""));
   const SELF_ONLY = new Set(["addCustomDomain", "removeCustomDomain", "allowDomain", "removeAllowedDomain"]);
-  if (PRIVILEGED.has(type) && !isExtensionPage) {
+  if (requiresPrivilege(type) && !isExtensionPage) {
     return { ok: false, error: t("errorInvalidSender") };
   }
   if (SELF_ONLY.has(type) && !isExtensionPage) {
