@@ -329,6 +329,7 @@ export const EN_FALLBACK = {
   "typeBlocked": "Blocked",
   "typeCustom": "Rule",
   "typeDetected": "Detected",
+  "typeError": "Error",
   "typeInfo": "Info",
   "typeLabel": "Type",
   "typeSync": "Refresh",

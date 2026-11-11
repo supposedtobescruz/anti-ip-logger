@@ -67,6 +67,7 @@ const state = {
   syncing: null,
   recentBlocks: new Map(),
   updateNag: null,
+  webrtcErrorFor: "",
 };
 
 const SYNC_ALARM = "sync-sources";
@@ -175,7 +176,15 @@ async function applyWebRtcSetting() {
 
   if (last === policy) return;
   const result = await applyWebRtcPolicy(policy);
-  if (result.ok) await chrome.storage.local.set({ [WEBRTC_MARKER_KEY]: policy });
+  if (result.ok) {
+    await chrome.storage.local.set({ [WEBRTC_MARKER_KEY]: policy });
+    state.webrtcErrorFor = "";
+    return;
+  }
+  if (state.webrtcErrorFor !== policy) {
+    state.webrtcErrorFor = policy;
+    await appendEvent({ type: "error", host: "", detail: t("errorWebrtcNotApplied") });
+  }
 }
 
 async function applyState(force = false) {
@@ -903,6 +912,13 @@ async function importData(payload) {
     customBlocks: Array.isArray(incoming.customBlocks) ? incoming.customBlocks.map(normalizeDomainInput).filter(Boolean) : state.settings.customBlocks,
   });
   await applyState(true);
+  const policy = state.settings.webrtcPolicy;
+  if (typeof policy === "string" && policy !== "default") {
+    const marker = await chrome.storage.local.get(WEBRTC_MARKER_KEY);
+    if (marker[WEBRTC_MARKER_KEY] !== policy) {
+      return { ok: true, settings: publicSettings(), warning: "errorWebrtcNotApplied" };
+    }
+  }
   return { ok: true, settings: publicSettings() };
 }
 

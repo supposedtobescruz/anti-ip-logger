@@ -483,6 +483,10 @@
     "message": "Bilgi",
     "description": "Olay türü."
   },
+  "typeError": {
+    "message": "Hata",
+    "description": "Tarayıcı düzeyinde başarısız bir eylem için olay türü etiketi."
+  },
   "eventsSearchPlaceholder": {
     "message": "alan adı veya açıklama",
     "description": "Arama yer tutucusu."

@@ -483,6 +483,10 @@
     "message": "Info",
     "description": "Event type."
   },
+  "typeError": {
+    "message": "Error",
+    "description": "Event type label for a failed browser-level action."
+  },
   "eventsSearchPlaceholder": {
     "message": "domain or description",
     "description": "Search placeholder."

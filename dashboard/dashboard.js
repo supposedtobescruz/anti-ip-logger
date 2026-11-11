@@ -39,6 +39,7 @@ const EVENT_TONES = {
   custom: "plain",
   sync: "muted",
   info: "muted",
+  error: "danger",
 };
 
 const EVENT_LABEL_KEYS = {
@@ -48,6 +49,7 @@ const EVENT_LABEL_KEYS = {
   custom: "typeCustom",
   sync: "typeSync",
   info: "typeInfo",
+  error: "typeError",
 };
 
 const PAGE_SIZE = 40;
@@ -595,6 +597,10 @@ async function confirmImport() {
   nodes.importConfirm.hidden = true;
   if (!result || !result.ok) {
     toast(result && result.error ? result.error : t("toastImportFailed"), "error");
+    return;
+  }
+  if (result.warning) {
+    toast(t(result.warning), "error");
     return;
   }
   toast(t("toastImportDone"), "ok");

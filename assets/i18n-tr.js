@@ -329,6 +329,7 @@ export const TR_FALLBACK = {
   "typeBlocked": "Engel",
   "typeCustom": "Kural",
   "typeDetected": "Tespit",
+  "typeError": "Hata",
   "typeInfo": "Bilgi",
   "typeLabel": "Tür",
   "typeSync": "Güncelleme",
