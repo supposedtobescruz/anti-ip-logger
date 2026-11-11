@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Anti IP Logger - Block IP logger links</title>
+    <meta name="description" content="Free Manifest V3 browser extension that blocks known IP logger and link grabber domains, and warns about IP leak signals in the page. English and Turkish interface." />
+    <style>
+      :root {
+        --paper: #fbf8f1;
+        --ink: #171512;
+        --ink-soft: #4c463b;
+        --ink-faint: #6b6152;
+        --rule: #d5cbb7;
+        --accent: #a51f1f;
+        --radius: 2px;
+        --font-sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+        --font-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, monospace;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-sans); font-size: 16px; line-height: 1.6; }
+      main { max-width: 820px; margin: 0 auto; padding: 48px 20px 96px; }
+      .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+      .mark { width: 34px; height: 34px; background: var(--ink); position: relative; border-radius: var(--radius); }
+      .mark::after { content: ""; position: absolute; left: 13px; top: 5px; bottom: 5px; width: 8px; background: var(--accent); border-radius: var(--radius); }
+      .brand span { font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.08em; }
+      h1 { font-size: 28px; margin: 0 0 8px; letter-spacing: -0.01em; }
+      .meta { font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint); margin-bottom: 24px; }
+      h2 { font-size: 18px; margin: 32px 0 10px; border-bottom: 1px solid var(--rule); padding-bottom: 6px; }
+      p, li { color: var(--ink-soft); }
+      .actions { display: flex; gap: 12px; flex-wrap: wrap; margin: 24px 0; padding: 0; list-style: none; }
+      .actions a { display: inline-block; padding: 10px 18px; border: 2px solid var(--ink); border-radius: var(--radius); color: var(--ink); text-decoration: none; font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.03em; }
+      .actions a.primary { background: var(--ink); color: var(--paper); }
+      .actions a:hover { border-color: var(--accent); color: var(--accent); }
+      .actions a.primary:hover { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+      .tr { border-top: 1px solid var(--rule); margin-top: 40px; padding-top: 24px; }
+      .tr h2 { border-bottom: none; margin-top: 0; padding-bottom: 0; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="brand"><span class="mark" aria-hidden="true"></span><span>ANTI IP LOGGER</span></div>
+      <h1>Anti IP Logger</h1>
+      <p class="meta">Manifest V3 · 125-domain list · English and Turkish</p>
+      <p>Anti IP Logger blocks connections to known IP logger and link grabber domains such as Grabify and IPLogger, and warns when a page behaves like it is collecting your IP address (WebRTC dumps, hidden iframes, click-less form submits and similar signals). It is not a VPN, it does not hide your IP address, and it is not a network-wide filter. It runs fully locally: settings and counters stay on your device, with no account and no telemetry.</p>
+      <ul class="actions">
+        <li><a class="primary" href="https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai">Get it for Edge</a></li>
+        <li><a href="https://github.com/supposedtobescruz/anti-ip-logger">Source on GitHub</a></li>
+        <li><a href="privacy.html">Privacy Policy</a></li>
+      </ul>
+      <h2>What it does not do</h2>
+      <p>It does not hide your IP address, does not filter traffic outside the browser, does not block ads and does not collect, transmit or sell any personal data. The blocked page shows the target address and three decisions: allow once in this tab, allow the site, or go back.</p>
+      <div class="tr" lang="tr">
+        <h2>Türkçe</h2>
+        <p>Anti IP Logger, Grabify, IPLogger ve benzeri bilinen IP logger ve link grabber alan adlarına giden bağlantıları engeller; sayfanın IP adresinizi toplamaya çalıştığını işaret eden davranışlar tespit ederse sayfa içinde uyarır. VPN değildir, IP adresinizi gizlemez, reklam engellemez ve hiçbir kişisel veri toplamaz. Her şey yalnızca tarayıcıda çalışır.</p>
+        <p lang="tr">Kurulum ve kaynak kodu: <a href="https://github.com/supposedtobescruz/anti-ip-logger">github.com/supposedtobescruz/anti-ip-logger</a></p>
+      </div>
+    </main>
+  </body>
+</html>
