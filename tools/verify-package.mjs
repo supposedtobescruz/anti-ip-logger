@@ -136,7 +136,7 @@ if (parsed) {
     const hits = names.filter((name) => name.startsWith(prefix));
     check(`zip excludes: ${prefix}*`, hits.length === 0, summarize(hits));
   }
-  const forbiddenRoot = ["antislop.md", "AGENTS.md", "package.json", "PRIVACY.md", "DESIGN.md"];
+  const forbiddenRoot = ["antislop.md", "AGENTS.md", "CHANGELOG.md", "package.json", "PRIVACY.md", "DESIGN.md"];
   for (const file of forbiddenRoot) {
     check(`zip excludes: ${file}`, !nameSet.has(file));
   }

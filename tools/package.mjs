@@ -22,6 +22,7 @@ const EXCLUDE = [
   /^_metadata\//,
   /^antislop\.md$/,
   /^AGENTS\.md$/,
+  /^CHANGELOG\.md$/,
   /^package\.json$/,
   /^readme\/assets\//,
   /^dist\//,
