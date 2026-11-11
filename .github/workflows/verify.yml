@@ -17,6 +17,9 @@ jobs:
       - name: Static checks and tests
         run: npm run verify:all
 
+      - name: Package check
+        run: npm run verify:package
+
       - name: Install Brave
         run: |
           sudo curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg

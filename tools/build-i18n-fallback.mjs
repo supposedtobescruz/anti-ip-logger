@@ -1,10 +1,16 @@
 import { readFileSync, writeFileSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-function build(locale, exportName) {
+const LANGS = [
+  { locale: "en", exportName: "EN_FALLBACK", out: "assets/i18n-en.js" },
+  { locale: "tr", exportName: "TR_FALLBACK", out: "assets/i18n-tr.js" },
+];
+
+export function buildFallback(locale) {
+  const exportName = locale === "en" ? "EN_FALLBACK" : "TR_FALLBACK";
   const raw = JSON.parse(readFileSync(join(ROOT, "_locales", locale, "messages.json"), "utf8"));
   const entries = Object.entries(raw).map(([key, value]) => [key, value.message]);
   entries.sort(([a], [b]) => a.localeCompare(b));
@@ -21,9 +27,13 @@ function build(locale, exportName) {
   return { text: out, count: entries.length };
 }
 
-const en = build("en", "EN_FALLBACK");
-const tr = build("tr", "TR_FALLBACK");
-writeFileSync(join(ROOT, "assets/i18n-en.js"), en.text, "utf8");
-writeFileSync(join(ROOT, "assets/i18n-tr.js"), tr.text, "utf8");
-console.log(`Wrote assets/i18n-en.js with ${en.count} keys`);
-console.log(`Wrote assets/i18n-tr.js with ${tr.count} keys`);
+const invokedAs = process.argv[1] ? resolve(process.argv[1]) : "";
+const isMain = invokedAs.toLowerCase() === fileURLToPath(import.meta.url).toLowerCase();
+
+if (isMain) {
+  for (const { locale, out } of LANGS) {
+    const { text, count } = buildFallback(locale);
+    writeFileSync(join(ROOT, out), text, "utf8");
+    console.log(`Wrote ${out} with ${count} keys`);
+  }
+}

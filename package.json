@@ -8,14 +8,16 @@
     "build": "node tools/build-lists.mjs && node tools/build-i18n-fallback.mjs",
     "build:offline": "node tools/build-lists.mjs --offline && node tools/build-i18n-fallback.mjs",
     "check": "node tools/build-lists.mjs --offline --check",
+    "check:i18n": "node tools/check-i18n.mjs",
     "test": "node --test tests/domains.test.mjs tests/parser.test.mjs tests/risk.test.mjs tests/rules.test.mjs",
     "verify": "node tools/verify-extension.mjs",
     "verify:ui": "node tools/verify-ui.mjs",
     "verify:browser": "node tools/verify-browser.mjs",
     "icons": "node tools/make-icons.mjs",
-    "verify:all": "npm run check && npm test && npm run verify && npm run verify:ui",
+    "verify:all": "npm run check && npm test && npm run verify && npm run verify:ui && npm run check:i18n",
     "i18n:fallback": "node tools/build-i18n-fallback.mjs",
-    "package": "node tools/package.mjs"
+    "package": "node tools/package.mjs",
+    "verify:package": "node tools/verify-package.mjs"
   },
   "engines": {
     "node": ">=20.12"
