@@ -7,7 +7,7 @@
 
 Anti IP Logger, bilinen IP logger ve link grabber alan adlarını engelleyen, ardından sayfada bulduğu IP sızıntısı girişimlerini raporlayan bir Chrome uzantısıdır. Manifest V3, vanilla JavaScript, derleme adımı yok.
 
-Sürüm 1.2.1. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisna içerir.
+Sürüm 1.2.2. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisna içerir.
 
 ## Ne yapar
 
@@ -139,7 +139,7 @@ Kural öncelik merdiveni: sekme izni 110 > izin listesi 100 > özel engel 50 > e
 
 Liste hazır ama bilinçli bir kararla henüz gönderilmedi. Hazır olanlar:
 
-- `npm run package`, `dist/anti-ip-logger-1.2.1-cws.zip` üretir (yalnızca çalışma zamanı dosyaları; çıkarılan zip tüm tarayıcı kontrollerinden geçer).
+- `npm run package`, `dist/anti-ip-logger-1.2.2-cws.zip` üretir (yalnızca çalışma zamanı dosyaları; çıkarılan zip tüm tarayıcı kontrollerinden geçer).
 - `store/` klasöründe mağaza kiti: İngilizce ve Türkçe başlık metinleri, izin gerekçeleri, her dil için beşer 1280×800 ekran görüntüsü ve tanıtım karoları (440×280 ve 1400×560).
 - Gizlilik politikası `PRIVACY.md` içinde ve bağımsız `docs/privacy.html` sayfasında durur. Gönderim için herkese açık bir URL gerekir; depo şu an gizli, seçenekler için `store/README.md`'ye bakın.
 - Başvuru kontrol listesi, geliştirici kayıt ücreti notu ve yayın adımları `store/README.md` içinde.
