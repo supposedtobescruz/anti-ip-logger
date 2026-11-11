@@ -42,12 +42,21 @@ Sürüm 1.3.0. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisn
 ## Kurulum
 
 1. Bu depoyu indirin veya klonlayın.
-2. Chrome veya Brave'de `chrome://extensions` adresini açın.
-3. **Geliştirici modu**'nu etkinleştirin (sağ üst).
-4. **Paketlenmemiş öğe yükle**'ye tıklayın ve depo kökünü seçin.
-5. Panel kurulumda açılır. Araç çubuğu simgesi açılır pencereyi açar.
+2. Tarayıcınızın uzantılar sayfasını açın: `chrome://extensions` (Chrome, Brave, Vivaldi), `edge://extensions` (Edge) veya `opera://extensions` (Opera).
+3. Depodan paketlenmemiş yükleme için **Geliştirici modu**'nu etkinleştirin (sağ üst).
+4. **Yalnızca Microsoft Edge:** Edge Add-ons'tan yükleyin: https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.3.0).
+5. **Paketlenmemiş yükleme:** **Paketlenmemiş öğe yükle**'ye tıklayın ve depo kökünü seçin.
+6. Panel kurulumda açılır. Araç çubuğu simgesi açılır pencereyi açar.
 
 `manifest.json`, seçtiğiniz dizinde bulunmalıdır. Alt klasör seçmeyin.
+
+## Tarayıcı desteği
+
+- **Microsoft Edge:** Edge Add-ons'ta yayında (yukarıdaki bağlantı), 1.3.0 olarak incelendi.
+- **Brave:** yerelde doğrulandı, Brave 157 üzerinde 32/32 tarayıcı kontrolü.
+- **Google Chrome, Opera, Vivaldi (Chromium 111 veya üzeri):** paket yalnızca standart Chromium Manifest V3 API'lerini kullanır ve `minimum_chrome_version: 111` bildirir. Çalışması beklenir; Chrome Web Store bilinçli olarak gönderilmedi ve Opera/Vivaldi bu makinede çalıştırılmadı, bu yüzden yükleyip kullanmadan önce test edin.
+- **Firefox, Safari:** henüz desteklenmiyor. Ayrı paketleme gerektirir (AMO için gecko yapısı; Safari için Xcode dönüşümü).
+- İçerik komut dosyaları MAIN dünyasında çalışır (`world: MAIN`), bu da Chromium 111 gerektirir. Sayfalar sinyal kanalını taklit edebilir; afiş elenebilir ama engel listesi elenemez, bkz. Bilinen sınırlar.
 
 ## Kullanım
 
@@ -136,14 +145,14 @@ Kural öncelik merdiveni: sekme izni 110 > izin listesi 100 > özel engel 50 > e
 - Arayüz dili, uzantı sayfalarında sayfa açıldığında uygulanır; panel ise dilini anında günceller.
 - Sinyaller yalnızca üst düzey belgede toplanır. Alt çerçevenin kendi WebRTC, form veya istek etkinliği incelenmez; böylece sahte bir iframe uyarı şeridini yönlendiremez veya içinde bulunduğu sayfa için kural oluşturamaz. Ağ engelleme her çerçevede geçerlidir.
 
-## Chrome Web Store
+## Mağaza dağıtımı
 
-Liste hazır ama bilinçli bir kararla henüz gönderilmedi. Hazır olanlar:
-
-- `npm run package`, `dist/anti-ip-logger-1.3.0-cws.zip` üretir (yalnızca çalışma zamanı dosyaları; çıkarılan zip tüm tarayıcı kontrollerinden geçer).
-- `store/` klasöründe mağaza kiti: İngilizce ve Türkçe başlık metinleri, izin gerekçeleri, her dil için beşer 1280×800 ekran görüntüsü ve tanıtım karoları (440×280 ve 1400×560).
-- Gizlilik politikası `PRIVACY.md` içinde ve bağımsız `docs/privacy.html` sayfasında durur. Gönderim için herkese açık bir URL gerekir; depo şu an gizli, seçenekler için `store/README.md`'ye bakın.
-- Başvuru kontrol listesi, geliştirici kayıt ücreti notu ve yayın adımları `store/README.md` içinde.
+- **Microsoft Edge Add-ons:** yayında, https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.3.0, 11 Kasım 2026).
+- **Chrome Web Store:** liste hazır ama bilinçli bir kararla henüz gönderilmedi. Hazır olanlar:
+  - `npm run package`, `dist/anti-ip-logger-1.3.0-cws.zip` üretir (yalnızca çalışma zamanı dosyaları; çıkarılan zip tüm tarayıcı kontrollerinden geçer).
+  - `store/` klasöründe mağaza kiti: İngilizce ve Türkçe başlık metinleri, izin gerekçeleri, ekran görüntüleri ve tanıtım karoları.
+  - Gizlilik politikası `PRIVACY.md` içinde ve bağımsız `docs/privacy.html` sayfasında durur; https://supposedtobescruz.github.io/anti-ip-logger/privacy.html adresinden servis edilir (depo public, GitHub Pages `docs/` klasöründen).
+  - Başvuru kontrol listesi ve geliştirici kayıt ücreti notu `store/README.md` içinde.
 
 ## Dil eklemek
 

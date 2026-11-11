@@ -5,7 +5,7 @@ Thanks for your interest. This document explains how to propose changes.
 ## What you need
 
 - Node.js 20.12 or newer. No dependency install step: the runtime has no npm dependencies and the tools need none beyond Node.
-- A Chromium browser with developer mode for live testing (Brave recommended).
+- A Chromium browser with developer mode for live testing (Brave or Edge recommended; Opera/Vivaldi expected to work, untested).
 
 ## Before you start
 

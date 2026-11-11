@@ -42,12 +42,21 @@ Version 1.3.0. The bundled list ships 125 domains in 2 static rules, with 61 exc
 ## Install
 
 1. Download or clone this repository.
-2. Open `chrome://extensions` in Chrome or Brave.
-3. Enable **Developer mode** (top right).
-4. Click **Load unpacked** and pick the repository root.
-5. The panel opens on install. The toolbar icon opens the popup.
+2. Open your browser's extensions page: `chrome://extensions` (Chrome, Brave, Vivaldi), `edge://extensions` (Edge) or `opera://extensions` (Opera).
+3. Enable **Developer mode** (top right) if you are installing unpacked from the repository.
+4. **Microsoft Edge only:** install from Edge Add-ons at https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.3.0).
+5. **Unpacked install:** click **Load unpacked** and pick the repository root.
+6. The panel opens on install. The toolbar icon opens the popup.
 
 `manifest.json` must be in the directory you pick. Do not select a subfolder.
+
+## Browser support
+
+- **Microsoft Edge:** published in Edge Add-ons (see link above), reviewed as 1.3.0.
+- **Brave:** verified locally, 32/32 browser checks on Brave 157.
+- **Google Chrome, Opera, Vivaldi (Chromium 111 or newer):** the package uses only standard Chromium Manifest V3 APIs and declares `minimum_chrome_version: 111`. Expected to work; Chrome Web Store is deliberately not submitted yet, and Opera/Vivaldi were not run on this machine, so load unpacked and test before relying on them.
+- **Firefox, Safari:** not supported yet. They require different packaging (gecko ring for AMO; Xcode conversion for Safari).
+- Content scripts run in the MAIN world (`world: MAIN`), which requires Chromium 111. Pages that spoof the signal channel can fool the banner, not the blocklist; see Known limits.
 
 ## Usage
 
@@ -136,14 +145,14 @@ Rule priority ladder: tab allow 110 > allowlist 100 > custom block 50 > blocked 
 - The interface language applies to extension pages when they open, while the dashboard updates immediately.
 - Signals are collected in the top-level document only. A subframe's own WebRTC, form or request activity is not inspected, so a forged iframe cannot steer the banner or create a rule for the page it sits in. Network blocking still applies in every frame.
 
-## Chrome Web Store
+## Store distribution
 
-The listing is prepared but not submitted yet, by deliberate decision. What is ready:
-
-- `npm run package` builds `dist/anti-ip-logger-1.3.0-cws.zip` (runtime files only; the extracted zip passes all browser checks).
-- Store kit in `store/`: English and Turkish listings, permission justifications, five 1280×800 screenshots each, and promotional tiles (440×280 and 1400×560).
-- The privacy policy lives in `PRIVACY.md` and a standalone `docs/privacy.html`. It must be served from a public URL to submit; the repository is private, see `store/README.md` for the options.
-- A submission checklist, the developer registration fee note and the rollout steps are in `store/README.md`.
+- **Microsoft Edge Add-ons:** published, https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.3.0, 11 Nov 2026).
+- **Chrome Web Store:** the listing is prepared but not submitted yet, by deliberate decision. What is ready:
+  - `npm run package` builds `dist/anti-ip-logger-1.3.0-cws.zip` (runtime files only; the extracted zip passes all browser checks).
+  - Store kit in `store/`: English and Turkish listings, permission justifications, screenshots, promotional tiles.
+  - The privacy policy lives in `PRIVACY.md` and `docs/privacy.html`, served at https://supposedtobescruz.github.io/anti-ip-logger/privacy.html (repository is public, GitHub Pages from `docs/`).
+  - A submission checklist is in `store/README.md`; the developer registration fee note is there as well.
 
 ## Adding a language
 
