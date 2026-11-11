@@ -4,6 +4,7 @@
   if (window[FLAG]) return;
   window[FLAG] = true;
   const IS_TOP = window.top === window;
+  if (!IS_TOP) return;
   const gt = (key, substitutions) => {
     try {
       const value = chrome.i18n.getMessage(key, substitutions || []);
@@ -16,6 +17,7 @@
   const local = {
     gesture: false,
     disabled: false,
+    quietUntil: 0,
     bannerDismissed: false,
     autoForm: false,
     hiddenPixels: [],
@@ -161,8 +163,9 @@
       const host = hostOf(img.src);
       if (!host || sameSite(host, pageHost) || noisy(host)) continue;
       if (!isSuspiciousElement(img)) continue;
-      if (!local.hiddenPixels.includes(img.src) && local.hiddenPixels.length < 20) {
-        local.hiddenPixels.push(img.src);
+      // Only the host is kept: a full image URL can carry tokens and identifiers.
+      if (!local.hiddenPixels.includes(host) && local.hiddenPixels.length < 20) {
+        local.hiddenPixels.push(host);
       }
     }
 
@@ -172,8 +175,8 @@
       const host = hostOf(src);
       if (!host || sameSite(host, pageHost) || noisy(host)) continue;
       if (!isSuspiciousElement(frame)) continue;
-      if (!local.hiddenFrames.includes(src) && local.hiddenFrames.length < 20) {
-        local.hiddenFrames.push(src);
+      if (!local.hiddenFrames.includes(host) && local.hiddenFrames.length < 20) {
+        local.hiddenFrames.push(host);
       }
     }
 
@@ -210,6 +213,7 @@
   function sendReport() {
     if (local.disabled) return;
     const now = Date.now();
+    if (now < local.quietUntil) return;
     if (now - local.lastReport < 800) return;
     local.lastReport = now;
     const host = location.hostname;
@@ -227,7 +231,10 @@
           if (chrome.runtime.lastError) return;
           if (!response || !response.ok) return;
           if (response.enabled === false) {
-            local.disabled = true;
+            // Protection turned off: back off instead of latching forever, so a
+            // later re-enable takes effect without reloading the page.
+            local.quietUntil = Date.now() + 60_000;
+            setTimeout(() => scheduleReport(true), 60_000);
             return;
           }
           if (response.showBanner && !local.bannerDismissed && IS_TOP) {

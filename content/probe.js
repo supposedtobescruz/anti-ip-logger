@@ -5,6 +5,7 @@
   window[FLAG] = true;
 
   const IS_TOP = window.top === window;
+  if (!IS_TOP) return;
 
   const state = {
     gesture: false,

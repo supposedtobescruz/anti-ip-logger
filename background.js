@@ -454,9 +454,16 @@ async function visibleUpdateNag() {
 async function checkForUpdate() {
   const response = await fetch(GIST_VERSION_URL, { cache: "no-store" });
   if (!response.ok) return;
-  const payload = await response.json().catch(() => null);
+  const text = await response.text();
+  if (text.length > 64 * 1024) return;
+  let payload = null;
+  try {
+    payload = JSON.parse(text);
+  } catch {
+    return;
+  }
   const latest = payload && typeof payload.latest === "string" ? payload.latest.trim() : "";
-  if (!latest) return;
+  if (!/^\d+\.\d+\.\d+$/.test(latest)) return;
   const current = chrome.runtime.getManifest().version;
   if (!isNewerVersion(latest, current)) {
     if (state.updateNag) {
@@ -478,7 +485,7 @@ async function fetchSource(source) {
   try {
     const response = await fetch(source.url, {
       signal: controller.signal,
-      headers: { "user-agent": "anti-ip-logger/2.0" },
+      headers: { "user-agent": `anti-ip-logger/${chrome.runtime.getManifest().version}` },
       cache: "no-store",
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -622,6 +629,7 @@ async function syncTier(tier) {
     allOk,
     tier,
     count,
+    total: tier === "core" ? state.remoteCore.length : state.extended.length,
     reports,
     error: anyOk ? "" : t("syncAllFailedShort"),
   };
@@ -723,6 +731,14 @@ async function reportSignals(message, sender) {
   const tabId = sender && sender.tab ? sender.tab.id : message.tabId;
   if (!Number.isFinite(tabId)) return { ok: false, enabled: state.settings.enabled };
 
+  const frameId = sender && Number.isFinite(sender.frameId) ? sender.frameId : 0;
+  if (frameId !== 0) {
+    // Signals are only accepted from the top frame. A subframe can forge the
+    // channel, and its signals would otherwise decide a banner whose buttons
+    // create a persistent rule for the top page's host.
+    return { ok: true, ignored: true, enabled: state.settings.enabled };
+  }
+
   const pageUrl = (sender && sender.tab && sender.tab.url) || message.page || "";
   const host = urlToHost(pageUrl) || normalizeHost(message.host) || "";
   if (!host) return { ok: false, enabled: state.settings.enabled };
@@ -751,9 +767,7 @@ async function reportSignals(message, sender) {
   };
 
   let showBanner = false;
-  const isTopFrame = !sender || sender.frameId === undefined || sender.frameId === 0;
   if (
-    isTopFrame &&
     state.settings.enabled &&
     state.settings.warnings &&
     !allowed &&
@@ -898,6 +912,13 @@ async function handleMessage(message, sender) {
   const type = message && message.type;
   const isExtensionPage = typeof sender.url === "string" && sender.url.startsWith(chrome.runtime.getURL(""));
   const PRIVILEGED = new Set([
+    "getState",
+    "getPopup",
+    "getDashboard",
+    "getTabInfo",
+    "getEvents",
+    "checkUrl",
+    "getBlockedTarget",
     "clearEvents",
     "setSetting",
     "syncNow",
@@ -1126,7 +1147,7 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 });
 
 if (chrome.declarativeNetRequest.onRuleMatchedDebug) {
-  chrome.declarativeNetRequest.onRuleMatchedDebug.addListener(async (info) => {
+  chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((info) => {
     if (!info || !info.request || info.request.type === "main_frame") return;
     const url = info.request.url || "";
     const host = urlToHost(url);
@@ -1141,7 +1162,8 @@ if (chrome.declarativeNetRequest.onRuleMatchedDebug) {
         if (now - ts > 60_000) state.recentBlocks.delete(item);
       }
     }
-    await appendEvent({ type: "blocked", host, detail: t("eventSubresourceBlocked"), tabId: info.request.tabId });
+    appendEvent({ type: "blocked", host, detail: t("eventSubresourceBlocked"), tabId: info.request.tabId })
+      .catch((error) => reportBackgroundError("rule-matched", error));
   });
 }
 
