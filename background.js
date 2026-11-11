@@ -3,6 +3,7 @@ import {
   CLEANUP_ALARM_MINUTES,
   PAGE_STATE_TTL_MS,
   GIST_VERSION_URL,
+  MAX_LIST_ENTRIES,
 } from "./lib/constants.js";
 import { normalizeHost, parseList, parseDnrJson, dedupeSubdomains } from "./lib/parser.js";
 import { t } from "./assets/i18n.js";
@@ -896,21 +897,46 @@ async function exportData() {
   };
 }
 
-async function importData(payload) {
+function normalizeBackupList(value) {
+  if (!Array.isArray(value)) return null;
+  const normalized = value.map(normalizeDomainInput).filter(Boolean);
+  return [...new Set(normalized)].sort().slice(0, MAX_LIST_ENTRIES);
+}
+
+function unionLists(existing, incoming) {
+  return [...new Set([...(existing || []), ...(incoming || [])])].sort().slice(0, MAX_LIST_ENTRIES);
+}
+
+async function importData(payload, mode) {
   if (!payload || typeof payload !== "object" || !payload.settings) {
     return { ok: false, error: t("errorInvalidBackup") };
   }
+  const restoreMode = mode === undefined || mode === null || mode === "" ? "replace" : mode;
+  if (restoreMode !== "replace" && restoreMode !== "merge") {
+    return { ok: false, error: t("errorInvalidBackup") };
+  }
   const incoming = payload.settings;
-  state.settings = await updateSettings({
+  const incomingAllowlist = normalizeBackupList(incoming.allowlist);
+  const incomingCustomBlocks = normalizeBackupList(incoming.customBlocks);
+  const patch = {
     enabled: incoming.enabled,
     tiers: incoming.tiers,
     showBlockedPage: incoming.showBlockedPage,
     warnings: incoming.warnings,
     webrtcPolicy: incoming.webrtcPolicy,
     theme: incoming.theme,
-    allowlist: Array.isArray(incoming.allowlist) ? incoming.allowlist.map(normalizeDomainInput).filter(Boolean) : state.settings.allowlist,
-    customBlocks: Array.isArray(incoming.customBlocks) ? incoming.customBlocks.map(normalizeDomainInput).filter(Boolean) : state.settings.customBlocks,
-  });
+  };
+  if (["system", "en", "tr"].includes(incoming.language)) {
+    patch.language = incoming.language;
+  }
+  if (restoreMode === "merge") {
+    patch.allowlist = unionLists(state.settings.allowlist, incomingAllowlist);
+    patch.customBlocks = unionLists(state.settings.customBlocks, incomingCustomBlocks);
+  } else {
+    patch.allowlist = incomingAllowlist === null ? state.settings.allowlist : incomingAllowlist;
+    patch.customBlocks = incomingCustomBlocks === null ? state.settings.customBlocks : incomingCustomBlocks;
+  }
+  state.settings = await updateSettings(patch);
   await applyState(true);
   const policy = state.settings.webrtcPolicy;
   if (typeof policy === "string" && policy !== "default") {
@@ -1049,7 +1075,7 @@ async function handleMessage(message, sender) {
     case "exportData":
       return exportData();
     case "importData":
-      return importData(message.payload);
+      return importData(message.payload, message.mode);
     case "openDashboard":
       await chrome.runtime.openOptionsPage();
       return { ok: true };

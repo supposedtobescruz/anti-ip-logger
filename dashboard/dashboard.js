@@ -12,6 +12,8 @@ import {
   resolvedTheme,
 } from "../assets/ui.js";
 import { t, applyI18n, initLanguage } from "../assets/i18n.js";
+import { normalizeHost } from "../lib/parser.js";
+import { MAX_LIST_ENTRIES } from "../lib/constants.js";
 
 const ROUTES = {
   overview: { titleKey: "routeOverviewTitle", eyebrowKey: "routeOverviewEyebrow" },
@@ -138,6 +140,7 @@ const nodes = {
   exportButton: document.getElementById("export-button"),
   importButton: document.getElementById("import-button"),
   importFile: document.getElementById("import-file"),
+  importMode: document.getElementById("import-mode"),
   importConfirm: document.getElementById("import-confirm"),
   importConfirmText: document.getElementById("import-confirm-text"),
   importConfirmButton: document.getElementById("import-confirm-button"),
@@ -552,12 +555,38 @@ async function exportData() {
   toast(t("toastExportDone"), "ok");
 }
 
-function importSummary(settings) {
-  const allow = Array.isArray(settings.allowlist) ? settings.allowlist.length : 0;
-  const custom = Array.isArray(settings.customBlocks) ? settings.customBlocks.length : 0;
+function normalizeBackupList(value) {
+  if (!Array.isArray(value)) return null;
+  const normalized = value.map(normalizeHost).filter(Boolean);
+  return [...new Set(normalized)].sort().slice(0, MAX_LIST_ENTRIES);
+}
+
+function unionLists(existing, incoming) {
+  return [...new Set([...(existing || []), ...(incoming || [])])].sort().slice(0, MAX_LIST_ENTRIES);
+}
+
+function currentImportMode() {
+  return nodes.importMode && nodes.importMode.value === "merge" ? "merge" : "replace";
+}
+
+function resultListCount(current, incoming, mode) {
+  if (mode === "merge") return unionLists(current, incoming).length;
+  if (incoming === null) return Array.isArray(current) ? current.length : 0;
+  return incoming.length;
+}
+
+const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
+
+function importSummary(payload, mode) {
+  const settings = payload && payload.settings ? payload.settings : {};
+  const current = state.data && state.data.settings ? state.data.settings : {};
+  const allowlist = resultListCount(current.allowlist, normalizeBackupList(settings.allowlist), mode);
+  const customBlocks = resultListCount(current.customBlocks, normalizeBackupList(settings.customBlocks), mode);
   const protection = settings.enabled === false ? t("switchOff") : t("switchOn");
   const policy = typeof settings.webrtcPolicy === "string" ? settings.webrtcPolicy : "default";
-  return t("importConfirmText", [protection, formatNumber(allow), formatNumber(custom), policy]);
+  const version = typeof payload.version === "string" && VERSION_PATTERN.test(payload.version) ? payload.version : t("importVersionUnknown");
+  const modeLabel = t(mode === "merge" ? "importModeMerge" : "importModeReplace");
+  return t("importConfirmText", [modeLabel, protection, formatNumber(allowlist), formatNumber(customBlocks), policy, version]);
 }
 
 function importData(file) {
@@ -579,7 +608,8 @@ function importData(file) {
       return;
     }
     state.pendingImport = payload;
-    nodes.importConfirmText.textContent = importSummary(payload.settings);
+    if (nodes.importMode) nodes.importMode.value = "replace";
+    nodes.importConfirmText.textContent = importSummary(payload, currentImportMode());
     nodes.importConfirm.hidden = false;
     nodes.importConfirmButton.focus();
   };
@@ -592,7 +622,7 @@ async function confirmImport() {
   const payload = state.pendingImport;
   state.pendingImport = null;
   setBusy(nodes.importConfirmButton, true, t("importingButton"));
-  const result = await send({ type: "importData", payload });
+  const result = await send({ type: "importData", payload, mode: currentImportMode() });
   setBusy(nodes.importConfirmButton, false);
   nodes.importConfirm.hidden = true;
   if (!result || !result.ok) {
@@ -770,8 +800,14 @@ function bind() {
   nodes.importConfirmButton.addEventListener("click", confirmImport);
   nodes.importCancel.addEventListener("click", () => {
     state.pendingImport = null;
+    if (nodes.importMode) nodes.importMode.value = "replace";
     nodes.importConfirm.hidden = true;
     nodes.importButton.focus();
+  });
+  nodes.importMode.addEventListener("change", () => {
+    if (state.pendingImport) {
+      nodes.importConfirmText.textContent = importSummary(state.pendingImport, currentImportMode());
+    }
   });
 
   nodes.resetButton.addEventListener("click", () => {

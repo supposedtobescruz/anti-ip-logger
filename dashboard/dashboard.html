@@ -423,6 +423,13 @@
               </div>
               <p class="hint" id="data-note">Backup contains settings, counters and the event log. Restoring only changes settings.</p>
               <div class="confirm" id="import-confirm" hidden>
+                <div class="field">
+                  <label class="field__label" for="import-mode" data-i18n="importModeLabel">Restore mode</label>
+                  <select class="select" id="import-mode">
+                    <option value="replace" data-i18n="importModeReplace">Replace current settings</option>
+                    <option value="merge" data-i18n="importModeMerge">Merge lists into current settings</option>
+                  </select>
+                </div>
                 <p class="confirm__text" id="import-confirm-text"></p>
                 <div class="row gap-8">
                   <button class="btn btn--danger" id="import-confirm-button" type="button" data-i18n="importConfirmButton">Restore backup</button>

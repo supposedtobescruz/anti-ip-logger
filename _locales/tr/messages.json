@@ -732,8 +732,24 @@
     "description": "İçe aktarım onay iptal düğmesi."
   },
   "importConfirmText": {
-    "message": "Bu yedek korumayı $1 konumuna getirir, $2 alan adına izin verir, $3 özel alan adını engeller ve WebRTC ayarını $4 yapar. Mevcut ayarların yerini alır.",
-    "description": "İçe aktarım onay özeti."
+    "message": "Mod: $1. Koruma $2. İzin listesinde $3 alan adı, özel engel listesinde $4 alan adı olur. WebRTC politikası: $5. Yedek sürümü: $6.",
+    "description": "İçe aktarım onay özeti. $1 geri yükleme modu etiketidir, $2 açık veya kapalıdır, $3 ve $4 sonuçtaki izin listesi ve özel engel sayılarıdır, $5 WebRTC politikasıdır, $6 yedek sürümüdür veya bilinmiyor metnidir."
+  },
+  "importModeLabel": {
+    "message": "Geri yükleme modu",
+    "description": "İçe aktarım onay bloğundaki geri yükleme modu seçim kutusu etiketi."
+  },
+  "importModeReplace": {
+    "message": "Mevcut ayarların üzerine yaz",
+    "description": "Geri yükleme modu seçeneği. Yedekteki ayarlar mevcut ayarların yerini alır."
+  },
+  "importModeMerge": {
+    "message": "Listeleri mevcut ayarlarla birleştir",
+    "description": "Geri yükleme modu seçeneği. İzin listesi ve özel engeller mevcut listelerle birleştirilir."
+  },
+  "importVersionUnknown": {
+    "message": "bilinmiyor",
+    "description": "Yedek sürümü eksik veya geçersizse içe aktarım onay özetinde gösterilir."
   },
   "importingButton": {
     "message": "Geri yükleniyor...",

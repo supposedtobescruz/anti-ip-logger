@@ -732,8 +732,24 @@
     "description": "Import confirmation cancel button."
   },
   "importConfirmText": {
-    "message": "This backup sets protection $1, allows $2 domains, blocks $3 custom domains, and sets WebRTC to $4. It replaces the current settings.",
-    "description": "Import confirmation summary."
+    "message": "Mode: $1. Protection $2. Allowlist will contain $3 domains, custom blocks $4. WebRTC policy: $5. Backup version: $6.",
+    "description": "Import confirmation summary. $1 is the restore mode label, $2 is on or off, $3 and $4 are the resulting allowlist and custom block counts, $5 is the WebRTC policy, $6 is the backup version or unknown."
+  },
+  "importModeLabel": {
+    "message": "Restore mode",
+    "description": "Label for the restore mode select in the import confirmation block."
+  },
+  "importModeReplace": {
+    "message": "Replace current settings",
+    "description": "Restore mode option. Incoming settings replace the current ones."
+  },
+  "importModeMerge": {
+    "message": "Merge lists into current settings",
+    "description": "Restore mode option. Allowlist and custom blocks are merged into the current lists."
+  },
+  "importVersionUnknown": {
+    "message": "unknown",
+    "description": "Shown in the import confirmation summary when the backup version is missing or invalid."
   },
   "importingButton": {
     "message": "Restoring...",
