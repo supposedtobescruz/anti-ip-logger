@@ -16,10 +16,13 @@ const BROWSER_CANDIDATES = [
   "C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\brave.exe",
   "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
   "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+  "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+  "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
   "/usr/bin/brave-browser",
   "/opt/brave.com/brave/brave-browser",
   "/usr/bin/google-chrome",
   "/usr/bin/google-chrome-stable",
+  "/usr/bin/microsoft-edge",
   "/usr/bin/chromium",
   "/usr/bin/chromium-browser",
   "/snap/bin/chromium",
@@ -140,6 +143,53 @@ async function connect(target, { page = true } = {}) {
   return client;
 }
 
+// Edge ships built-in extension workers whose URLs also end with "/background.js",
+// so the suffix alone cannot identify our worker. Probe each candidate's manifest.
+let ourIdentity = null;
+async function ourManifestIdentity() {
+  if (ourIdentity) return ourIdentity;
+  const manifest = JSON.parse(await readFile(join(EXTENSION_PATH, "manifest.json"), "utf8"));
+  let name = manifest.name;
+  const match = /^__MSG_(.+)__$/.exec(name);
+  if (match) {
+    try {
+      const locale = manifest.default_locale || "en";
+      const messages = JSON.parse(await readFile(join(EXTENSION_PATH, "_locales", locale, "messages.json"), "utf8"));
+      name = messages[match[1]]?.message || name;
+    } catch {
+      // Locale unreadable; keep the raw manifest name.
+    }
+  }
+  ourIdentity = { name, version: manifest.version };
+  return ourIdentity;
+}
+
+const probeCache = new Map();
+async function isOurExtensionWorker(target) {
+  const host = new URL(target.url).host;
+  if (probeCache.has(host)) return probeCache.get(host);
+  let ours = false;
+  let probe = null;
+  try {
+    const identity = await ourManifestIdentity();
+    probe = new Cdp(target.webSocketDebuggerUrl);
+    await probe.ready;
+    await probe.send("Runtime.enable");
+    const result = await probe.send("Runtime.evaluate", {
+      expression: "JSON.stringify({ name: chrome.runtime.getManifest().name, version: chrome.runtime.getManifest().version })",
+      returnByValue: true,
+    });
+    const info = JSON.parse(result.result.value);
+    ours = info.name === identity.name && info.version === identity.version;
+  } catch {
+    ours = false;
+  } finally {
+    if (probe) probe.close();
+  }
+  probeCache.set(host, ours);
+  return ours;
+}
+
 async function evaluate(client, expression) {
   const result = await client.send("Runtime.evaluate", {
     expression: `(async () => { ${expression} })()`,
@@ -224,16 +274,31 @@ async function run() {
     port = Number(lines[0]);
     check("browser debug port opened", Number.isFinite(port) && port > 0, String(port));
 
+    const listExtensionWorkers = async () => {
+      const response = await fetch(`http://127.0.0.1:${port}/json/list`);
+      const targets = await response.json();
+      return targets.filter((target) => target.type === "service_worker" && target.url.startsWith("chrome-extension://"));
+    };
     const worker = await waitFor(
       async () => {
-        const response = await fetch(`http://127.0.0.1:${port}/json/list`);
-        const targets = await response.json();
-        return targets.find((target) => target.type === "service_worker" && target.url.startsWith("chrome-extension://"));
+        const workers = await listExtensionWorkers();
+        const ordered = [
+          ...workers.filter((target) => target.url.endsWith("/background.js")),
+          ...workers.filter((target) => !target.url.endsWith("/background.js")),
+        ];
+        for (const target of ordered) {
+          if (await isOurExtensionWorker(target)) return target;
+        }
+        return null;
       },
       20_000,
       "service worker",
-    );
-    check("service worker loaded", Boolean(worker), worker.url);
+    ).catch(async () => {
+      const workers = await listExtensionWorkers();
+      return workers.find((target) => target.url.endsWith("/background.js")) || workers[0] || null;
+    });
+    check("service worker loaded", Boolean(worker), worker ? worker.url : "not found");
+    if (!worker) throw new Error("service worker not found");
 
     const extensionId = new URL(worker.url).host;
     check("extension id read", /^[a-p]{32}$/.test(extensionId), extensionId);
