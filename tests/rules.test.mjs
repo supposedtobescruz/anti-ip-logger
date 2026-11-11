@@ -121,5 +121,28 @@ test("summary counts rule identities by base range", () => {
   assert.equal(summary.allow, 1);
   assert.equal(summary.custom, 1);
   assert.equal(summary.extended, 1);
-  assert.equal(summary.blockedPage, 1);
+  assert.equal(summary.blockedPage, 2);
+});
+
+test("a disabled core tier removes remote core blocks and redirects", () => {
+  const rules = buildDynamicRuleSet(
+    lists({ packagedCore: ["packaged.example.com"], remoteCore: ["remote.example.com"] }),
+    settings({ tiers: { core: false, extended: false }, showBlockedPage: true }),
+  );
+  assert.equal(rules.filter((rule) => rule.priority === PRIORITY.core).length, 0);
+  assert.equal(rules.filter((rule) => rule.action.type === "redirect").length, 0);
+});
+
+test("threat block rules are reserved before threat redirect rules", () => {
+  const extended = Array.from({ length: 300 }, (_, i) => `t${i}.example.net`);
+  const deep = buildDynamicRuleSetDetailed(
+    lists({ extended }),
+    settings({ tiers: { core: true, extended: true }, showBlockedPage: true }),
+    5,
+  );
+  const summary = summarizeRules(deep.rules);
+  assert.equal(summary.extended, 3);
+  assert.equal(summary.blockedPage, 2);
+  assert.equal(deep.dropped.extendedDomains, 0);
+  assert.equal(deep.dropped.redirectDomains, 100);
 });

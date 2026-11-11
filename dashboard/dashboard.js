@@ -252,7 +252,7 @@ function renderOverview(data) {
   nodes.tileRulesNote.textContent = dnr.staticRulesetEnabled ? t("tileRulesStatic") : t("tileRulesDynamicOnly");
 
   nodes.coverageCore.textContent = formatNumber(lists.packaged.length);
-  nodes.coverageRemote.textContent = formatNumber(lists.remoteCoreCount);
+  nodes.coverageRemote.textContent = settings.tiers.core ? formatNumber(lists.remoteCoreCount) : t("offLabel");
   nodes.coverageExtended.textContent = settings.tiers.extended ? formatNumber(lists.extendedCount) : t("offLabel");
   nodes.coverageAllow.textContent = formatNumber(lists.allowlist.length);
   nodes.coverageTab.textContent = formatNumber(data.tabAllowCount);

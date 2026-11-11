@@ -282,7 +282,7 @@ function classifyHost(host) {
     };
   }
 
-  const remoteMatch = matchDomain(clean, state.remoteCoreSet);
+  const remoteMatch = state.settings.tiers.core ? matchDomain(clean, state.remoteCoreSet) : null;
   if (remoteMatch) {
     return { known: true, allowed: false, domain: remoteMatch, category: "other", confidence: "feed", sources: ["remote"], origin: "remote" };
   }
@@ -422,7 +422,7 @@ async function getDashboardData() {
       packaged: state.packagedEntries,
       allowlist: settings.allowlist,
       custom: settings.customBlocks,
-      remoteCoreCount: state.remoteCore.length,
+      remoteCoreCount: settings.tiers.core ? state.remoteCore.length : 0,
       extendedCount: state.extended.length,
     },
     sources: state.sourceConfig.map((source) => ({
