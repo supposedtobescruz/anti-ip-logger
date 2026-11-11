@@ -719,6 +719,22 @@
     "message": "Vazgeç",
     "description": "İptal düğmesi."
   },
+  "importConfirmButton": {
+    "message": "Yedeği geri yükle",
+    "description": "İçe aktarım onay düğmesi."
+  },
+  "importCancelButton": {
+    "message": "Vazgeç",
+    "description": "İçe aktarım onay iptal düğmesi."
+  },
+  "importConfirmText": {
+    "message": "Bu yedek korumayı $1 konumuna getirir, $2 alan adına izin verir, $3 özel alan adını engeller ve WebRTC ayarını $4 yapar. Mevcut ayarların yerini alır.",
+    "description": "İçe aktarım onay özeti."
+  },
+  "importingButton": {
+    "message": "Geri yükleniyor...",
+    "description": "Arka plan yedeği uygularken içe aktarım düğmesi."
+  },
   "aboutCardTitle": {
     "message": "Hakkında",
     "description": "Kart başlığı."
@@ -931,6 +947,10 @@
     "message": "Ayarlar yedekten yüklendi.",
     "description": "İçe aktarım toast'u."
   },
+  "toastImportTooLarge": {
+    "message": "Yedek 1 MB sınırından büyük olduğu için okunmadı.",
+    "description": "Seçilen yedek boyut sınırını aştığında gösterilen toast."
+  },
   "toastImportReadFailed": {
     "message": "Dosya okunamadı.",
     "description": "Okuma hatası toast'u."
@@ -970,6 +990,14 @@
   "syncResultAdded": {
     "message": "$1 yeni alan adı eklendi.",
     "description": "Senkron sonuç satırı."
+  },
+  "syncResultCurrent": {
+    "message": "Liste zaten güncel.",
+    "description": "Yeni alan adı eklenmediğinde gösterilen senkron sonuç satırı."
+  },
+  "toastSyncCurrent": {
+    "message": "Liste zaten güncel.",
+    "description": "Senkron yeni alan adı eklemediğinde gösterilen toast."
   },
   "syncResultPartial": {
     "message": "Bazı kaynaklar yanıt vermedi, mevcut liste korundu.",
@@ -1230,6 +1258,14 @@
   "errorInvalidSetting": {
     "message": "Geçersiz ayar.",
     "description": "Hata mesajı."
+  },
+  "errorWebrtcNotApplied": {
+    "message": "Tarayıcı WebRTC politikasını kabul etmedi. Bir cihaz politikası veya başka bir uzantı ayarı kilitliyor olabilir.",
+    "description": "Gizlilik API'si istenen WebRTC politikasını reddettiğinde gösterilen hata."
+  },
+  "errorWebrtcRestoreFailed": {
+    "message": "WebRTC politikası geri alınamadı, bu yüzden hiçbir şey sıfırlanmadı. Ayarların değişmedi.",
+    "description": "Sıfırlama, tarayıcı geneli WebRTC politikasını geri alamadığında gösterilen hata."
   },
   "errorInvalidBackup": {
     "message": "Geçerli bir yedek dosyası değil.",

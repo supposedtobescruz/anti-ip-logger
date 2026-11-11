@@ -838,7 +838,18 @@ async function setSetting(key, value) {
   };
   if (!allowed[key] || !allowed[key](value)) return { ok: false, error: t("errorInvalidSetting") };
 
+  const previous = state.settings[key];
   state.settings = await updateSettings({ [key]: value });
+  if (key === "webrtcPolicy" && value !== "default") {
+    await applyState(true);
+    const marker = await chrome.storage.local.get(WEBRTC_MARKER_KEY);
+    if (marker[WEBRTC_MARKER_KEY] !== value) {
+      state.settings = await updateSettings({ webrtcPolicy: previous });
+      await applyState(true);
+      return { ok: false, error: t("errorWebrtcNotApplied") };
+    }
+    return { ok: true, settings: publicSettings() };
+  }
   if (key !== "theme" && key !== "onboardingSeen" && key !== "warnings" && key !== "language") {
     await applyState(true);
   }
@@ -848,10 +859,15 @@ async function setSetting(key, value) {
 async function resetEverything() {
   const markerData = await chrome.storage.local.get(WEBRTC_MARKER_KEY);
   const appliedPolicy = typeof markerData[WEBRTC_MARKER_KEY] === "string" ? markerData[WEBRTC_MARKER_KEY] : "";
-  await resetAll();
   if (appliedPolicy && appliedPolicy !== "default") {
-    await applyWebRtcPolicy("default");
+    const restored = await applyWebRtcPolicy("default");
+    if (!restored.ok) {
+      // Keep every marker and setting in place: wiping now would erase the only
+      // record that the browser-wide policy came from this extension.
+      return { ok: false, error: t("errorWebrtcRestoreFailed") };
+    }
   }
+  await resetAll();
   state.initialized = false;
   state.dnr = null;
   state.appliedSignature = "";

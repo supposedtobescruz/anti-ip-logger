@@ -421,6 +421,13 @@
                 <button class="btn btn--danger" id="reset-button" type="button" data-i18n="resetButton">Reset all data</button>
               </div>
               <p class="hint" id="data-note">Backup contains settings, counters and the event log. Restoring only changes settings.</p>
+              <div class="confirm" id="import-confirm" hidden>
+                <p class="confirm__text" id="import-confirm-text"></p>
+                <div class="row gap-8">
+                  <button class="btn btn--danger" id="import-confirm-button" type="button" data-i18n="importConfirmButton">Restore backup</button>
+                  <button class="btn btn--quiet" id="import-cancel" type="button" data-i18n="importCancelButton">Cancel</button>
+                </div>
+              </div>
               <div class="confirm" id="reset-confirm" hidden>
                 <p class="confirm__text" data-i18n="resetConfirmText">This wipes the allowlist, custom blocks and the event log. It cannot be undone.</p>
                 <div class="row gap-8">

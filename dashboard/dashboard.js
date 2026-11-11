@@ -51,6 +51,7 @@ const EVENT_LABEL_KEYS = {
 };
 
 const PAGE_SIZE = 40;
+const MAX_IMPORT_BYTES = 1024 * 1024;
 
 const nodes = {
   railStatus: document.getElementById("rail-status"),
@@ -135,6 +136,10 @@ const nodes = {
   exportButton: document.getElementById("export-button"),
   importButton: document.getElementById("import-button"),
   importFile: document.getElementById("import-file"),
+  importConfirm: document.getElementById("import-confirm"),
+  importConfirmText: document.getElementById("import-confirm-text"),
+  importConfirmButton: document.getElementById("import-confirm-button"),
+  importCancel: document.getElementById("import-cancel"),
   resetButton: document.getElementById("reset-button"),
   resetConfirm: document.getElementById("reset-confirm"),
   resetConfirmButton: document.getElementById("reset-confirm-button"),
@@ -153,6 +158,7 @@ const state = {
   eventsType: "",
   loading: false,
   reloadQueued: false,
+  pendingImport: null,
 };
 
 function currentRoute() {
@@ -504,8 +510,13 @@ async function syncTier(tier, button, resultNode) {
   }
   const sync = result.result || {};
   if (sync.allOk) {
-    resultNode.textContent = t("syncResultAdded", [formatNumber(sync.count)]);
-    toast(t("toastSyncAdded", [formatNumber(sync.count)]), "ok");
+    if (sync.count === 0) {
+      resultNode.textContent = t("syncResultCurrent");
+      toast(t("toastSyncCurrent"), "ok");
+    } else {
+      resultNode.textContent = t("syncResultAdded", [formatNumber(sync.count)]);
+      toast(t("toastSyncAdded", [formatNumber(sync.count)]), "ok");
+    }
   } else if (sync.ok) {
     resultNode.textContent = t("syncResultPartial");
     toast(t("toastSyncPartial"), "error");
@@ -539,9 +550,21 @@ async function exportData() {
   toast(t("toastExportDone"), "ok");
 }
 
+function importSummary(settings) {
+  const allow = Array.isArray(settings.allowlist) ? settings.allowlist.length : 0;
+  const custom = Array.isArray(settings.customBlocks) ? settings.customBlocks.length : 0;
+  const protection = settings.enabled === false ? t("switchOff") : t("switchOn");
+  const policy = typeof settings.webrtcPolicy === "string" ? settings.webrtcPolicy : "default";
+  return t("importConfirmText", [protection, formatNumber(allow), formatNumber(custom), policy]);
+}
+
 function importData(file) {
+  if (file.size > MAX_IMPORT_BYTES) {
+    toast(t("toastImportTooLarge"), "error");
+    return;
+  }
   const reader = new FileReader();
-  reader.onload = async () => {
+  reader.onload = () => {
     let payload;
     try {
       payload = JSON.parse(String(reader.result));
@@ -549,16 +572,33 @@ function importData(file) {
       toast(t("toastImportInvalid"), "error");
       return;
     }
-    const result = await send({ type: "importData", payload });
-    if (!result || !result.ok) {
-      toast(result && result.error ? result.error : t("toastImportFailed"), "error");
+    if (!payload || typeof payload !== "object" || !payload.settings || typeof payload.settings !== "object") {
+      toast(t("toastImportInvalid"), "error");
       return;
     }
-    toast(t("toastImportDone"), "ok");
-    await load();
+    state.pendingImport = payload;
+    nodes.importConfirmText.textContent = importSummary(payload.settings);
+    nodes.importConfirm.hidden = false;
+    nodes.importConfirmButton.focus();
   };
   reader.onerror = () => toast(t("toastImportReadFailed"), "error");
   reader.readAsText(file);
+}
+
+async function confirmImport() {
+  if (!state.pendingImport) return;
+  const payload = state.pendingImport;
+  state.pendingImport = null;
+  setBusy(nodes.importConfirmButton, true, t("importingButton"));
+  const result = await send({ type: "importData", payload });
+  setBusy(nodes.importConfirmButton, false);
+  nodes.importConfirm.hidden = true;
+  if (!result || !result.ok) {
+    toast(result && result.error ? result.error : t("toastImportFailed"), "error");
+    return;
+  }
+  toast(t("toastImportDone"), "ok");
+  await load();
 }
 
 function bind() {
@@ -583,7 +623,10 @@ function bind() {
   nodes.enabledToggle.addEventListener("change", async () => {
     const next = nodes.enabledToggle.checked;
     const ok = await applySetting("enabled", next);
-    if (!ok) nodes.enabledToggle.checked = !next;
+    if (!ok) {
+      nodes.enabledToggle.checked = !next;
+      return;
+    }
     toast(next ? t("toastProtectionOn") : t("toastProtectionOff"), "ok");
   });
 
@@ -716,6 +759,13 @@ function bind() {
     const file = nodes.importFile.files && nodes.importFile.files[0];
     if (file) importData(file);
     nodes.importFile.value = "";
+  });
+
+  nodes.importConfirmButton.addEventListener("click", confirmImport);
+  nodes.importCancel.addEventListener("click", () => {
+    state.pendingImport = null;
+    nodes.importConfirm.hidden = true;
+    nodes.importButton.focus();
   });
 
   nodes.resetButton.addEventListener("click", () => {

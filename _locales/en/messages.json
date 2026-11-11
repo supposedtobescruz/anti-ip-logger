@@ -719,6 +719,22 @@
     "message": "Cancel",
     "description": "Confirmation cancel button."
   },
+  "importConfirmButton": {
+    "message": "Restore backup",
+    "description": "Import confirmation button."
+  },
+  "importCancelButton": {
+    "message": "Cancel",
+    "description": "Import confirmation cancel button."
+  },
+  "importConfirmText": {
+    "message": "This backup sets protection $1, allows $2 domains, blocks $3 custom domains, and sets WebRTC to $4. It replaces the current settings.",
+    "description": "Import confirmation summary."
+  },
+  "importingButton": {
+    "message": "Restoring...",
+    "description": "Import button while the background applies the backup."
+  },
   "aboutCardTitle": {
     "message": "About",
     "description": "Card title."
@@ -931,6 +947,10 @@
     "message": "Settings restored from the backup.",
     "description": "Toast on import."
   },
+  "toastImportTooLarge": {
+    "message": "The backup is larger than 1 MB and was not read.",
+    "description": "Toast when the selected backup exceeds the size cap."
+  },
   "toastImportReadFailed": {
     "message": "The file could not be read.",
     "description": "Toast on read failure."
@@ -970,6 +990,14 @@
   "syncResultAdded": {
     "message": "$1 new domains added.",
     "description": "Sync result line."
+  },
+  "syncResultCurrent": {
+    "message": "The list is already up to date.",
+    "description": "Sync result line when no new domains were added."
+  },
+  "toastSyncCurrent": {
+    "message": "The list is already up to date.",
+    "description": "Toast when a sync adds no new domains."
   },
   "syncResultPartial": {
     "message": "Some sources did not respond, the existing list was kept.",
@@ -1230,6 +1258,14 @@
   "errorInvalidSetting": {
     "message": "Invalid setting.",
     "description": "Error message."
+  },
+  "errorWebrtcNotApplied": {
+    "message": "The browser did not accept the WebRTC policy. A device policy or another extension may be locking it.",
+    "description": "Error when the privacy API refuses the requested WebRTC policy."
+  },
+  "errorWebrtcRestoreFailed": {
+    "message": "The WebRTC policy could not be restored, so nothing was reset. Your settings are unchanged.",
+    "description": "Error when reset cannot restore the browser-wide WebRTC policy."
   },
   "errorInvalidBackup": {
     "message": "The file is not a valid backup.",
