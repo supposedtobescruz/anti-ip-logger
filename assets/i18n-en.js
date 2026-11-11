@@ -394,7 +394,7 @@ export const EN_FALLBACK = {
   "welcomeStep5Title": "The panel",
   "welcomeStep6Body": "No telemetry, no analytics, no accounts. Settings, counters and the 500-entry event log stay in this browser. The WebRTC policy is optional and browser-wide.",
   "welcomeStep6Title": "Local. Always.",
-  "welcomeStepOf": "Step $1 of 6",
+  "welcomeStepOf": "Step $1 of $2",
   "welcomeSubtitle": "Six steps. One minute. The mascot does the talking.",
   "welcomeTitle": "Welcome to Anti IP Logger",
 };

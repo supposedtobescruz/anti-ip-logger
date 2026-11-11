@@ -40,7 +40,7 @@ function render() {
   const current = STEPS[step];
   nodes.title.textContent = t(current.titleKey);
   nodes.body.textContent = t(current.bodyKey);
-  nodes.counter.textContent = t("welcomeStepOf", [String(step + 1)]);
+  nodes.counter.textContent = t("welcomeStepOf", [String(step + 1), String(TOTAL)]);
   nodes.announcer.textContent = `${t("welcomeStepOf", [String(step + 1), String(TOTAL)])}: ${t(current.titleKey)}`;
 
   nodes.back.disabled = step === 0;

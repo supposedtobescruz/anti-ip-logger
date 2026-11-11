@@ -11,7 +11,7 @@ import {
   toggleTheme,
   resolvedTheme,
 } from "../assets/ui.js";
-import { t, applyI18n, initLanguage } from "../assets/i18n.js";
+import { t, applyI18n, initLanguage, uiLanguage } from "../assets/i18n.js";
 import { normalizeBackupList, mergeLists } from "../lib/backup.js";
 
 const ROUTES = {
@@ -295,15 +295,28 @@ function eventRow(event) {
   return row;
 }
 
+let categoryOptionsSignature = "";
+
 function renderCategoryOptions(entries) {
-  if (nodes.coreCategory.options.length > 1) return;
   const seen = new Set(entries.map((entry) => entry.category));
-  for (const key of Object.keys(CATEGORY_LABEL_KEYS)) {
-    if (!seen.has(key)) continue;
+  const categories = Object.keys(CATEGORY_LABEL_KEYS).filter((key) => seen.has(key));
+  const signature = `${uiLanguage()}:${categories.join(",")}`;
+  if (signature === categoryOptionsSignature) return;
+  categoryOptionsSignature = signature;
+  const selected = nodes.coreCategory.value;
+  const allOption = nodes.coreCategory.querySelector('option[value=""]');
+  nodes.coreCategory.replaceChildren(allOption);
+  for (const key of categories) {
     const option = document.createElement("option");
     option.value = key;
     option.textContent = t(CATEGORY_LABEL_KEYS[key]);
     nodes.coreCategory.append(option);
+  }
+  if (selected && categories.includes(selected)) {
+    nodes.coreCategory.value = selected;
+  } else {
+    nodes.coreCategory.value = "";
+    state.coreCategory = "";
   }
 }
 
@@ -761,8 +774,12 @@ function bind() {
   nodes.setWebrtc.addEventListener("change", () => applySetting("webrtcPolicy", nodes.setWebrtc.value));
   nodes.setTheme.addEventListener("change", () => applySetting("theme", nodes.setTheme.value));
   nodes.setLanguage.addEventListener("change", async () => {
-    await applySetting("language", nodes.setLanguage.value);
-    window.location.reload();
+    const ok = await applySetting("language", nodes.setLanguage.value);
+    if (!ok) return;
+    await initLanguage();
+    applyI18n();
+    navigate(state.route, false);
+    await load();
   });
 
   nodes.replayTour.addEventListener("click", async () => {

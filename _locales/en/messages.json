@@ -1492,8 +1492,8 @@
     "description": "Finish button on the last step."
   },
   "welcomeStepOf": {
-    "message": "Step $1 of 6",
-    "description": "Step counter, substitutions: current, total."
+    "message": "Step $1 of $2",
+    "description": "Step counter, substitutions: $1 is the current step, $2 is the total number of steps."
   },
   "welcomeMascotAlt": {
     "message": "Scruize, the Anti IP Logger mascot",

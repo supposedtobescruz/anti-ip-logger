@@ -394,7 +394,7 @@ export const TR_FALLBACK = {
   "welcomeStep5Title": "Panel",
   "welcomeStep6Body": "Telemetri yok, analitik yok, hesap yok. Ayarlar, sayaclar ve 500 kayıtlık olay kaydı yalnızca bu tarayıcıda kalır. WebRTC politikası isteğe bağlıdır ve tarayıcı genelindedir.",
   "welcomeStep6Title": "Yerel. Her zaman.",
-  "welcomeStepOf": "Adım $1 / 6",
+  "welcomeStepOf": "Adım $1 / $2",
   "welcomeSubtitle": "Altı adım. Bir dakika. Maskot anlatıyor.",
   "welcomeTitle": "Anti IP Logger'a hoş geldin",
 };
