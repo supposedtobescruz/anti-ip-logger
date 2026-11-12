@@ -7,7 +7,7 @@
 
 Anti IP Logger, bilinen IP logger ve link grabber alan adlarını engelleyen, ardından sayfada bulduğu IP sızıntısı girişimlerini raporlayan bir Chrome uzantısıdır. Manifest V3, vanilla JavaScript, derleme adımı yok.
 
-Sürüm 1.3.0. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisna içerir.
+Sürüm 1.4.0. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisna içerir.
 
 ## Ne yapar
 
@@ -62,6 +62,7 @@ Sürüm 1.3.0. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisn
 
 - **Açılır pencere:** etkin sekmenin kararı, risk sinyalleri, sayaçlar, son olaylar. "Siteyi engelle" ana makineyi özel engelleme listenize ekler, "İzin listesine ekle" onu izin listesine alır, "Bu sekmede izin ver" tek sekmeye geçiş izni verir.
 - **Panel** (seçenekler sayfası): Genel Bakış, Listeler, Olaylar, Kaynaklar, Ayarlar. Çekirdek listede arama yapın, izin ve özel listeleri yönetin, kaynak sağlığını kontrol edin, verilerinizi yedekleyin ve sıfırlayın.
+- **Duraklat:** Ayarlar, listelerinizi değiştirmeden engellemeyi ve sayfa içi uyarıları 15 veya 60 dakika durdurabilir. Süre bitince koruma kendiliğinden geri gelir; açılır pencere ve panel "Şimdi devam ettir" sunar.
 - **Engel sayfası:** hedef URL, hangi liste girdisinin eşleştiği ve üç karar: bu sekmede bir kez izin ver, siteye kalıcı izin ver veya geri dön.
 
 Uzantının arayüzü İngilizce (varsayılan) ve Türkçe olup tarayıcı arayüz dilini (`chrome.i18n`) izler. Bu dosya Türkçe çeviridir; arayüz Türkçe metinleri `_locales/tr/messages.json` içinde yaşar.
@@ -143,13 +144,14 @@ Kural öncelik merdiveni: sekme izni 110 > izin listesi 100 > özel engel 50 > e
 - İçerik betiği MAIN world'de çalışır, bu yüzden sayfa JavaScript'i sinyal kanalını taklit edebilir. Engel listesi (DNR) yolu bundan etkilenmez; banner ve olay kaydı etkilenir.
 - `host_permissions`, içerik betikleriyle aynı kapsam olan `http://*/*` ve `https://*/*` değerlerini kapsar. `webNavigation`, değerlendirilen gezinmenin URL'sini açığa çıkarmak için kullanılır. Uzantı, tanımlı liste kaynakları ve günlük sürüm kontrolü dışında ağ isteği yapmaz.
 - Arayüz dili, uzantı sayfalarında sayfa açıldığında uygulanır; panel ise dilini anında günceller.
+- Duraklatma, süresi boyunca yeni engellemeleri ve sayfa içi uyarıları durdurur. Zaten açık sayfalar duraklama bittikten sonra yaklaşık bir dakika içinde sinyal kontrolüne döner, mevcut dinamik ve statik kurallar aynı anda geri gelir. Duraklatma WebRTC politikasını değiştirmez.
 - Sinyaller yalnızca üst düzey belgede toplanır. Alt çerçevenin kendi WebRTC, form veya istek etkinliği incelenmez; böylece sahte bir iframe uyarı şeridini yönlendiremez veya içinde bulunduğu sayfa için kural oluşturamaz. Ağ engelleme her çerçevede geçerlidir.
 
 ## Mağaza dağıtımı
 
 - **Microsoft Edge Add-ons:** yayında, https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.3.0, 11 Kasım 2026).
 - **Chrome Web Store:** liste hazır ama bilinçli bir kararla henüz gönderilmedi. Hazır olanlar:
-  - `npm run package`, `dist/anti-ip-logger-1.3.0-cws.zip` üretir (yalnızca çalışma zamanı dosyaları; çıkarılan zip tüm tarayıcı kontrollerinden geçer).
+  - `npm run package`, `dist/anti-ip-logger-1.4.0-cws.zip` üretir (yalnızca çalışma zamanı dosyaları; çıkarılan zip tüm tarayıcı kontrollerinden geçer).
   - `store/` klasöründe mağaza kiti: İngilizce ve Türkçe başlık metinleri, izin gerekçeleri, ekran görüntüleri ve tanıtım karoları.
   - Gizlilik politikası `PRIVACY.md` içinde ve bağımsız `docs/privacy.html` sayfasında durur; https://supposedtobescruz.github.io/anti-ip-logger/privacy.html adresinden servis edilir (depo public, GitHub Pages `docs/` klasöründen).
   - Başvuru kontrol listesi ve geliştirici kayıt ücreti notu `store/README.md` içinde.

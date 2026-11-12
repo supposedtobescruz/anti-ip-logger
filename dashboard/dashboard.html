@@ -331,6 +331,18 @@
                     <span class="switch__track" aria-hidden="true"></span>
                   </span>
                 </label>
+                <div class="pause-row">
+                  <span class="setting-row__text">
+                    <span class="setting-row__title" id="pause-title" data-i18n="pauseTitle">Pause protection</span>
+                    <span class="setting-row__hint" data-i18n="pauseHint">Temporarily stop blocking and warnings without changing your lists.</span>
+                    <span class="pause-status" id="pause-status" role="status" hidden></span>
+                  </span>
+                  <div class="pause-actions" role="group" aria-labelledby="pause-title">
+                    <button class="btn btn--quiet btn--small" id="pause-15" type="button" data-i18n="pause15Button">Pause 15 minutes</button>
+                    <button class="btn btn--quiet btn--small" id="pause-60" type="button" data-i18n="pause60Button">Pause 1 hour</button>
+                    <button class="btn btn--quiet btn--small" id="pause-resume" type="button" data-i18n="resumeProtectionButton" hidden>Resume now</button>
+                  </div>
+                </div>
                 <label class="row spread setting-row">
                   <span class="setting-row__text">
                     <span class="setting-row__title" data-i18n="settingCoreTitle">Core list</span>

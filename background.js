@@ -22,6 +22,7 @@ import {
   setTabIcon,
 } from "./lib/dnr.js";
 import { assessRisk, describeVerdict, emptySignals, mergeSignals, verdictFor } from "./lib/risk.js";
+import { PAUSE_MINUTES, computePauseUntil, isPaused, isProtectionActive } from "./lib/protection.js";
 import {
   appendEvent,
   clearEvents,
@@ -76,8 +77,31 @@ const state = {
 
 const SYNC_ALARM = "sync-sources";
 const CLEANUP_ALARM = "cleanup-state";
+const PAUSE_ALARM = "pause-end";
 const APPLIED_SIGNATURE_KEY = "appliedSignature";
 const WEBRTC_MARKER_KEY = "appliedWebrtcPolicy";
+
+function protectionActive(now = Date.now()) {
+  return isProtectionActive(state.settings, now);
+}
+
+function paused(now = Date.now()) {
+  return isPaused(state.settings, now);
+}
+
+// Aligns stored pauseUntil and the alarm with reality. An expired pause is
+// wiped; a live one gets its alarm re-created after a restart or browser update.
+async function reconcilePauseAlarm(now = Date.now()) {
+  const pauseUntil = state.settings && Number.isFinite(state.settings.pauseUntil) ? state.settings.pauseUntil : 0;
+  if (pauseUntil > now) {
+    await chrome.alarms.create(PAUSE_ALARM, { when: pauseUntil });
+    return;
+  }
+  if (pauseUntil !== 0) {
+    state.settings = await updateSettings({ pauseUntil: 0 });
+  }
+  await chrome.alarms.clear(PAUSE_ALARM);
+}
 
 function runtimeUrl(path) {
   return chrome.runtime.getURL(path);
@@ -148,7 +172,7 @@ async function loadState() {
 
 function signatureFor() {
   return JSON.stringify({
-    enabled: state.settings.enabled,
+    enabled: protectionActive(),
     tiers: state.settings.tiers,
     showBlockedPage: state.settings.showBlockedPage,
     webrtcPolicy: state.settings.webrtcPolicy,
@@ -205,7 +229,8 @@ async function applyState(force = false) {
   if (!force && signature === state.appliedSignature && state.dnr) return { skipped: true, ...state.dnr };
 
   const settings = state.settings;
-  const detailed = settings.enabled
+  const active = protectionActive();
+  const detailed = active
     ? buildDynamicRuleSetDetailed(
         {
           packagedCore: state.packagedDomains,
@@ -215,14 +240,14 @@ async function applyState(force = false) {
         settings,
       )
     : { rules: [], dropped: null, maxRules: 0 };
-  const rules = settings.enabled
+  const rules = active
     ? [
         ...detailed.rules,
         ...buildTabAllowRules(state.tabAllows),
       ]
     : [];
 
-  await applyStaticRuleset(settings.enabled && settings.tiers.core);
+  await applyStaticRuleset(active && settings.tiers.core);
   const applied = await applyDynamicRules(rules);
   if (detailed.dropped) {
     const drops = detailed.dropped;
@@ -264,6 +289,7 @@ function publicSettings() {
   const s = state.settings;
   return {
     enabled: s.enabled,
+    pauseUntil: Number.isFinite(s.pauseUntil) ? s.pauseUntil : 0,
     tiers: s.tiers,
     showBlockedPage: s.showBlockedPage,
     warnings: s.warnings,
@@ -350,15 +376,17 @@ function emptyPageState(tabId, host, url) {
 
 async function getTabInfo(tabId) {
   const tab = await getActiveTab(tabId);
-  const settings = state.settings;
+  const active = protectionActive();
+  const pausedNow = paused();
   if (!tab || !tab.url) {
+    const verdict = pausedNow ? "paused" : (active ? "idle" : "off");
     return {
       tabId: tab ? tab.id : null,
       url: "",
       host: "",
-      verdict: settings.enabled ? "idle" : "off",
-      copy: describeVerdict(settings.enabled ? "idle" : "off", t),
-      risk: assessRisk({ signals: emptySignals(), protectionEnabled: settings.enabled }),
+      verdict,
+      copy: describeVerdict(verdict, t),
+      risk: assessRisk({ signals: emptySignals(), protectionEnabled: active }),
       signals: emptySignals(),
       allowed: false,
       known: { known: false },
@@ -377,10 +405,11 @@ async function getTabInfo(tabId) {
     signals: tabState ? tabState.signals : emptySignals(),
     knownLogger: cls.known && !allowed,
     gesture,
-    protectionEnabled: settings.enabled,
+    protectionEnabled: active,
   });
   const verdict = verdictFor({
-    enabled: settings.enabled,
+    enabled: active,
+    paused: pausedNow,
     allowed,
     host,
     knownLogger: cls.known,
@@ -750,19 +779,21 @@ async function reportBlock(message, sender) {
 
 async function reportSignals(message, sender) {
   const tabId = sender && sender.tab ? sender.tab.id : message.tabId;
-  if (!Number.isFinite(tabId)) return { ok: false, enabled: state.settings.enabled };
+  const active = protectionActive();
+  const pausedNow = paused();
+  if (!Number.isFinite(tabId)) return { ok: false, enabled: active };
 
   const frameId = sender && Number.isFinite(sender.frameId) ? sender.frameId : 0;
   if (frameId !== 0) {
     // Signals are only accepted from the top frame. A subframe can forge the
     // channel, and its signals would otherwise decide a banner whose buttons
     // create a persistent rule for the top page's host.
-    return { ok: true, ignored: true, enabled: state.settings.enabled };
+    return { ok: true, ignored: true, enabled: active };
   }
 
   const pageUrl = (sender && sender.tab && sender.tab.url) || message.page || "";
   const host = urlToHost(pageUrl) || normalizeHost(message.host) || "";
-  if (!host) return { ok: false, enabled: state.settings.enabled };
+  if (!host) return { ok: false, enabled: active };
 
   const current = (await getTabState(tabId)) || emptyPageState(tabId, host, pageUrl);
   const samePage = current.url === pageUrl;
@@ -775,7 +806,7 @@ async function reportSignals(message, sender) {
     signals: merged,
     knownLogger: cls.known && !allowed,
     gesture,
-    protectionEnabled: state.settings.enabled,
+    protectionEnabled: active,
   });
 
   const next = {
@@ -789,7 +820,7 @@ async function reportSignals(message, sender) {
 
   let showBanner = false;
   if (
-    state.settings.enabled &&
+    active &&
     state.settings.warnings &&
     !allowed &&
     !next.bannerShown &&
@@ -811,7 +842,8 @@ async function reportSignals(message, sender) {
 
   await setTabState(tabId, next);
   const verdict = verdictFor({
-    enabled: state.settings.enabled,
+    enabled: active,
+    paused: pausedNow,
     allowed,
     host,
     knownLogger: cls.known,
@@ -824,7 +856,7 @@ async function reportSignals(message, sender) {
   else setTabIcon(tabId, "idle");
   return {
     ok: true,
-    enabled: state.settings.enabled,
+    enabled: active,
     showBanner,
     risk,
     verdict,
@@ -860,7 +892,11 @@ async function setSetting(key, value) {
   if (!allowed[key] || !allowed[key](value)) return { ok: false, error: t("errorInvalidSetting") };
 
   const previous = state.settings[key];
-  state.settings = await updateSettings({ [key]: value });
+  const patch = { [key]: value };
+  // A master toggle flip ends any active pause in the same write.
+  if (key === "enabled") patch.pauseUntil = 0;
+  state.settings = await updateSettings(patch);
+  if (key === "enabled") await chrome.alarms.clear(PAUSE_ALARM);
   if (key === "webrtcPolicy" && value !== "default") {
     await applyState(true);
     const marker = await chrome.storage.local.get(WEBRTC_MARKER_KEY);
@@ -889,6 +925,7 @@ async function resetEverything() {
     }
   }
   await resetAll();
+  await chrome.alarms.clear(PAUSE_ALARM);
   state.initialized = false;
   state.dnr = null;
   state.appliedSignature = "";
@@ -928,11 +965,13 @@ async function importData(payload, mode) {
     theme: incoming.theme,
     allowlist: restored.allowlist,
     customBlocks: restored.customBlocks,
+    pauseUntil: 0,
   };
   if (["system", "en", "tr"].includes(incoming.language)) {
     patch.language = incoming.language;
   }
   state.settings = await updateSettings(patch);
+  await chrome.alarms.clear(PAUSE_ALARM);
   await applyState(true);
   const policy = state.settings.webrtcPolicy;
   if (typeof policy === "string" && policy !== "default") {
@@ -991,6 +1030,20 @@ async function handleMessage(message, sender) {
       return { ok: true, ...(await clearEvents()) };
     case "setSetting":
       return setSetting(message.key, message.value);
+    case "pauseProtection": {
+      const minutes = message && message.minutes;
+      if (!PAUSE_MINUTES.includes(minutes)) return { ok: false, error: t("errorInvalidSetting") };
+      if (!state.settings.enabled) return { ok: false, error: t("errorPauseWhileOff") };
+      state.settings = await updateSettings({ pauseUntil: computePauseUntil(minutes) });
+      await chrome.alarms.create(PAUSE_ALARM, { when: state.settings.pauseUntil });
+      await applyState(true);
+      return { ok: true, settings: publicSettings() };
+    }
+    case "resumeProtection":
+      state.settings = await updateSettings({ pauseUntil: 0 });
+      await chrome.alarms.clear(PAUSE_ALARM);
+      await applyState(true);
+      return { ok: true, settings: publicSettings() };
     case "syncNow":
       return { ok: true, result: await syncNow(message.tier === "extended" ? "extended" : "core") };
     case "addCustomDomain":
@@ -1017,14 +1070,15 @@ async function handleMessage(message, sender) {
       if (!host) return { ok: false, error: t("errorInvalidUrl") };
       const cls = classifyHost(host);
       const allowed = Boolean(cls.allowed);
-      const wouldBlock = state.settings.enabled && cls.known && !allowed;
+      const active = protectionActive();
+      const wouldBlock = active && cls.known && !allowed;
       return {
         ok: true,
         host,
         wouldBlock,
         allowed,
         known: cls,
-        protectionOff: !state.settings.enabled,
+        protectionOff: !active,
       };
     }
     case "reportSignals":
@@ -1038,11 +1092,13 @@ async function handleMessage(message, sender) {
       return { ok: true, target: pending.url };
     }
     case "panic":
-      state.settings = await updateSettings({ enabled: false });
+      state.settings = await updateSettings({ enabled: false, pauseUntil: 0 });
+      await chrome.alarms.clear(PAUSE_ALARM);
       await applyState(true);
       return { ok: true, settings: publicSettings() };
     case "restore":
-      state.settings = await updateSettings({ enabled: true });
+      state.settings = await updateSettings({ enabled: true, pauseUntil: 0 });
+      await chrome.alarms.clear(PAUSE_ALARM);
       await applyState(true);
       return { ok: true, settings: publicSettings() };
     case "resetAll":
@@ -1083,6 +1139,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 chrome.runtime.onInstalled.addListener((details) => {
   (async () => {
     await ensureInit(true);
+    await reconcilePauseAlarm();
     state.settings = await updateSettings({});
     await applyState(true);
     chrome.alarms.create(SYNC_ALARM, { periodInMinutes: SYNC_ALARM_MINUTES });
@@ -1097,6 +1154,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 chrome.runtime.onStartup.addListener(() => {
   (async () => {
     await ensureInit(true);
+    await reconcilePauseAlarm();
     const [syncAlarm, cleanupAlarm] = await Promise.all([
       chrome.alarms.get(SYNC_ALARM),
       chrome.alarms.get(CLEANUP_ALARM),
@@ -1110,6 +1168,19 @@ chrome.runtime.onStartup.addListener(() => {
 chrome.alarms.onAlarm.addListener((alarm) => {
   serializeTabState(async () => {
     await ensureInit();
+    if (alarm.name === PAUSE_ALARM) {
+      const now = Date.now();
+      const pauseUntil = state.settings && Number.isFinite(state.settings.pauseUntil) ? state.settings.pauseUntil : 0;
+      if (pauseUntil > now) {
+        // Alarm fired before the deadline (clock jump); re-arm for the remaining time.
+        await chrome.alarms.create(PAUSE_ALARM, { when: pauseUntil });
+        return;
+      }
+      state.settings = await updateSettings({ pauseUntil: 0 });
+      await chrome.alarms.clear(PAUSE_ALARM);
+      await applyState(true);
+      return;
+    }
     if (alarm.name === SYNC_ALARM) {
       await syncNow("core");
       if (state.settings.tiers.extended) await syncNow("extended");

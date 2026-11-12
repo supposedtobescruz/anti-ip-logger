@@ -504,6 +504,74 @@ async function run() {
     check("settings reflected in form", settingsState.enabled === true && settingsState.core === true, JSON.stringify(settingsState));
     await screenshot(dash, "dashboard-settings.png", 1280, 900, "light");
 
+    await evaluate(dash, "document.getElementById('pause-15').click(); return true;");
+    const pauseVisible = await waitFor(
+      () => evaluate(dash, "return !document.getElementById('pause-status').hidden && !document.getElementById('pause-resume').hidden;").catch(() => false),
+      8000,
+      "pause state visible",
+    ).catch(() => false);
+    check("pause state visible after 15 minute action", pauseVisible === true);
+
+    const pauseState = await evaluate(
+      dash,
+      `const settings = (await chrome.storage.local.get('settings')).settings; const rules = await chrome.declarativeNetRequest.getDynamicRules(); const enabled = await chrome.declarativeNetRequest.getEnabledRulesets(); return { pauseUntil: settings.pauseUntil, enabled: settings.enabled, dynamic: rules.length, rulesets: enabled };`,
+    );
+    check("pause stored with a future deadline", Number(pauseState.pauseUntil) > Date.now(), `pauseUntil ${pauseState.pauseUntil}`);
+    check(
+      "pause removes dynamic and static rules",
+      pauseState.dynamic === 0 && !pauseState.rulesets.includes("core"),
+      `dynamic ${pauseState.dynamic}, rulesets ${(pauseState.rulesets || []).join(",") || "none"}`,
+    );
+
+    await evaluate(dash, "location.hash = '#overview'; return true;");
+    const overviewPaused = await waitFor(
+      () => evaluate(dash, "return document.getElementById('status-line').textContent.toLowerCase().includes('paused');").catch(() => false),
+      5000,
+      "overview paused state",
+    ).catch(() => false);
+    check("overview reports the paused state", overviewPaused === true);
+
+    await popup.send("Page.reload");
+    await waitForLoad(popup);
+    await waitFor(() => evaluate(popup, "return document.getElementById('content') && !document.getElementById('content').hidden;"), 8000, "popup content after reload");
+    const pausedPopup = await evaluate(
+      popup,
+      `return { resume: !document.getElementById('resume-protection').hidden, headline: document.getElementById('verdict-headline').textContent };`,
+    );
+    check("popup offers resume while paused", pausedPopup.resume === true);
+    check("popup shows the paused verdict", pausedPopup.headline.toLowerCase().includes("paused"), pausedPopup.headline);
+
+    await evaluate(dash, "location.hash = '#settings'; return true;");
+    await sleep(400);
+    await evaluate(dash, "document.getElementById('pause-resume').click(); return true;");
+    const resumeState = await waitFor(
+      async () => {
+        const value = await evaluate(
+          dash,
+          `const settings = (await chrome.storage.local.get('settings')).settings;
+           const rules = await chrome.declarativeNetRequest.getDynamicRules();
+           const enabled = await chrome.declarativeNetRequest.getEnabledRulesets();
+           return { pauseUntil: settings.pauseUntil, dynamic: rules.length, rulesets: enabled };`,
+        );
+        return value && value.pauseUntil === 0 && value.dynamic > 0 && value.rulesets.includes("core") ? value : null;
+      },
+      8000,
+      "resume restores rules",
+    ).catch(() => null);
+    check(
+      "resume restores dynamic and static rules",
+      Boolean(resumeState),
+      resumeState ? `dynamic ${resumeState.dynamic}, rulesets ${resumeState.rulesets.join(",")}` : "timed out waiting for pauseUntil 0 and rules",
+    );
+
+    await evaluate(dash, "location.hash = '#overview'; return true;");
+    const overviewResumed = await waitFor(
+      () => evaluate(dash, "return document.getElementById('status-line').textContent.toLowerCase().includes('protection on');").catch(() => false),
+      5000,
+      "overview protection on",
+    ).catch(() => false);
+    check("overview reports protection on after resume", overviewResumed === true);
+
     await evaluate(dash, "document.documentElement.setAttribute('data-theme','dark'); return true;");
     await sleep(250);
     const dashDark = await evaluate(

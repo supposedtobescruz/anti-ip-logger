@@ -5,7 +5,7 @@ Checklist and certification tester notes. The package is not submitted; nothing 
 ## Checklist
 
 - [ ] `npm run verify:all` passes.
-- [ ] `npm run package` produces the upload package (`dist/anti-ip-logger-1.3.0-cws.zip`).
+- [ ] `npm run package` produces the upload package (`dist/anti-ip-logger-1.4.0-cws.zip`).
 - [ ] Listing text taken from `store/edge/listing-en.md` (English) and `store/edge/listing-tr.md` (Turkish).
 - [ ] Privacy answers taken from `store/edge/privacy-answers.md`, including the privacy policy URL.
 - [ ] Assets per `store/edge/assets.md` (logo, screenshots EN/TR, promo tiles).

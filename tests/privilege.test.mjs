@@ -12,6 +12,8 @@ const CURRENT_PRIVILEGED_TYPES = [
   "getBlockedTarget",
   "clearEvents",
   "setSetting",
+  "pauseProtection",
+  "resumeProtection",
   "syncNow",
   "allowOnce",
   "removeTabAllow",

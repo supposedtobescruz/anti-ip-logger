@@ -3,6 +3,7 @@ import {
   clear,
   el,
   formatRelative,
+  formatClock,
   formatNumber,
   onThemeChange,
   send,
@@ -125,6 +126,10 @@ const nodes = {
   syncExtendedResult: document.getElementById("sync-extended-result"),
   extendedBadge: document.getElementById("extended-badge"),
   setEnabled: document.getElementById("set-enabled"),
+  pause15: document.getElementById("pause-15"),
+  pause60: document.getElementById("pause-60"),
+  pauseResume: document.getElementById("pause-resume"),
+  pauseStatus: document.getElementById("pause-status"),
   setCore: document.getElementById("set-core"),
   setExtended: document.getElementById("set-extended"),
   setBlockedPage: document.getElementById("set-blocked-page"),
@@ -199,6 +204,11 @@ function hideError() {
   nodes.globalError.textContent = "";
 }
 
+function pauseActive(settings) {
+  const pauseUntil = settings && Number(settings.pauseUntil);
+  return Number.isFinite(pauseUntil) && pauseUntil > Date.now() ? pauseUntil : 0;
+}
+
 function setRailStatus(settings) {
   if (!settings) {
     nodes.railStatus.textContent = t("loadingText");
@@ -208,6 +218,11 @@ function setRailStatus(settings) {
   if (!settings.enabled) {
     nodes.railStatus.textContent = t("protectionOff");
     nodes.railDot.dataset.tone = "muted";
+    return;
+  }
+  if (pauseActive(settings)) {
+    nodes.railStatus.textContent = t("protectionPaused");
+    nodes.railDot.dataset.tone = "warn";
     return;
   }
   const core = settings.sync && settings.sync.core ? settings.sync.core : {};
@@ -237,15 +252,18 @@ function renderTheme(settings) {
 function renderOverview(data) {
   const { settings, stats, meta, dnr, lists } = data;
   const enabled = Boolean(settings.enabled);
+  const pauseUntil = pauseActive(settings);
   const coreError = Boolean(settings.sync.core && settings.sync.core.error);
-  nodes.statusBand.dataset.tone = enabled ? (coreError ? "warn" : "safe") : "muted";
-  nodes.statusLine.textContent = enabled ? t("protectionOn") : t("protectionOff");
+  nodes.statusBand.dataset.tone = pauseUntil ? "warn" : enabled ? (coreError ? "warn" : "safe") : "muted";
+  nodes.statusLine.textContent = pauseUntil ? t("protectionPaused") : enabled ? t("protectionOn") : t("protectionOff");
   const core = settings.sync.core || {};
-  nodes.statusDetail.textContent = enabled
-    ? core.error
-      ? t("statusPartialDetail")
-      : t("statusWorkingDetail", [formatNumber(meta.counts.domains), formatNumber(dnr.dynamicRules)])
-    : t("statusDisabledDetail");
+  nodes.statusDetail.textContent = pauseUntil
+    ? t("statusPausedDetail", [formatClock(pauseUntil)])
+    : enabled
+      ? core.error
+        ? t("statusPartialDetail")
+        : t("statusWorkingDetail", [formatNumber(meta.counts.domains), formatNumber(dnr.dynamicRules)])
+      : t("statusDisabledDetail");
   nodes.enabledToggle.checked = enabled;
   nodes.enabledLabel.textContent = enabled ? t("switchOn") : t("switchOff");
 
@@ -451,6 +469,14 @@ function renderSources(data) {
 function renderSettings(data) {
   const settings = data.settings;
   nodes.setEnabled.checked = Boolean(settings.enabled);
+  const pauseUntil = pauseActive(settings);
+  nodes.pauseStatus.hidden = !pauseUntil;
+  nodes.pauseStatus.textContent = pauseUntil ? t("protectionPausedUntil", [formatClock(pauseUntil)]) : "";
+  nodes.pause15.hidden = Boolean(pauseUntil);
+  nodes.pause60.hidden = Boolean(pauseUntil);
+  nodes.pauseResume.hidden = !pauseUntil;
+  nodes.pause15.disabled = !settings.enabled;
+  nodes.pause60.disabled = !settings.enabled;
   nodes.setCore.checked = Boolean(settings.tiers.core);
   nodes.setExtended.checked = Boolean(settings.tiers.extended);
   nodes.setBlockedPage.checked = Boolean(settings.showBlockedPage);
@@ -512,6 +538,28 @@ async function applySetting(key, value) {
   }
   await load();
   return true;
+}
+
+async function pauseProtection(minutes, button) {
+  setBusy(button, true);
+  const result = await send({ type: "pauseProtection", minutes });
+  setBusy(button, false);
+  if (!result || !result.ok) {
+    toast((result && result.error) || t("toastPauseFailed"), "error");
+    return;
+  }
+  toast(t("toastPaused", [String(minutes)]), "ok");
+  await load();
+}
+
+async function resumeProtection() {
+  const result = await send({ type: "resumeProtection" });
+  if (!result || !result.ok) {
+    toast((result && result.error) || t("toastResumeFailed"), "error");
+    return;
+  }
+  toast(t("toastResumed"), "ok");
+  await load();
 }
 
 async function syncTier(tier, button, resultNode) {
@@ -767,6 +815,9 @@ function bind() {
   nodes.syncExtended.addEventListener("click", () => syncTier("extended", nodes.syncExtended, nodes.syncExtendedResult));
 
   nodes.setEnabled.addEventListener("change", () => applySetting("enabled", nodes.setEnabled.checked));
+  nodes.pause15.addEventListener("click", () => pauseProtection(15, nodes.pause15));
+  nodes.pause60.addEventListener("click", () => pauseProtection(60, nodes.pause60));
+  nodes.pauseResume.addEventListener("click", () => resumeProtection());
   nodes.setCore.addEventListener("change", () => applySetting("tiers", { core: nodes.setCore.checked }));
   nodes.setExtended.addEventListener("change", () => applySetting("tiers", { extended: nodes.setExtended.checked }));
   nodes.setBlockedPage.addEventListener("change", () => applySetting("showBlockedPage", nodes.setBlockedPage.checked));

@@ -30,6 +30,7 @@ const nodes = {
   block: document.getElementById("block-site"),
   allow: document.getElementById("allow-site"),
   allowTab: document.getElementById("allow-tab"),
+  resume: document.getElementById("resume-protection"),
   findingsSection: document.getElementById("findings-section"),
   findings: document.getElementById("findings"),
   findingsCount: document.getElementById("findings-count"),
@@ -110,19 +111,31 @@ function renderHero(data) {
   nodes.liveStatus.textContent = `${copy.label || t("verdictIdleLabel")}: ${copy.headline || ""}${data.host ? ` ${data.host}` : ""}`;
 }
 
+function pauseUntilOf(data) {
+  const pauseUntil = data && data.settings ? Number(data.settings.pauseUntil) : 0;
+  return Number.isFinite(pauseUntil) && pauseUntil > Date.now() ? pauseUntil : 0;
+}
+
+function isPaused(data) {
+  return Boolean(data && data.verdict === "paused") || Boolean(pauseUntilOf(data));
+}
+
 function renderActions(data) {
   const hasHost = Boolean(data.host);
   const allowed = Boolean(data.allowed);
   const known = Boolean(data.known && data.known.known);
   const protectionOff = data.settings && data.settings.enabled === false;
+  const paused = isPaused(data);
 
   nodes.block.disabled = !hasHost || busy;
   nodes.allow.disabled = !hasHost || busy;
   nodes.allow.textContent = allowed ? t("allowRemoveButton") : t("allowAddButton");
-  nodes.allowTab.hidden = !(hasHost && known && !allowed && !protectionOff);
+  nodes.allowTab.hidden = !(hasHost && known && !allowed && !protectionOff && !paused);
   nodes.allowTab.disabled = busy;
   nodes.allow.hidden = !hasHost;
   nodes.block.hidden = !hasHost;
+  nodes.resume.hidden = !paused;
+  nodes.resume.disabled = busy;
   nodes.noHostHint.hidden = hasHost;
 }
 
@@ -174,6 +187,11 @@ function renderSync(data) {
   const settings = data.settings || {};
   const sync = settings.sync || {};
   const core = sync.core || {};
+  const pauseUntil = pauseUntilOf(data);
+  if (isPaused(data) && pauseUntil) {
+    nodes.syncLine.textContent = t("protectionPausedUntil", [formatClock(pauseUntil)]);
+    return;
+  }
   if (!settings.enabled) {
     nodes.syncLine.textContent = t("protectionOff");
     return;
@@ -259,6 +277,10 @@ nodes.allow.addEventListener("click", () => {
 nodes.allowTab.addEventListener("click", () => {
   if (!view || !view.host) return;
   act(nodes.allowTab, { type: "allowOnce", domain: view.host, tabId: view.tabId }, t("toastTabAllowed"), t("toastTabAllowFailed"));
+});
+
+nodes.resume.addEventListener("click", () => {
+  act(nodes.resume, { type: "resumeProtection" }, t("toastResumed"), t("toastResumeFailed"));
 });
 
 nodes.retry.addEventListener("click", load);

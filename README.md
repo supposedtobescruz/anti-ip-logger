@@ -7,7 +7,7 @@
 
 Anti IP Logger is a Chrome extension that blocks known IP logger and link grabber domains, then reports IP leak attempts it finds on the page. Manifest V3, vanilla JavaScript, no build step.
 
-Version 1.3.0. The bundled list ships 125 domains in 2 static rules, with 61 exceptions.
+Version 1.4.0. The bundled list ships 125 domains in 2 static rules, with 61 exceptions.
 
 ## What it does
 
@@ -62,6 +62,7 @@ Version 1.3.0. The bundled list ships 125 domains in 2 static rules, with 61 exc
 
 - **Popup:** the verdict for the active tab, risk signals, counters, recent events. "Siteyi engelle" adds the host to your custom blocklist, "İzin listesine ekle" allowlists it, "Bu sekmede izin ver" grants a one-tab pass.
 - **Panel** (options page): Overview, Lists, Events, Sources, Settings. Search the core list, manage allow/custom lists, check source health, back up and reset your data.
+- **Pause:** Settings can stop blocking and in-page warnings for 15 or 60 minutes without changing your lists. Protection returns automatically at the end time; the popup and the panel offer Resume now.
 - **Blocked page:** the target URL, which list entry matched, and three decisions: allow once in this tab, allow the site permanently, or go back.
 
 The extension interface is in English (default) and Turkish, following your browser's UI language (`chrome.i18n`). This file is the English source of truth; the Turkish UI translation ships in `_locales/tr/messages.json`.
@@ -143,13 +144,14 @@ Rule priority ladder: tab allow 110 > allowlist 100 > custom block 50 > blocked 
 - The content script runs in the MAIN world, so page JavaScript can forge the signal channel. The blocklist (DNR) path is not affected; the banner and event log are.
 - `host_permissions` covers `http://*/*` and `https://*/*`, the same scope as the content scripts. `webNavigation` exposes the URL of the navigation being judged. The extension makes no network requests beyond the defined list sources and the daily version check.
 - The interface language applies to extension pages when they open, while the dashboard updates immediately.
+- A pause stops new blocks and in-page warnings for its duration. Pages that are already open resume signal checks within about a minute after the pause ends, and existing dynamic and static rules return at the same time. Pausing does not change the WebRTC policy.
 - Signals are collected in the top-level document only. A subframe's own WebRTC, form or request activity is not inspected, so a forged iframe cannot steer the banner or create a rule for the page it sits in. Network blocking still applies in every frame.
 
 ## Store distribution
 
 - **Microsoft Edge Add-ons:** published, https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.3.0, 11 Nov 2026).
 - **Chrome Web Store:** the listing is prepared but not submitted yet, by deliberate decision. What is ready:
-  - `npm run package` builds `dist/anti-ip-logger-1.3.0-cws.zip` (runtime files only; the extracted zip passes all browser checks).
+  - `npm run package` builds `dist/anti-ip-logger-1.4.0-cws.zip` (runtime files only; the extracted zip passes all browser checks).
   - Store kit in `store/`: English and Turkish listings, permission justifications, screenshots, promotional tiles.
   - The privacy policy lives in `PRIVACY.md` and `docs/privacy.html`, served at https://supposedtobescruz.github.io/anti-ip-logger/privacy.html (repository is public, GitHub Pages from `docs/`).
   - A submission checklist is in `store/README.md`; the developer registration fee note is there as well.

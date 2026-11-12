@@ -1578,5 +1578,69 @@
   "copyAddressDone": {
     "message": "Adres panoya kopyalandı.",
     "description": "Blocked page feedback after copying."
+  },
+  "protectionPaused": {
+    "message": "Koruma duraklatıldı",
+    "description": "Koruma duraklatıldığında rail ve durum bandında gösterilen etiket."
+  },
+  "protectionPausedUntil": {
+    "message": "$1'e kadar duraklatıldı",
+    "description": "Duraklatma sürerken gösterilen durum satırı. $1 duraklatmanın bittiği saat."
+  },
+  "statusPausedDetail": {
+    "message": "Engelleme ve sayfa içi uyarılar $1'e kadar kapalı. Listeleriniz değişmedi.",
+    "description": "Duraklatma sürerken durum bandı açıklaması. $1 duraklatmanın bittiği saat."
+  },
+  "pauseTitle": {
+    "message": "Korumayı duraklat",
+    "description": "Koruma duraklatma satırının başlığı."
+  },
+  "pauseHint": {
+    "message": "Listelerinizi değiştirmeden engellemeyi ve uyarıları geçici olarak durdurur.",
+    "description": "Koruma duraklatma satırının açıklaması."
+  },
+  "pause15Button": {
+    "message": "15 dakika duraklat",
+    "description": "Korumayı 15 dakika duraklatan düğme."
+  },
+  "pause60Button": {
+    "message": "1 saat duraklat",
+    "description": "Korumayı 60 dakika duraklatan düğme."
+  },
+  "resumeProtectionButton": {
+    "message": "Şimdi devam ettir",
+    "description": "Etkin duraklatmayı sona erdiren düğme."
+  },
+  "toastPaused": {
+    "message": "Koruma $1 dakika duraklatıldı",
+    "description": "Koruma duraklatıldıktan sonraki bildirim. $1 duraklatma süresi, dakika."
+  },
+  "toastResumed": {
+    "message": "Koruma yeniden başlatıldı",
+    "description": "Koruma devam ettirildikten sonraki bildirim."
+  },
+  "toastPauseFailed": {
+    "message": "Koruma duraklatılamadı",
+    "description": "Koruma duraklatılamadığında gösterilen yedek bildirim."
+  },
+  "toastResumeFailed": {
+    "message": "Koruma yeniden başlatılamadı",
+    "description": "Koruma devam ettirilemediğinde gösterilen yedek bildirim."
+  },
+  "errorPauseWhileOff": {
+    "message": "Duraklatmadan önce korumayı açın.",
+    "description": "Koruma kapalıyken duraklatma istendiğinde dönen hata."
+  },
+  "verdictPausedLabel": {
+    "message": "Duraklatıldı",
+    "description": "Duraklatıldı kararının açılır pencere rozet etiketi."
+  },
+  "verdictPausedHeadline": {
+    "message": "Koruma duraklatıldı",
+    "description": "Duraklatıldı kararının açılır pencere başlığı."
+  },
+  "verdictPausedDetail": {
+    "message": "Engelleme ve sayfa içi uyarılar, duraklatma bittiğinde otomatik olarak devam eder.",
+    "description": "Duraklatıldı kararının açılır pencere açıklaması."
   }
 }

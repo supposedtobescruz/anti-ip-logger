@@ -6,6 +6,14 @@ Versions follow SemVer. The project starts at 1.0.0 and has no earlier history t
 Releases are tagged `v<version>` in git; the dates below are the tag dates.
 The extension has no telemetry. Settings, counters and the event log stay in `chrome.storage.local`. See PRIVACY.md.
 
+## [1.4.0] - 2026-11-12
+
+### Added
+
+- Temporary protection pause. The Settings card and the popup can stop blocking and in-page warnings for 15 or 60 minutes and resume at any time. A pause-end alarm restores protection automatically, the popup and panel show the paused verdict with the end time, and the dynamic rules and the static ruleset are removed while the pause lasts.
+- Pausing leaves the allowlist, custom blocks, counters, event log and WebRTC policy untouched. A backup restore ends any active pause instead of restoring it.
+- `lib/protection.js` holds the pause helpers and the two allowed durations. Adds nine node:test cases for state transitions and duration validation, a paused-verdict case, and eight browser checks that verify rules are removed and restored.
+
 ## [1.3.0] - 2026-11-11
 
 ### Added

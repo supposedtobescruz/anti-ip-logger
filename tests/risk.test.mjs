@@ -99,11 +99,21 @@ test("verdict order prioritizes allow, logger and risk", () => {
   assert.equal(verdictFor({ enabled: true, allowed: false, host: "", knownLogger: false, risk: calm }), "idle");
 });
 
+test("paused wins over allowed and logger", () => {
+  const risk = assessRisk({ signals: { ...emptySignals(), webrtcPublic: ["1.1.1.1"] } });
+  const calm = assessRisk({ signals: emptySignals() });
+  assert.equal(verdictFor({ enabled: true, paused: true, allowed: true, host: "a.com", knownLogger: true, risk }), "paused");
+  assert.equal(verdictFor({ enabled: true, paused: true, allowed: false, host: "a.com", knownLogger: true, risk }), "paused");
+  assert.equal(verdictFor({ enabled: true, paused: true, allowed: false, host: "a.com", knownLogger: true, risk: calm }), "paused");
+  assert.equal(verdictFor({ enabled: false, paused: true, allowed: false, host: "a.com", knownLogger: true, risk }), "paused");
+});
+
 test("every verdict has localized text", () => {
   const en = JSON.parse(readFileSync(new URL("../_locales/en/messages.json", import.meta.url), "utf8"));
   const tEn = (key) => en[key] && en[key].message;
   const required = [
     "verdictOffLabel", "verdictOffHeadline", "verdictOffDetail",
+    "verdictPausedLabel", "verdictPausedHeadline", "verdictPausedDetail",
     "verdictAllowedLabel", "verdictAllowedHeadline", "verdictAllowedDetail",
     "verdictLoggerLabel", "verdictLoggerHeadline", "verdictLoggerDetail",
     "verdictBlockedLabel", "verdictBlockedHeadline", "verdictBlockedDetail",
@@ -114,7 +124,7 @@ test("every verdict has localized text", () => {
     "verdictIdleLabel", "verdictIdleHeadline", "verdictIdleDetail",
   ];
   for (const key of required) assert.ok(tEn(key) && tEn(key).length > 0, `missing ${key}`);
-  for (const verdict of ["off", "allowed", "logger", "blocked", "danger", "warn", "info", "clean", "idle"]) {
+  for (const verdict of ["off", "paused", "allowed", "logger", "blocked", "danger", "warn", "info", "clean", "idle"]) {
     const copy = describeVerdict(verdict, tEn);
     assert.ok(copy.label.length > 0);
     assert.ok(copy.headline.length > 5);

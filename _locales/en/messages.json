@@ -1578,5 +1578,69 @@
   "copyAddressDone": {
     "message": "Address copied to clipboard.",
     "description": "Blocked page feedback after copying."
+  },
+  "protectionPaused": {
+    "message": "Protection paused",
+    "description": "Rail and status band label while a protection pause is active."
+  },
+  "protectionPausedUntil": {
+    "message": "Paused until $1",
+    "description": "Status line while paused. $1 is the clock time the pause ends."
+  },
+  "statusPausedDetail": {
+    "message": "Blocking and in-page warnings are off until $1. Your lists are unchanged.",
+    "description": "Status band detail while paused. $1 is the clock time the pause ends."
+  },
+  "pauseTitle": {
+    "message": "Pause protection",
+    "description": "Settings row title for the protection pause."
+  },
+  "pauseHint": {
+    "message": "Temporarily stop blocking and warnings without changing your lists.",
+    "description": "Settings row hint for the protection pause."
+  },
+  "pause15Button": {
+    "message": "Pause 15 minutes",
+    "description": "Button that pauses protection for 15 minutes."
+  },
+  "pause60Button": {
+    "message": "Pause 1 hour",
+    "description": "Button that pauses protection for 60 minutes."
+  },
+  "resumeProtectionButton": {
+    "message": "Resume now",
+    "description": "Button that ends an active protection pause."
+  },
+  "toastPaused": {
+    "message": "Protection paused for $1 minutes",
+    "description": "Toast after pausing protection. $1 is the pause length in minutes."
+  },
+  "toastResumed": {
+    "message": "Protection resumed",
+    "description": "Toast after resuming protection."
+  },
+  "toastPauseFailed": {
+    "message": "Could not pause protection",
+    "description": "Fallback toast when pausing protection fails."
+  },
+  "toastResumeFailed": {
+    "message": "Could not resume protection",
+    "description": "Fallback toast when resuming protection fails."
+  },
+  "errorPauseWhileOff": {
+    "message": "Turn protection on before pausing it.",
+    "description": "Error returned when pausing is requested while protection is off."
+  },
+  "verdictPausedLabel": {
+    "message": "Paused",
+    "description": "Popup badge label for the paused verdict."
+  },
+  "verdictPausedHeadline": {
+    "message": "Protection is paused",
+    "description": "Popup headline for the paused verdict."
+  },
+  "verdictPausedDetail": {
+    "message": "Blocking and in-page warnings resume automatically when the pause ends.",
+    "description": "Popup detail for the paused verdict."
   }
 }

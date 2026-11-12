@@ -1,6 +1,6 @@
 # Anti IP Logger - Privacy Policy
 
-Last updated: 2026-11-10. Version covered: 1.3.0.
+Last updated: 2026-11-12. Version covered: 1.4.0.
 
 ## What this extension does
 
@@ -50,6 +50,6 @@ Questions: open an issue in the project repository (`supposedtobescruz/anti-ip-l
 
 # Anti IP Logger - Gizlilik Politikası (Türkçe özet)
 
-Son güncelleme: 2026-11-10. Kapsanan sürüm: 1.3.0.
+Son güncelleme: 2026-11-12. Kapsanan sürüm: 1.4.0.
 
 Anti IP Logger hiçbir kişisel veri toplamaz. Hesap, analitik, telemetri veya uzaktan kayıt yoktur. Uzantı yalnızca iki amaçla ağ isteği yapar: liste tazeleme (`data/sources.json`, HTTPS) ve resmi bir gist'e günlük sürüm kontrolü (kimlik bilgisi içermeyen tek satır sürüm metni); başka ağ isteği yapmaz. Ayarlar, sayaçlar ve en fazla 500 kayıtlık olay kaydı (alan adı + kısa açıklama, asla tam URL yok) `chrome.storage.local` içinde kalır. Engellenen bir gezinmenin tam URL'si (sorgu dizesi dahil) sekme durumu olarak `chrome.storage.session` içinde tutulur ve tarayıcı kapanınca silinir; engel sayfası bunu "Bu sekmede izin ver ve aç" için kullanır. WebRTC politikasını değiştirirseniz bu değişiklik uzantı kaldırıldıktan sonra da yerinde kalabilir; önce "Tarayıcı varsayılanı"nı seçin, sonra kaldırın. Dilediğinizde panelden (Ayarlar → Veri) olay kaydını temizleyebilir, yedek alıp her şeyi sıfırlayabilirsiniz.
