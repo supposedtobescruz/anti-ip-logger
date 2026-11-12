@@ -92,7 +92,7 @@ test("detailed builder clips to a small budget without throwing", () => {
   );
   assert.equal(deep.rules.length, 12);
   assert.equal(deep.dropped.remoteCoreDomains, 3000);
-  assert.equal(deep.dropped.redirectDomains, 4003);
+  assert.equal(deep.dropped.redirectDomains, 4002);
   assert.equal(deep.dropped.extendedDomains, 1);
   const allowRule = deep.rules.find((rule) => rule.priority === PRIORITY.allow);
   assert.ok(allowRule, "allow rule is always kept");
@@ -131,6 +131,21 @@ test("a disabled core tier removes remote core blocks and redirects", () => {
   );
   assert.equal(rules.filter((rule) => rule.priority === PRIORITY.core).length, 0);
   assert.equal(rules.filter((rule) => rule.action.type === "redirect").length, 0);
+});
+
+test("a custom block produces a block rule and no blockedPage redirect for that domain", () => {
+  const rules = buildDynamicRuleSet(
+    lists({ packagedCore: ["packaged.example.com"] }),
+    settings({ customBlocks: ["mine.example.com"], showBlockedPage: true }),
+  );
+  const custom = rules.find((rule) => rule.priority === PRIORITY.custom);
+  assert.ok(custom, "custom block rule exists");
+  assert.equal(custom.action.type, "block");
+  const redirect = rules.find((rule) => rule.action.type === "redirect");
+  assert.ok(redirect, "packaged domain still redirects");
+  const redirectDomains = redirect.condition.requestDomains;
+  assert.ok(redirectDomains.includes("packaged.example.com"), "packaged domain redirects to the blocked page");
+  assert.ok(!redirectDomains.includes("mine.example.com"), "custom block does not redirect");
 });
 
 test("threat block rules are reserved before threat redirect rules", () => {

@@ -6,6 +6,43 @@ Versions follow SemVer. The project starts at 1.0.0 and has no earlier history t
 Releases are tagged `v<version>` in git; the dates below are the tag dates.
 The extension has no telemetry. Settings, counters and the event log stay in `chrome.storage.local`. See PRIVACY.md.
 
+## [1.4.1] - 2026-11-12
+
+### Added
+
+- Chromium family support. One Manifest V3 package covers Chrome, Edge, Brave, Opera, Opera GX, Vivaldi, Yandex Browser and Chromium, with Chromium 111 as the floor for `world: MAIN` content scripts. README, readmeTR and the store notes list the per-browser install pages and what has actually been run.
+- `tools/browser-paths.mjs` detects the supported browsers on Windows, macOS and Linux. `npm run verify:browser` gains `--browser <id|name|path>`, `--list` and `--out`, keeps `BROWSER_PATH` and the legacy `BRAVE_PATH`, and records the browser name and version in `report.json`.
+- `npm run verify:browsers` runs the browser suite in every detected browser, writes each run to `verify-output/<browser>/` and a summary matrix to `verify-output/browsers.json`. Verified on Edge 157 and Brave 157, 45 checks each.
+- Tab allows are applied as session-scoped DNR rules, the only scope Chromium accepts for `tabIds`, and the dynamic rule budget reserves room for them.
+
+### Changed
+
+- Backup export carries settings only. It previously wrote `stats` and `events` that the importer never restored, so the file promised a restore it could not perform.
+- Clearing the event log asks for confirmation before the 500 entry history is deleted.
+- The popup body is `min(384px, 100vw)`, so 200% zoom and narrow windows do not hide the right-side controls.
+- The overview "Update list" action reports progress and result in a visible status line instead of the hidden node in Sources.
+- The store package stops shipping `readme/`, `CONTRIBUTING.md`, `data/curated.json` and `data/exceptions.json`. `verify:package` builds in a temporary directory, rejects zip files for other versions in `dist/`, checks the archive allowlist, and the same input produces a byte-identical zip.
+- Adds 34 node:test cases, 136 in total, including DNR session rules, import validation, the privileged message set and browser detection.
+
+### Fixed
+
+- The Core tier is the single source of truth for packaged domains. With the tier off, `classifyHost`, the popup, the dashboard and the tab icon now report the truth instead of a block that never happens.
+- Backup import validates every settings field with the same rules as the settings API instead of coercing values, so `enabled: 0` or `tiers: { core: "false" }` can no longer flip enforcement.
+- Custom-blocked domains no longer generate a blocked-page redirect rule that the higher-priority block rule always wins, which frees dynamic rule budget.
+- Pause expiry is checked on navigation, so a late or missed pause-end alarm no longer leaves enforcement off while the interface says protection is on.
+- The welcome tour no longer intercepts Enter, which broke keyboard activation of Back and Skip.
+- Background storage changes no longer blank the popup to a skeleton or drop focus, and the dashboard restores focus after a list re-render.
+- Programmatically focused containers keep a visible focus ring.
+- `openDashboard` is privileged like the other extension-page messages, and `reportBlock` ignores subframe senders.
+- Dashboard aria labels for the section nav, the protection toggle and the backup file input are translated.
+- The blocked page note states that the allowlist takes precedence. It previously claimed the domain is removed from the blocklist.
+- Turkish warning badge reads `şüpheli`, and the pause, clear-log and import copy matches the actual behavior in both locales.
+
+### Removed
+
+- The `disable_udp` WebRTC policy option. It is not a valid Chromium `webRTCIPHandlingPolicy` value, so choosing it always failed and reverted. `default` and `disable_non_proxied_udp` remain.
+- The dead `declarativeNetRequest.onRuleMatchedDebug` handler, which needs an unpacked-only permission and never ran in a packaged build.
+
 ## [1.4.0] - 2026-11-12
 
 ### Added

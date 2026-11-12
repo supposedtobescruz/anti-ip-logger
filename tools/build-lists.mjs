@@ -8,10 +8,15 @@ import { RESOURCE_TYPES, MAX_DOMAINS_PER_RULE, MAX_STATIC_RULES_PER_RULESET } fr
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = join(ROOT, "data");
 const RULES = join(ROOT, "rules");
+const MANIFEST_VERSION = JSON.parse(await readFile(join(ROOT, "manifest.json"), "utf8")).version;
 const ARGS = new Set(process.argv.slice(2));
 const OFFLINE = ARGS.has("--offline");
 const CHECK = ARGS.has("--check");
-const ALLOW_PARTIAL = ARGS.has("--allow-partial") || OFFLINE;
+if (!OFFLINE && ARGS.has("--allow-partial")) {
+  process.stderr.write("--allow-partial is only valid with --offline. Refusing to run in online mode (it could overwrite the committed lists with a partial result).\n");
+  process.exit(1);
+}
+const ALLOW_PARTIAL = OFFLINE;
 const TIMEOUT_MS = 60_000;
 const MAX_BYTES = 12 * 1024 * 1024;
 const CATEGORY_RANK = { grabify: 0, iplogger: 1, other: 2, tracker: 3, threat: 4 };
@@ -44,7 +49,7 @@ async function fetchText(source) {
   try {
     const response = await fetch(source.url, {
       signal: controller.signal,
-      headers: { "user-agent": "anti-ip-logger/2.0 (+https://github.com/supposedtobescruz/anti-ip-logger)" },
+      headers: { "user-agent": `anti-ip-logger/${MANIFEST_VERSION} (+https://github.com/supposedtobescruz/anti-ip-logger)` },
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const text = await response.text();
@@ -265,6 +270,22 @@ async function main() {
   }
 
   const domains = entries.map((entry) => entry.domain).sort();
+
+  if (OFFLINE && CHECK) {
+    const committedSet = new Set(domains);
+    const committedExceptions = new Set(exceptions);
+    const missing = [];
+    for (const item of curated.domains) {
+      if (committedSet.has(item.domain)) continue;
+      if (removeExceptions([item.domain], committedExceptions).length === 0) continue;
+      missing.push(item.domain);
+    }
+    if (missing.length > 0) {
+      process.stderr.write(`Committed core list is stale relative to curated.json. Missing curated domains: ${missing.join(", ")}\n`);
+      process.exitCode = 1;
+    }
+  }
+
   const rules = buildRules(domains);
   const meta = {
     version: 2,

@@ -22,6 +22,7 @@ const CURRENT_PRIVILEGED_TYPES = [
   "resetAll",
   "importData",
   "exportData",
+  "openDashboard",
   "openWelcome",
   "dismissUpdate",
 ];
@@ -42,7 +43,6 @@ test("requiresPrivilege is false for unprivileged message types", () => {
   assert.equal(requiresPrivilege("getTabAllow"), false);
   assert.equal(requiresPrivilege("blockSite"), false);
   assert.equal(requiresPrivilege("addCustomDomain"), false);
-  assert.equal(requiresPrivilege("openDashboard"), false);
   assert.equal(requiresPrivilege("reportBlock"), false);
 });
 

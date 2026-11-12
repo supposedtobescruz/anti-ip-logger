@@ -18,7 +18,7 @@ Schedules the twice-daily automatic refresh of the built-in domain list and the 
 Used to identify the active tab when judging navigations, to apply per-tab temporary allow rules (allow once in this tab), and to clean up session storage when tabs close. The extension does not read page contents, history or other tabs.
 
 ## `webNavigation`
-Used to observe when the active tab begins navigating to a URL so the extension can evaluate whether the destination is on the blocklist before the request proceeds, and on blocked navigations to present the block page with the target and allow options. Only the navigation of the active tab is evaluated; the extension does not build a browsing history and does not store URLs in the event log.
+Used to observe top-level navigation starts in every tab, so the extension can apply and clear per-tab allow rules and evaluate whether a destination is on the blocklist before the request proceeds. On blocked navigations it also drives the block page. The extension does not build a browsing history; the pending URL is kept only in `chrome.storage.session` until the browser closes or the navigation ends, and the event log never stores URLs.
 
 ## `privacy`
 Used to apply an optional browser-wide WebRTC IP policy that the user explicitly selects (default: browser default, i.e. the policy is left untouched). The browser policy is never changed without the user's action, and the extension records what it changed so it can restore the default.

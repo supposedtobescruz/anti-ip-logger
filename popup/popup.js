@@ -222,7 +222,11 @@ async function load() {
     return;
   }
   loading = true;
-  showLoading();
+  if (view) {
+    nodes.app.setAttribute("aria-busy", "true");
+  } else {
+    showLoading();
+  }
   try {
     const result = await send({ type: "getPopup" });
     if (!result || !result.ok) {

@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { deflateRawSync } from "node:zlib";
 
@@ -24,7 +24,10 @@ const EXCLUDE = [
   /^AGENTS\.md$/,
   /^CHANGELOG\.md$/,
   /^package\.json$/,
-  /^readme\/assets\//,
+  /^readme\//,
+  /^CONTRIBUTING\.md$/,
+  /^data\/curated\.json$/,
+  /^data\/exceptions\.json$/,
   /^dist\//,
   /^docs\//,
   /^store\//,
@@ -57,10 +60,12 @@ function crc32(buffer) {
   return (crc ^ 0xffffffff) >>> 0;
 }
 
+const FIXED_DOS_DATE = new Date(Date.UTC(1980, 0, 1, 0, 0, 0));
+
 function dosDateTime(date) {
-  const year = Math.max(1980, date.getFullYear());
-  const time = ((date.getHours() << 11) | (date.getMinutes() << 5) | Math.floor(date.getSeconds() / 2)) & 0xffff;
-  const day = (((year - 1980) << 9) | ((date.getMonth() + 1) << 5) | date.getDate()) & 0xffff;
+  const year = Math.max(1980, date.getUTCFullYear());
+  const time = ((date.getUTCHours() << 11) | (date.getUTCMinutes() << 5) | Math.floor(date.getUTCSeconds() / 2)) & 0xffff;
+  const day = (((year - 1980) << 9) | ((date.getUTCMonth() + 1) << 5) | date.getUTCDate()) & 0xffff;
   return { time, day };
 }
 
@@ -74,7 +79,7 @@ for (const file of files.sort()) {
   const data = readFileSync(fullPath);
   const compressed = deflateRawSync(data, { level: 9 });
   const crc = crc32(data);
-  const { time, day } = dosDateTime(statSync(fullPath).mtime);
+  const { time, day } = dosDateTime(FIXED_DOS_DATE);
   const name = Buffer.from(file.replaceAll("\\", "/"), "utf8");
 
   const local = Buffer.alloc(30);
@@ -128,7 +133,9 @@ eocd.writeUInt32LE(chunksBuffer.length, 16);
 eocd.writeUInt16LE(0, 20);
 
 const zip = Buffer.concat([chunksBuffer, centralBuffer, eocd]);
-const outDir = join(ROOT, "dist");
+const outDir = process.env.PACKAGE_OUT_DIR
+  ? resolve(process.env.PACKAGE_OUT_DIR)
+  : join(ROOT, "dist");
 mkdirSync(outDir, { recursive: true });
 const outPath = join(outDir, `anti-ip-logger-${version}-cws.zip`);
 writeFileSync(outPath, zip);

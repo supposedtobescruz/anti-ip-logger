@@ -7,7 +7,7 @@
 
 Anti IP Logger, bilinen IP logger ve link grabber alan adlarını engelleyen, ardından sayfada bulduğu IP sızıntısı girişimlerini raporlayan bir Chrome uzantısıdır. Manifest V3, vanilla JavaScript, derleme adımı yok.
 
-Sürüm 1.4.0. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisna içerir.
+Sürüm 1.4.1. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisna içerir.
 
 ## Ne yapar
 
@@ -42,7 +42,7 @@ Sürüm 1.4.0. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisn
 ## Kurulum
 
 1. Bu depoyu indirin veya klonlayın.
-2. Tarayıcınızın uzantılar sayfasını açın: `chrome://extensions` (Chrome, Brave, Vivaldi), `edge://extensions` (Edge) veya `opera://extensions` (Opera).
+2. Tarayıcınızın uzantılar sayfasını açın: `chrome://extensions` (Chrome, Chromium), `edge://extensions` (Edge), `brave://extensions` (Brave), `opera://extensions` (Opera), `vivaldi://extensions` (Vivaldi) veya `browser://extensions` (Yandex Browser).
 3. Depodan paketlenmemiş yükleme için **Geliştirici modu**'nu etkinleştirin (sağ üst).
 4. **Yalnızca Microsoft Edge:** Edge Add-ons'tan yükleyin: https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.3.0).
 5. **Paketlenmemiş yükleme:** **Paketlenmemiş öğe yükle**'ye tıklayın ve depo kökünü seçin.
@@ -52,11 +52,22 @@ Sürüm 1.4.0. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisn
 
 ## Tarayıcı desteği
 
-- **Microsoft Edge:** Edge Add-ons'ta yayında (yukarıdaki bağlantı), 1.3.0 olarak incelendi.
-- **Brave:** yerelde doğrulandı, Brave 157 üzerinde 32/32 tarayıcı kontrolü.
-- **Google Chrome, Opera, Vivaldi (Chromium 111 veya üzeri):** paket yalnızca standart Chromium Manifest V3 API'lerini kullanır ve `minimum_chrome_version: 111` bildirir. Çalışması beklenir; Chrome Web Store bilinçli olarak gönderilmedi ve Opera/Vivaldi bu makinede çalıştırılmadı, bu yüzden yükleyip kullanmadan önce test edin.
-- **Firefox, Safari:** henüz desteklenmiyor. Ayrı paketleme gerektirir (AMO için gecko yapısı; Safari için Xcode dönüşümü).
-- İçerik komut dosyaları MAIN dünyasında çalışır (`world: MAIN`), bu da Chromium 111 gerektirir. Sayfalar sinyal kanalını taklit edebilir; afiş elenebilir ama engel listesi elenemez, bkz. Bilinen sınırlar.
+Tek bir Manifest V3 paketi Chromium ailesini kapsar. Tek zorunlu alt sınır, `world: MAIN` içerik komut dosyalarını getiren Chromium 111 sürümüdür ve `manifest.json` içinde `minimum_chrome_version: 111` bildirilir.
+
+| Tarayıcı | Dağıtım | Uzantılar sayfası | Doğrulama |
+|---|---|---|---|
+| Microsoft Edge | Edge Add-ons: 1.3.0 yayında, 1.4.0 incelemede | `edge://extensions` | Edge 157, 45/45 tarayıcı kontrolü |
+| Brave | Paketlenmemiş yükleme | `brave://extensions` | Brave 157, 45/45 tarayıcı kontrolü |
+| Google Chrome | Paketlenmemiş yükleme; Chrome Web Store bilinçli olarak gönderilmedi | `chrome://extensions` | Bu makinede çalıştırılmadı |
+| Chromium | Paketlenmemiş yükleme | `chrome://extensions` | Bu makinede çalıştırılmadı |
+| Opera | Paketlenmemiş yükleme | `opera://extensions` | Bu makinede çalıştırılmadı |
+| Vivaldi | Paketlenmemiş yükleme | `vivaldi://extensions` | Bu makinede çalıştırılmadı |
+| Yandex Browser | Paketlenmemiş yükleme | `browser://extensions` | Bu makinede çalıştırılmadı |
+| Firefox, Safari | Desteklenmiyor | | Farklı paketleme gerektirir (AMO için gecko yapısı, Safari için Xcode dönüşümü) |
+
+Uzantı yalnızca standart Chromium Manifest V3 API'lerini kullanır: `declarativeNetRequest` statik ve dinamik kuralları, `storage.local` ve `storage.session`, `alarms`, `tabs`, `webNavigation`, `action` ve `privacy`. WebRTC politikası çalışma anında isteğe bağlıdır: `chrome.privacy.network` yoksa istenen politika reddedilir, ayar geri alınır ve olay kaydına hata yazılır; diğer tüm özellikler çalışmaya devam eder.
+
+İçerik komut dosyaları MAIN dünyasında çalışır (`world: MAIN`), bu da Chromium 111 gerektirir. Sayfalar sinyal kanalını taklit edebilir; afiş elenebilir ama engel listesi elenemez, bkz. Bilinen sınırlar.
 
 ## Kullanım
 
@@ -94,11 +105,12 @@ npm run check           # kayıtlı verinin kaynaklarla tutarlı olduğunu doğr
 npm test                # birim testleri
 npm run verify          # manifest, dosya, kural, veri ve em dash kontrolleri
 npm run verify:ui       # erişilebilirlik, kontrast ve arayüz kontrolleri
-npm run verify:browser  # Brave/Chrome'da yükle ve ekran görüntüsü al
+npm run verify:browser  # algılanan ilk Chromium tarayıcıda yükle
+npm run verify:browsers # aynı kontrol setini algılanan her Chromium tarayıcıda çalıştır
 npm run verify:all      # check + test + verify + verify:ui
 ```
 
-`verify:browser`, ekran görüntülerini ve `report.json` dosyasını `verify-output/` klasörüne yazar. Brave veya Chrome varsayılan konumunda değilse `BRAVE_PATH` değişkenini tarayıcı çalıştırılabilir dosyasına ayarlayın.
+`verify:browser`, ekran görüntülerini ve `report.json` dosyasını `verify-output/` klasörüne yazar. Windows, macOS ve Linux üzerinde Chrome, Edge, Brave, Opera, Opera GX, Vivaldi, Yandex Browser ve Chromium'u algılar; `--browser <kimlik|ad|yol>` veya `BROWSER_PATH` ile birini seçin, `--list` ile bulunanları listeleyin. `verify:browsers` kontrol setini her tarayıcı için çalıştırır, her çalışmayı `verify-output/<tarayıcı>/` altına ve özet matrisi `verify-output/browsers.json` dosyasına yazar.
 
 ## Mimari
 
@@ -136,6 +148,7 @@ Kural öncelik merdiveni: sekme izni 110 > izin listesi 100 > özel engel 50 > e
 - Alt kaynak engelleri (engellenen iframe veya piksel) DNR ile durdurulur ama üretim derlemelerinde olay kaydına yazılmaz. Engellenen sayaçları yalnızca üst düzey gezinmeleri sayar.
 - Engellenen bir gezinmede tam URL (sorgu dizesi dahil) tarayıcı kapanana kadar `chrome.storage.session` içinde tutulur; engel sayfası bunu "Bu sekmede izin ver ve aç" için kullanır. Olay kaydı hiçbir zaman URL saklamaz.
 - Liste güncellemeleri ağ erişimi gerektirir. Çevrimdışıyken birlikte gelen liste kullanılır.
+- Sayfa içi tespit `world: MAIN` içerik komut dosyalarına bağlıdır (Chromium 111 ve üzeri). Bu manifest alanını yok sayan bir yapı, listelenen alan adlarını DNR ile yine engeller, ancak sayfa içi uyarı ve WebRTC sinyalleri görünmez.
 - Bir kaynak kısmen başarısız olursa uzantı önceki eşitlemeden kalan girdileri korur ve yenilerini üstüne ekler. Hiçbir zaman iyi bir listenin üstüne boş liste yazmaz.
 - Alan adı listesi zamanla eskir. Grabify tarzı servisler alan adlarını düzenli olarak değiştirir.
 - Uyarı banner'ı yalnızca tehlike seviyesinde bir bulgu veya aynı anda iki farklı uyarı kategorisi için görünür. Tek zayıf sinyal (bir piksel, bir gizli iframe, bir erken istek) banner göstermez; açılır pencerede rozet ve bulgu olarak görünür.
@@ -151,7 +164,7 @@ Kural öncelik merdiveni: sekme izni 110 > izin listesi 100 > özel engel 50 > e
 
 - **Microsoft Edge Add-ons:** yayında, https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.3.0, 11 Kasım 2026).
 - **Chrome Web Store:** liste hazır ama bilinçli bir kararla henüz gönderilmedi. Hazır olanlar:
-  - `npm run package`, `dist/anti-ip-logger-1.4.0-cws.zip` üretir (yalnızca çalışma zamanı dosyaları; çıkarılan zip tüm tarayıcı kontrollerinden geçer).
+  - `npm run package`, `dist/anti-ip-logger-1.4.1-cws.zip` üretir (yalnızca çalışma zamanı dosyaları; çıkarılan zip tüm tarayıcı kontrollerinden geçer).
   - `store/` klasöründe mağaza kiti: İngilizce ve Türkçe başlık metinleri, izin gerekçeleri, ekran görüntüleri ve tanıtım karoları.
   - Gizlilik politikası `PRIVACY.md` içinde ve bağımsız `docs/privacy.html` sayfasında durur; https://supposedtobescruz.github.io/anti-ip-logger/privacy.html adresinden servis edilir (depo public, GitHub Pages `docs/` klasöründen).
   - Başvuru kontrol listesi ve geliştirici kayıt ücreti notu `store/README.md` içinde.

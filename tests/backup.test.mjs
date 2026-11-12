@@ -6,6 +6,7 @@ import {
   normalizeBackupList,
   mergeLists,
   restoreLists,
+  validateImportSettings,
 } from "../lib/backup.js";
 import { MAX_LIST_ENTRIES } from "../lib/constants.js";
 
@@ -145,6 +146,81 @@ test("restoreLists merge mode dedupes and caps the union", () => {
   const result = restoreLists({ allowlist: current, customBlocks: [] }, incoming, "merge");
   assert.equal(result.allowlist.length, MAX_LIST_ENTRIES);
   assert.deepEqual(result.allowlist, [...result.allowlist].sort());
+});
+
+test("validateImportSettings accepts a fully populated valid backup", () => {
+  assert.equal(validateImportSettings({
+    enabled: true,
+    showBlockedPage: false,
+    warnings: true,
+    onboardingSeen: false,
+    tiers: { core: true, extended: false },
+    webrtcPolicy: "disable_non_proxied_udp",
+    theme: "dark",
+    language: "tr",
+  }), null);
+});
+
+test("validateImportSettings accepts missing fields and an empty object", () => {
+  assert.equal(validateImportSettings({}), null);
+  assert.equal(validateImportSettings({ enabled: true }), null);
+  assert.equal(validateImportSettings({ tiers: {} }), null);
+  assert.equal(validateImportSettings({ tiers: { core: true } }), null);
+  assert.equal(validateImportSettings({ theme: "system", language: "system", webrtcPolicy: "default" }), null);
+});
+
+test("validateImportSettings rejects non-boolean enabled, showBlockedPage, warnings, onboardingSeen", () => {
+  assert.equal(validateImportSettings({ enabled: 0 }), "enabled");
+  assert.equal(validateImportSettings({ enabled: "false" }), "enabled");
+  assert.equal(validateImportSettings({ enabled: null }), "enabled");
+  assert.equal(validateImportSettings({ showBlockedPage: 1 }), "showBlockedPage");
+  assert.equal(validateImportSettings({ showBlockedPage: "false" }), "showBlockedPage");
+  assert.equal(validateImportSettings({ warnings: "yes" }), "warnings");
+  assert.equal(validateImportSettings({ warnings: 0 }), "warnings");
+  assert.equal(validateImportSettings({ onboardingSeen: 1 }), "onboardingSeen");
+  assert.equal(validateImportSettings({ onboardingSeen: "true" }), "onboardingSeen");
+});
+
+test("validateImportSettings rejects a tiers value that is not a plain object", () => {
+  assert.equal(validateImportSettings({ tiers: "false" }), "tiers");
+  assert.equal(validateImportSettings({ tiers: 1 }), "tiers");
+  assert.equal(validateImportSettings({ tiers: null }), "tiers");
+  assert.equal(validateImportSettings({ tiers: [] }), "tiers");
+  assert.equal(validateImportSettings({ tiers: [false, false] }), "tiers");
+});
+
+test("validateImportSettings rejects non-boolean tiers.core and tiers.extended", () => {
+  assert.equal(validateImportSettings({ tiers: { core: "false" } }), "tiers");
+  assert.equal(validateImportSettings({ tiers: { core: 0 } }), "tiers");
+  assert.equal(validateImportSettings({ tiers: { extended: "true" } }), "tiers");
+  assert.equal(validateImportSettings({ tiers: { extended: 1 } }), "tiers");
+  assert.equal(validateImportSettings({ tiers: { core: true, extended: "false" } }), "tiers");
+});
+
+test("validateImportSettings rejects an unsupported webrtcPolicy", () => {
+  assert.equal(validateImportSettings({ webrtcPolicy: "disable_udp" }), "webrtcPolicy");
+  assert.equal(validateImportSettings({ webrtcPolicy: "bogus" }), "webrtcPolicy");
+  assert.equal(validateImportSettings({ webrtcPolicy: 5 }), "webrtcPolicy");
+  assert.equal(validateImportSettings({ webrtcPolicy: true }), "webrtcPolicy");
+});
+
+test("validateImportSettings rejects an unsupported theme", () => {
+  assert.equal(validateImportSettings({ theme: "blue" }), "theme");
+  assert.equal(validateImportSettings({ theme: "DARK" }), "theme");
+  assert.equal(validateImportSettings({ theme: 1 }), "theme");
+});
+
+test("validateImportSettings rejects an unsupported language", () => {
+  assert.equal(validateImportSettings({ language: "de" }), "language");
+  assert.equal(validateImportSettings({ language: "EN" }), "language");
+  assert.equal(validateImportSettings({ language: 1 }), "language");
+});
+
+test("validateImportSettings rejects a non-object settings argument", () => {
+  assert.equal(validateImportSettings(null), "settings");
+  assert.equal(validateImportSettings(undefined), "settings");
+  assert.equal(validateImportSettings("enabled"), "settings");
+  assert.equal(validateImportSettings([true]), "settings");
 });
 
 test("restoreLists ignores non-list settings and returns only the two lists", () => {

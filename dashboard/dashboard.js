@@ -84,6 +84,8 @@ const nodes = {
   tileRulesNote: document.getElementById("tile-rules-note"),
   overviewEvents: document.getElementById("overview-events"),
   overviewEventsEmpty: document.getElementById("overview-events-empty"),
+  overviewEventsHeading: document.getElementById("overview-events-heading"),
+  topbarStatus: document.getElementById("topbar-status"),
   coverageCore: document.getElementById("coverage-core"),
   coverageRemote: document.getElementById("coverage-remote"),
   coverageExtended: document.getElementById("coverage-extended"),
@@ -105,15 +107,21 @@ const nodes = {
   allowList: document.getElementById("allow-list"),
   allowEmpty: document.getElementById("allow-empty"),
   allowCount: document.getElementById("allow-count"),
+  allowHeading: document.getElementById("allow-heading"),
   customForm: document.getElementById("custom-form"),
   customInput: document.getElementById("custom-input"),
   customError: document.getElementById("custom-error"),
   customList: document.getElementById("custom-list"),
   customEmpty: document.getElementById("custom-empty"),
   customCount: document.getElementById("custom-count"),
+  customHeading: document.getElementById("custom-heading"),
   eventsSearch: document.getElementById("events-search"),
   eventsType: document.getElementById("events-type"),
   eventsClear: document.getElementById("events-clear"),
+  eventsClearConfirm: document.getElementById("events-clear-confirm"),
+  eventsClearConfirmButton: document.getElementById("events-clear-confirm-button"),
+  eventsClearCancel: document.getElementById("events-clear-cancel"),
+  eventsHeading: document.getElementById("events-heading"),
   eventsList: document.getElementById("events-list"),
   eventsEmpty: document.getElementById("events-empty"),
   eventsCount: document.getElementById("events-count"),
@@ -173,6 +181,26 @@ const state = {
 function currentRoute() {
   const hash = location.hash.replace(/^#/, "");
   return Object.prototype.hasOwnProperty.call(ROUTES, hash) ? hash : "overview";
+}
+
+function captureFocusKey(container) {
+  const active = document.activeElement;
+  return active && container.contains(active) ? active.dataset.focusKey ?? null : undefined;
+}
+
+function restoreFocus(container, key, fallback) {
+  if (key === undefined) return;
+  let target = null;
+  if (key) {
+    for (const candidate of container.querySelectorAll("[data-focus-key]")) {
+      if (candidate.dataset.focusKey === key) {
+        target = candidate;
+        break;
+      }
+    }
+  }
+  if (!target && typeof fallback === "function") target = fallback();
+  if (target) target.focus({ preventScroll: true });
 }
 
 function navigate(route, push = true) {
@@ -287,12 +315,16 @@ function renderOverview(data) {
   const lastSync = settings.sync.core && settings.sync.core.at ? settings.sync.core.at : 0;
   nodes.coverageNote.textContent = lastSync ? t("coverageSynced", [formatRelative(lastSync)]) : t("coverageLocalOnly");
 
+  const focusKey = captureFocusKey(nodes.overviewEvents);
   const events = data.events.slice(0, 6);
   clear(nodes.overviewEvents);
   nodes.overviewEventsEmpty.hidden = events.length > 0;
   for (const event of events) {
     nodes.overviewEvents.append(eventRow(event));
   }
+  restoreFocus(nodes.overviewEvents, focusKey, () =>
+    events.length === 0 ? nodes.overviewEventsEmpty : nodes.overviewEventsHeading,
+  );
 
   const syncError = (settings.sync.core && settings.sync.core.error) || (settings.sync.extended && settings.sync.extended.error);
   nodes.syncNotice.hidden = !syncError;
@@ -301,6 +333,8 @@ function renderOverview(data) {
 
 function eventRow(event) {
   const row = el("li", "event-row");
+  row.dataset.focusKey = `event:${event.ts}:${event.type}:${event.host || ""}`;
+  row.tabIndex = -1;
   row.append(el("span", "event-row__time mono", formatRelative(event.ts)));
   const main = el("div", "event-row__main");
   main.append(el("p", "event-row__host mono truncate", event.host || t("hostUnknown")));
@@ -382,6 +416,8 @@ function renderDomainList(kind) {
   const list = kind === "allow" ? nodes.allowList : nodes.customList;
   const empty = kind === "allow" ? nodes.allowEmpty : nodes.customEmpty;
   const count = kind === "allow" ? nodes.allowCount : nodes.customCount;
+  const heading = kind === "allow" ? nodes.allowHeading : nodes.customHeading;
+  const focusKey = captureFocusKey(list);
 
   clear(list);
   count.textContent = t("recordCount", [formatNumber(items.length)]);
@@ -394,10 +430,12 @@ function renderDomainList(kind) {
     action.type = "button";
     action.dataset.kind = kind;
     action.dataset.domain = domain;
+    action.dataset.focusKey = `${kind}:${domain}`;
     action.setAttribute("aria-label", t(kind === "allow" ? "removeAllowAria" : "removeCustomAria", [domain]));
     item.append(action);
     list.append(item);
   }
+  restoreFocus(list, focusKey, () => (items.length === 0 ? empty : heading));
 }
 
 function filteredEvents() {
@@ -411,6 +449,7 @@ function filteredEvents() {
 
 function renderEvents() {
   if (!state.data) return;
+  const focusKey = captureFocusKey(nodes.eventsList);
   const events = filteredEvents();
   clear(nodes.eventsList);
   nodes.eventsCount.textContent = t("eventCount", [formatNumber(events.length)]);
@@ -419,6 +458,9 @@ function renderEvents() {
     nodes.eventsList.append(eventRow(event));
   }
   nodes.eventsClear.disabled = state.data.events.length === 0;
+  restoreFocus(nodes.eventsList, focusKey, () =>
+    events.length === 0 ? nodes.eventsEmpty : nodes.eventsHeading,
+  );
 }
 
 function renderSources(data) {
@@ -569,8 +611,9 @@ async function syncTier(tier, button, resultNode) {
   const result = await send({ type: "syncNow", tier: target });
   setBusy(button, false);
   if (!result || !result.ok) {
-    resultNode.textContent = "";
-    toast(result && result.error ? result.error : t("toastSyncFailed"), "error");
+    const message = result && result.error ? result.error : t("toastSyncFailed");
+    resultNode.textContent = message;
+    toast(message, "error");
     return;
   }
   const sync = result.result || {};
@@ -697,7 +740,7 @@ function bind() {
 
   window.addEventListener("hashchange", () => navigate(currentRoute(), false));
 
-  nodes.syncButton.addEventListener("click", () => syncTier("core", nodes.syncButton, nodes.syncCoreResult));
+  nodes.syncButton.addEventListener("click", () => syncTier("core", nodes.syncButton, nodes.topbarStatus));
 
   nodes.themeButton.addEventListener("click", async () => {
     const next = toggleTheme(resolvedTheme());
@@ -801,14 +844,30 @@ function bind() {
     renderEvents();
   });
 
-  nodes.eventsClear.addEventListener("click", async () => {
+  nodes.eventsClear.addEventListener("click", () => {
+    nodes.eventsClearConfirm.hidden = false;
+    nodes.eventsClearConfirmButton.focus();
+  });
+
+  nodes.eventsClearCancel.addEventListener("click", () => {
+    nodes.eventsClearConfirm.hidden = true;
+    nodes.eventsClear.focus();
+  });
+
+  nodes.eventsClearConfirmButton.addEventListener("click", async () => {
+    setBusy(nodes.eventsClearConfirmButton, true);
     const result = await send({ type: "clearEvents" });
+    setBusy(nodes.eventsClearConfirmButton, false);
+    nodes.eventsClearConfirm.hidden = true;
     if (!result || !result.ok) {
       toast(t("toastClearEventsFailed"), "error");
+      nodes.eventsClear.focus();
       return;
     }
     toast(t("toastClearEventsDone"), "ok");
     await load();
+    const target = nodes.eventsEmpty.hidden ? nodes.eventsHeading : nodes.eventsEmpty;
+    target.focus({ preventScroll: true });
   });
 
   nodes.syncCore.addEventListener("click", () => syncTier("core", nodes.syncCore, nodes.syncCoreResult));

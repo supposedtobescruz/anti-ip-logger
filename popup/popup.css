@@ -1,5 +1,5 @@
 body {
-  width: 384px;
+  width: min(384px, 100vw);
   background: var(--paper);
 }
 

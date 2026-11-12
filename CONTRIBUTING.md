@@ -24,7 +24,7 @@ Thanks for your interest. This document explains how to propose changes.
    ```powershell
    npm run verify:browser
    ```
-   If Brave/Chrome is not in the default location, set `BRAVE_PATH`.
+   If no Chromium browser is detected, set `BROWSER_PATH` to a browser executable or pass `--browser <id|name|path>`.
 4. Update documentation you invalidate: `README.md`, `readme/readmeTR.md`, `THIRD-PARTY-LICENSES.md` (data sources or fonts).
 
 ## Commits

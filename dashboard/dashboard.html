@@ -17,7 +17,7 @@
           <span class="rail__title">Anti IP Logger</span>
         </div>
 
-        <nav class="rail__nav" aria-label="Sections" id="rail-nav">
+        <nav class="rail__nav" aria-label="Sections" data-i18n-aria-label="navSectionsLabel" id="rail-nav">
           <a href="#overview" data-route="overview" class="rail__link" aria-current="page" data-i18n="navOverview">Overview</a>
           <a href="#lists" data-route="lists" class="rail__link" data-i18n="navLists">Lists</a>
           <a href="#events" data-route="events" class="rail__link" data-i18n="navEvents">Events</a>
@@ -41,6 +41,7 @@
             <h1 id="page-title">Overview</h1>
           </div>
           <div class="topbar__actions">
+            <p class="topbar__status" id="topbar-status" role="status" aria-live="polite"></p>
             <button class="btn btn--quiet btn--small" id="sync-button" type="button" data-i18n="syncNowButton">Update list</button>
             <button class="btn btn--quiet btn--small" id="theme-button" type="button" data-i18n="themeButton">Theme</button>
           </div>
@@ -56,7 +57,7 @@
               <p class="status-band__detail" id="status-detail"></p>
             </div>
             <label class="switch">
-              <input type="checkbox" id="enabled-toggle" aria-label="Toggle protection" />
+              <input type="checkbox" id="enabled-toggle" aria-label="Toggle protection" data-i18n-aria-label="protectionToggleLabel" />
               <span class="switch__track" aria-hidden="true"></span>
               <span class="switch__label" id="enabled-label">On</span>
             </label>
@@ -101,12 +102,12 @@
           <div class="grid-2">
             <div class="card">
               <div class="card__head">
-                <h2 class="card__title" data-i18n="recentEventsTitle">Recent events</h2>
+                <h2 class="card__title" id="overview-events-heading" tabindex="-1" data-i18n="recentEventsTitle">Recent events</h2>
                 <a class="link-quiet" href="#events" data-route="events" data-i18n="seeAllLink">All</a>
               </div>
               <div class="card__body card__body--flush">
                 <ul class="event-list" id="overview-events"></ul>
-                <p class="empty empty--inline" id="overview-events-empty" data-i18n="overviewEventsEmpty">No events yet. Blocked connections appear here.</p>
+                <p class="empty empty--inline" id="overview-events-empty" tabindex="-1" data-i18n="overviewEventsEmpty">No events yet. Blocked connections appear here.</p>
               </div>
             </div>
 
@@ -190,7 +191,7 @@
           <div class="grid-2">
             <div class="card">
               <div class="card__head">
-                <h2 class="card__title" data-i18n="allowlistTitle">Allowlist</h2>
+                <h2 class="card__title" id="allow-heading" tabindex="-1" data-i18n="allowlistTitle">Allowlist</h2>
                 <span class="eyebrow" id="allow-count"></span>
               </div>
               <div class="card__body">
@@ -203,13 +204,13 @@
                 </form>
                 <p class="error-text" id="allow-error" hidden></p>
                 <ul class="domain-list" id="allow-list"></ul>
-                <p class="empty" id="allow-empty" hidden data-i18n="allowEmpty">The allowlist is empty. You can exempt a blocked site from here.</p>
+                <p class="empty" id="allow-empty" tabindex="-1" hidden data-i18n="allowEmpty">The allowlist is empty. You can exempt a blocked site from here.</p>
               </div>
             </div>
 
             <div class="card">
               <div class="card__head">
-                <h2 class="card__title" data-i18n="customBlocksTitle">Custom blocks</h2>
+                <h2 class="card__title" id="custom-heading" tabindex="-1" data-i18n="customBlocksTitle">Custom blocks</h2>
                 <span class="eyebrow" id="custom-count"></span>
               </div>
               <div class="card__body">
@@ -222,7 +223,7 @@
                 </form>
                 <p class="error-text" id="custom-error" hidden></p>
                 <ul class="domain-list" id="custom-list"></ul>
-                <p class="empty" id="custom-empty" hidden data-i18n="customEmpty">No custom blocks. Add a site that is not on the list.</p>
+                <p class="empty" id="custom-empty" tabindex="-1" hidden data-i18n="customEmpty">No custom blocks. Add a site that is not on the list.</p>
               </div>
             </div>
           </div>
@@ -233,7 +234,7 @@
         <section id="section-events" class="view" hidden aria-labelledby="page-title">
           <div class="card">
             <div class="card__head">
-              <h2 class="card__title" data-i18n="eventsTitle">Event log</h2>
+              <h2 class="card__title" id="events-heading" tabindex="-1" data-i18n="eventsTitle">Event log</h2>
               <span class="eyebrow" id="events-count"></span>
             </div>
             <div class="card__body">
@@ -256,8 +257,15 @@
                 </label>
                 <button class="btn btn--quiet" id="events-clear" type="button" data-i18n="eventsClearButton">Clear log</button>
               </div>
+              <div class="confirm" id="events-clear-confirm" hidden>
+                <p class="confirm__text" data-i18n="eventsClearConfirmText">This deletes up to 500 log records. It cannot be undone.</p>
+                <div class="row gap-8">
+                  <button class="btn btn--danger" id="events-clear-confirm-button" type="button" data-i18n="eventsClearConfirmButton">Confirm clear</button>
+                  <button class="btn btn--quiet" id="events-clear-cancel" type="button" data-i18n="resetCancelButton">Cancel</button>
+                </div>
+              </div>
               <ul class="event-list event-list--roomy" id="events-list"></ul>
-              <p class="empty" id="events-empty" hidden data-i18n="eventsFilterEmpty">No events match this filter.</p>
+              <p class="empty" id="events-empty" tabindex="-1" hidden data-i18n="eventsFilterEmpty">No events match this filter.</p>
             </div>
           </div>
           <p class="hint" data-i18n="eventsFootnote">The log keeps the last 500 events and survives restarts. Temporary tab permissions are removed when tabs close.</p>
@@ -396,7 +404,6 @@
                   <select class="select" id="set-webrtc">
                     <option value="default" data-i18n="webrtcDefault">Browser default</option>
                     <option value="disable_non_proxied_udp" data-i18n="webrtcNonProxied">Disable local IP sharing</option>
-                    <option value="disable_udp" data-i18n="webrtcUdp">Disable WebRTC over UDP</option>
                   </select>
                   <p class="hint" data-i18n="webrtcHint">This setting applies browser-wide. Some video calls may not work when it is off.</p>
                 </div>
@@ -430,7 +437,7 @@
               <div class="row wrap gap-8">
                 <button class="btn btn--quiet" id="export-button" type="button" data-i18n="exportButton">Download backup</button>
                 <button class="btn btn--quiet" id="import-button" type="button" data-i18n="importButton">Restore backup</button>
-                <input class="sr-only" id="import-file" type="file" accept="application/json,.json" aria-label="Choose a backup file" tabindex="-1" />
+                <input class="sr-only" id="import-file" type="file" accept="application/json,.json" aria-label="Choose a backup file" data-i18n-aria-label="backupFileLabel" tabindex="-1" />
                 <button class="btn btn--danger" id="reset-button" type="button" data-i18n="resetButton">Reset all data</button>
               </div>
               <p class="hint" id="data-note">Backup contains settings, counters and the event log. Restoring only changes settings.</p>

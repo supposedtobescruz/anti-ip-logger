@@ -67,6 +67,10 @@
     "message": "Settings",
     "description": "Panel section."
   },
+  "navSectionsLabel": {
+    "message": "Sections",
+    "description": "Accessible label for the panel navigation landmark."
+  },
   "eyebrowPanel": {
     "message": "Control panel",
     "description": "Panel eyebrow label."
@@ -150,6 +154,10 @@
   "switchOff": {
     "message": "Off",
     "description": "Switch label when protection is off."
+  },
+  "protectionToggleLabel": {
+    "message": "Toggle protection",
+    "description": "Accessible label for the protection switch."
   },
   "protectionStatusEyebrow": {
     "message": "Protection status",
@@ -495,6 +503,14 @@
     "message": "Clear log",
     "description": "Clear button."
   },
+  "eventsClearConfirmText": {
+    "message": "This deletes up to 500 log records. It cannot be undone.",
+    "description": "Confirmation text for clearing the event log."
+  },
+  "eventsClearConfirmButton": {
+    "message": "Confirm clear",
+    "description": "Confirmation button for clearing the event log."
+  },
   "eventCount": {
     "message": "$1 events",
     "description": "Event count label."
@@ -663,10 +679,6 @@
     "message": "Disable local IP sharing",
     "description": "Select option."
   },
-  "webrtcUdp": {
-    "message": "Disable WebRTC over UDP",
-    "description": "Select option."
-  },
   "webrtcHint": {
     "message": "This setting applies browser-wide and may remain in place when the extension is removed. Some video calls may not work when it is off.",
     "description": "Hint text."
@@ -706,6 +718,10 @@
   "importButton": {
     "message": "Restore backup",
     "description": "Button label."
+  },
+  "backupFileLabel": {
+    "message": "Choose a backup file",
+    "description": "Accessible label for the backup file input."
   },
   "resetButton": {
     "message": "Reset all data",
@@ -1380,7 +1396,7 @@
     "description": "Blocked page note."
   },
   "blockedNote3": {
-    "message": "Permanent allow removes the domain from the blocklist in every tab.",
+    "message": "The allowlist applies in every tab and takes precedence over the blocklist.",
     "description": "Blocked page note."
   },
   "blockedAllowTab": {

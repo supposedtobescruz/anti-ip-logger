@@ -3,8 +3,9 @@ import {
   CLEANUP_ALARM_MINUTES,
   PAGE_STATE_TTL_MS,
   GIST_VERSION_URL,
+  MAX_DYNAMIC_RULES,
 } from "./lib/constants.js";
-import { restoreLists, normalizeRestoreMode } from "./lib/backup.js";
+import { restoreLists, normalizeRestoreMode, validateImportSettings } from "./lib/backup.js";
 import { requiresPrivilege, isExtensionPageSender } from "./lib/privilege.js";
 import { normalizeHost, parseList, parseDnrJson, dedupeSubdomains } from "./lib/parser.js";
 import { t } from "./assets/i18n.js";
@@ -12,6 +13,7 @@ import { hostMatchesDomain, matchDomain, urlToHost } from "./lib/domains.js";
 import { buildDynamicRuleSetDetailed } from "./lib/rules.js";
 import {
   applyDynamicRules,
+  applySessionRules,
   applyStaticRuleset,
   applyWebRtcPolicy,
   buildTabAllowRules,
@@ -70,7 +72,6 @@ const state = {
   dnr: null,
   appliedSignature: "",
   syncing: null,
-  recentBlocks: new Map(),
   updateNag: null,
   webrtcErrorFor: "",
 };
@@ -101,6 +102,16 @@ async function reconcilePauseAlarm(now = Date.now()) {
     state.settings = await updateSettings({ pauseUntil: 0 });
   }
   await chrome.alarms.clear(PAUSE_ALARM);
+}
+
+// Defense in depth for a missed PAUSE_ALARM: wipe an expired pause inline.
+async function expirePauseIfNeeded(now = Date.now()) {
+  const pauseUntil = state.settings && Number.isFinite(state.settings.pauseUntil) ? state.settings.pauseUntil : 0;
+  if (pauseUntil > 0 && pauseUntil <= now) {
+    state.settings = await updateSettings({ pauseUntil: 0 });
+    await chrome.alarms.clear(PAUSE_ALARM);
+    await applyState(true);
+  }
 }
 
 function runtimeUrl(path) {
@@ -230,6 +241,10 @@ async function applyState(force = false) {
 
   const settings = state.settings;
   const active = protectionActive();
+  // Tab allows carry tabIds, which Chromium only accepts in session-scoped
+  // rules. Budget dynamic rules around them so dynamic + session stay under
+  // the combined cap.
+  const tabRules = active ? buildTabAllowRules(state.tabAllows) : [];
   const detailed = active
     ? buildDynamicRuleSetDetailed(
         {
@@ -238,14 +253,10 @@ async function applyState(force = false) {
           extended: state.extended,
         },
         settings,
+        Math.max(0, MAX_DYNAMIC_RULES - tabRules.length),
       )
     : { rules: [], dropped: null, maxRules: 0 };
-  const rules = active
-    ? [
-        ...detailed.rules,
-        ...buildTabAllowRules(state.tabAllows),
-      ]
-    : [];
+  const rules = active ? detailed.rules : [];
 
   await applyStaticRuleset(active && settings.tiers.core);
   const applied = await applyDynamicRules(rules);
@@ -265,6 +276,7 @@ async function applyState(force = false) {
       });
     }
   }
+  await applySessionRules(active ? tabRules : []);
   await applyWebRtcSetting();
   state.dnr = await dnrStatus();
   state.appliedSignature = signature;
@@ -316,7 +328,7 @@ function classifyHost(host) {
     return { known: true, allowed: false, domain: customMatch, category: "custom", confidence: "user", sources: ["user"] };
   }
 
-  const packagedMatch = matchDomain(clean, state.packagedSet);
+  const packagedMatch = state.settings.tiers.core ? matchDomain(clean, state.packagedSet) : null;
   if (packagedMatch) {
     const entry = state.packagedEntries.find((item) => item.domain === packagedMatch);
     return {
@@ -740,19 +752,37 @@ async function removeAllowedDomain(input) {
 }
 
 async function allowForTab(tabId, input) {
-  const domain = normalizeDomainInput(input);
-  if (!Number.isFinite(tabId) || !domain) return { ok: false, error: t("errorInvalidTabOrDomain") };
-  const value = { domain, at: Date.now() };
-  state.tabAllows[tabId] = value;
-  await setTabAllow(tabId, value);
-  await applyState(true);
-  await appendEvent({ type: "allowed", host: domain, detail: t("eventTabAllowed"), tabId });
-  return { ok: true, domain, tabId };
+  return serializeTabState(async () => {
+    const domain = normalizeDomainInput(input);
+    if (!Number.isFinite(tabId) || !domain) return { ok: false, error: t("errorInvalidTabOrDomain") };
+    const value = { domain, at: Date.now() };
+    state.tabAllows[tabId] = value;
+    await setTabAllow(tabId, value);
+    await applyState(true);
+    await appendEvent({ type: "allowed", host: domain, detail: t("eventTabAllowed"), tabId });
+    return { ok: true, domain, tabId };
+  });
+}
+
+async function removeTabAllow(tabId) {
+  return serializeTabState(async () => {
+    if (Number.isFinite(tabId)) {
+      delete state.tabAllows[tabId];
+      await clearTabAllow(tabId);
+      await applyState(true);
+    }
+    return { ok: true };
+  });
 }
 
 async function reportBlock(message, sender) {
   const tabId = sender && sender.tab ? sender.tab.id : message.tabId;
   if (!Number.isFinite(tabId)) return { ok: false, error: t("errorTabNotFound") };
+  const frameId = sender && Number.isFinite(sender.frameId) ? sender.frameId : 0;
+  if (frameId !== 0) {
+    // Blocks are only accepted from the top frame.
+    return { ok: true, ignored: true };
+  }
   const pending = await getPendingNav(tabId);
   const target = message.url || (pending && pending.url) || "";
   const host = normalizeHost(target) || normalizeHost(message.host) || "";
@@ -884,7 +914,7 @@ async function setSetting(key, value) {
     enabled: (v) => typeof v === "boolean",
     showBlockedPage: (v) => typeof v === "boolean",
     warnings: (v) => typeof v === "boolean",
-    webrtcPolicy: (v) => ["default", "disable_non_proxied_udp", "disable_udp"].includes(v),
+    webrtcPolicy: (v) => ["default", "disable_non_proxied_udp"].includes(v),
     theme: (v) => ["system", "light", "dark"].includes(v),
     onboardingSeen: (v) => typeof v === "boolean",
     language: (v) => ["system", "en", "tr"].includes(v),
@@ -941,8 +971,6 @@ async function exportData() {
     exportedAt: new Date().toISOString(),
     version: chrome.runtime.getManifest().version,
     settings: state.settings,
-    stats: await getStats(),
-    events: await getEvents(),
   };
 }
 
@@ -950,11 +978,15 @@ async function importData(payload, mode) {
   if (!payload || typeof payload !== "object" || !payload.settings) {
     return { ok: false, error: t("errorInvalidBackup") };
   }
+  const incoming = payload.settings;
+  const invalidField = validateImportSettings(incoming);
+  if (invalidField) {
+    return { ok: false, error: t("errorInvalidBackup") };
+  }
   const restoreMode = normalizeRestoreMode(mode);
   if (restoreMode === null) {
     return { ok: false, error: t("errorInvalidBackup") };
   }
-  const incoming = payload.settings;
   const restored = restoreLists(state.settings, incoming, restoreMode);
   const patch = {
     enabled: incoming.enabled,
@@ -1056,15 +1088,8 @@ async function handleMessage(message, sender) {
       return removeAllowedDomain(message.domain);
     case "allowOnce":
       return allowForTab(sender && sender.tab ? sender.tab.id : message.tabId, message.domain);
-    case "removeTabAllow": {
-      const tabId = sender && sender.tab ? sender.tab.id : message.tabId;
-      if (Number.isFinite(tabId)) {
-        delete state.tabAllows[tabId];
-        await clearTabAllow(tabId);
-        await applyState(true);
-      }
-      return { ok: true };
-    }
+    case "removeTabAllow":
+      return removeTabAllow(sender && sender.tab ? sender.tab.id : message.tabId);
     case "checkUrl": {
       const host = normalizeDomainInput(message.url);
       if (!host) return { ok: false, error: t("errorInvalidUrl") };
@@ -1213,6 +1238,7 @@ chrome.webNavigation.onBeforeNavigate.addListener((details) => {
   if (details.frameId !== 0 || !/^https?:/i.test(details.url)) return;
   serializeTabState(async () => {
     await ensureInit();
+    await expirePauseIfNeeded();
     const tabAllow = await getTabAllow(details.tabId);
     const host = urlToHost(details.url);
     if (tabAllow && (!host || !hostMatchesDomain(host, tabAllow.domain))) {
@@ -1231,6 +1257,7 @@ chrome.webNavigation.onCommitted.addListener((details) => {
   if (details.frameId !== 0 || !/^https?:/i.test(details.url)) return;
   serializeTabState(async () => {
     await ensureInit();
+    await expirePauseIfNeeded();
     const tabAllow = await getTabAllow(details.tabId);
     const host = urlToHost(details.url);
     if (tabAllow && (!host || !hostMatchesDomain(host, tabAllow.domain))) {
@@ -1248,26 +1275,5 @@ chrome.tabs.onRemoved.addListener((tabId) => {
     await applyState(true);
   }).catch((error) => reportBackgroundError("tab-cleanup", error));
 });
-
-if (chrome.declarativeNetRequest.onRuleMatchedDebug) {
-  chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((info) => {
-    if (!info || !info.request || info.request.type === "main_frame") return;
-    const url = info.request.url || "";
-    const host = urlToHost(url);
-    if (!host) return;
-    const key = `${info.request.tabId}:${host}`;
-    const now = Date.now();
-    const last = state.recentBlocks.get(key) || 0;
-    if (now - last < 2_000) return;
-    state.recentBlocks.set(key, now);
-    if (state.recentBlocks.size > 200) {
-      for (const [item, ts] of state.recentBlocks) {
-        if (now - ts > 60_000) state.recentBlocks.delete(item);
-      }
-    }
-    appendEvent({ type: "blocked", host, detail: t("eventSubresourceBlocked"), tabId: info.request.tabId })
-      .catch((error) => reportBackgroundError("rule-matched", error));
-  });
-}
 
 ensureInit().catch((error) => console.error("[anti-ip-logger] init failed", error));

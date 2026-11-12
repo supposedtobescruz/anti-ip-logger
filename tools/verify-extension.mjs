@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import { MAX_DOMAINS_PER_RULE } from "../lib/constants.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const failures = [];
@@ -89,7 +90,7 @@ for (const rule of rules) {
   if (!rule.action || rule.action.type !== "block") schemaOk = false;
   if (!rule.condition || !Array.isArray(rule.condition.requestDomains)) schemaOk = false;
   if (!Array.isArray(rule.condition.resourceTypes) || rule.condition.resourceTypes.length === 0) schemaOk = false;
-  if (rule.condition.requestDomains.length > 100) schemaOk = false;
+  if (rule.condition.requestDomains.length > MAX_DOMAINS_PER_RULE) schemaOk = false;
   for (const domain of rule.condition.requestDomains) {
     domainTotal += 1;
     if (!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(domain)) schemaOk = false;
@@ -138,12 +139,18 @@ for (const file of htmlFiles) {
   }
 }
 
-const textExtensions = [".html", ".js", ".css", ".md", ".json"];
+const textExtensions = [".html", ".js", ".css", ".md", ".json", ".mjs", ".yml", ".yaml", ".py", ".txt"];
 const sourceFiles = [];
 for (const extension of textExtensions) {
   sourceFiles.push(...(await listFiles(ROOT, extension)));
 }
-const VENDORED = new Set([join(ROOT, "antislop.md")]);
+const githubRoot = join(ROOT, ".github");
+if (existsSync(githubRoot)) {
+  for (const extension of textExtensions) {
+    sourceFiles.push(...(await listFiles(githubRoot, extension)));
+  }
+}
+const VENDORED = new Set([join(ROOT, "antislop.md"), join(ROOT, "assets", "fonts", "OFL.txt")]);
 const emDash = [];
 for (const file of sourceFiles) {
   if (VENDORED.has(file)) continue;
@@ -165,9 +172,16 @@ check("en and tr locales exist", existsSync(join(ROOT, "_locales", "en", "messag
 const fonts = await readdir(join(ROOT, "assets", "fonts"));
 check("embedded fonts present", fonts.filter((name) => name.endsWith(".woff2")).length >= 6, `${fonts.length}`);
 
+const runtimeFiles = [
+  ...jsFiles.filter((file) => {
+    const toolingRoot = [join(ROOT, "tools"), join(ROOT, "tests")];
+    return !toolingRoot.some((dir) => file === dir || file.startsWith(`${dir}/`) || file.startsWith(`${dir}\\`));
+  }),
+  ...htmlFiles,
+];
 const totalBytes = await (async () => {
   let sum = 0;
-  for (const file of [...jsFiles, ...htmlFiles]) sum += (await stat(file)).size;
+  for (const file of runtimeFiles) sum += (await stat(file)).size;
   return sum;
 })();
 check("source size is reasonable", totalBytes < 400_000, `${Math.round(totalBytes / 1024)} KB`);

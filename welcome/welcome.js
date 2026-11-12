@@ -92,7 +92,7 @@ document.addEventListener("keydown", (event) => {
     go(-1);
     return;
   }
-  if (event.key === "ArrowRight" || event.key === "Enter") {
+  if (event.key === "ArrowRight") {
     event.preventDefault();
     if (step === TOTAL - 1) finish();
     else go(1);

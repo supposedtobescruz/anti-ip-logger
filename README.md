@@ -7,7 +7,7 @@
 
 Anti IP Logger is a Chrome extension that blocks known IP logger and link grabber domains, then reports IP leak attempts it finds on the page. Manifest V3, vanilla JavaScript, no build step.
 
-Version 1.4.0. The bundled list ships 125 domains in 2 static rules, with 61 exceptions.
+Version 1.4.1. The bundled list ships 125 domains in 2 static rules, with 61 exceptions.
 
 ## What it does
 
@@ -42,7 +42,7 @@ Version 1.4.0. The bundled list ships 125 domains in 2 static rules, with 61 exc
 ## Install
 
 1. Download or clone this repository.
-2. Open your browser's extensions page: `chrome://extensions` (Chrome, Brave, Vivaldi), `edge://extensions` (Edge) or `opera://extensions` (Opera).
+2. Open your browser's extensions page: `chrome://extensions` (Chrome, Chromium), `edge://extensions` (Edge), `brave://extensions` (Brave), `opera://extensions` (Opera), `vivaldi://extensions` (Vivaldi) or `browser://extensions` (Yandex Browser).
 3. Enable **Developer mode** (top right) if you are installing unpacked from the repository.
 4. **Microsoft Edge only:** install from Edge Add-ons at https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.3.0).
 5. **Unpacked install:** click **Load unpacked** and pick the repository root.
@@ -52,11 +52,22 @@ Version 1.4.0. The bundled list ships 125 domains in 2 static rules, with 61 exc
 
 ## Browser support
 
-- **Microsoft Edge:** published in Edge Add-ons (see link above), reviewed as 1.3.0.
-- **Brave:** verified locally, 32/32 browser checks on Brave 157.
-- **Google Chrome, Opera, Vivaldi (Chromium 111 or newer):** the package uses only standard Chromium Manifest V3 APIs and declares `minimum_chrome_version: 111`. Expected to work; Chrome Web Store is deliberately not submitted yet, and Opera/Vivaldi were not run on this machine, so load unpacked and test before relying on them.
-- **Firefox, Safari:** not supported yet. They require different packaging (gecko ring for AMO; Xcode conversion for Safari).
-- Content scripts run in the MAIN world (`world: MAIN`), which requires Chromium 111. Pages that spoof the signal channel can fool the banner, not the blocklist; see Known limits.
+One Manifest V3 package covers the Chromium family. The only hard floor is Chromium 111, the release that ships `world: MAIN` content scripts, and `manifest.json` declares `minimum_chrome_version: 111`.
+
+| Browser | Distribution | Install page | Verified |
+|---|---|---|---|
+| Microsoft Edge | Edge Add-ons: 1.3.0 live, 1.4.0 in certification | `edge://extensions` | Edge 157, 45/45 browser checks |
+| Brave | Load unpacked | `brave://extensions` | Brave 157, 45/45 browser checks |
+| Google Chrome | Load unpacked; Chrome Web Store deliberately not submitted | `chrome://extensions` | Not run on this machine |
+| Chromium | Load unpacked | `chrome://extensions` | Not run on this machine |
+| Opera | Load unpacked | `opera://extensions` | Not run on this machine |
+| Vivaldi | Load unpacked | `vivaldi://extensions` | Not run on this machine |
+| Yandex Browser | Load unpacked | `browser://extensions` | Not run on this machine |
+| Firefox, Safari | Not supported | | Different packaging required (gecko ring for AMO, Xcode conversion for Safari) |
+
+The extension uses standard Chromium Manifest V3 APIs only: `declarativeNetRequest` static and dynamic rules, `storage.local` and `storage.session`, `alarms`, `tabs`, `webNavigation`, `action` and `privacy`. The WebRTC policy is optional at runtime: if `chrome.privacy.network` is unavailable, the requested policy is rejected, the setting reverts and an error event is logged, while every other feature keeps working.
+
+Content scripts run in the MAIN world (`world: MAIN`), which requires Chromium 111. Pages that spoof the signal channel can fool the banner, not the blocklist; see Known limits.
 
 ## Usage
 
@@ -94,11 +105,12 @@ npm run check           # verify the committed dataset is in sync
 npm test                # unit tests
 npm run verify          # manifest, files, rules, data and em dash checks
 npm run verify:ui       # accessibility, contrast and interface checks
-npm run verify:browser  # load in Brave/Chrome and capture screenshots
+npm run verify:browser  # load the extension in the first detected Chromium browser
+npm run verify:browsers # run the same suite in every detected Chromium browser
 npm run verify:all      # check + test + verify + verify:ui
 ```
 
-`verify:browser` writes screenshots and `report.json` into `verify-output/`. If Brave or Chrome is not in its default location, set `BRAVE_PATH` to the browser executable.
+`verify:browser` writes screenshots and `report.json` into `verify-output/`. It detects Chrome, Edge, Brave, Opera, Opera GX, Vivaldi, Yandex Browser and Chromium on Windows, macOS and Linux; pick one with `--browser <id|name|path>` or `BROWSER_PATH`, and list what it finds with `--list`. `verify:browsers` runs the suite per browser, writes each run to `verify-output/<browser>/` and a summary matrix to `verify-output/browsers.json`.
 
 ### Architecture
 
@@ -133,9 +145,10 @@ Rule priority ladder: tab allow 110 > allowlist 100 > custom block 50 > blocked 
 
 - The WebRTC policy is browser-wide. "Browser default" leaves the policy untouched unless the extension changed it earlier and recorded a marker for it.
 - If the extension changed the WebRTC policy, that change stays in place even after you uninstall the extension. To restore the browser default, pick "Browser default" first, then remove the extension.
-- Subresource blocks (a blocked iframe or pixel) are stopped by DNR but are not written to the event log in production builds. The blocked counters record top-level navigations only.
+- Subresource blocks (a blocked iframe or pixel) are stopped by DNR but are not written to the event log. The blocked counters record top-level navigations only.
 - On a blocked navigation, the full URL (including its query string) is held in `chrome.storage.session` until the browser closes; the blocked page uses it for "Allow once in this tab and open". The event log never stores URLs.
 - List updates need network access. Offline, the bundled list is used.
+- In-page detection depends on `world: MAIN` content scripts (Chromium 111 and newer). A build that ignores that manifest field still blocks listed domains through DNR, but the in-page warning and WebRTC signals would be missing.
 - If a source partially fails, the extension keeps entries from the previous sync and adds new ones on top. It never writes an empty list over a good one.
 - The domain list ages. Grabify-style services rotate domains regularly.
 - The warning banner appears only for a danger finding or two distinct warning categories at once. A single weak signal (one pixel, one hidden iframe, one early request) does not raise the banner; it shows as a badge and a finding in the popup.
@@ -151,7 +164,7 @@ Rule priority ladder: tab allow 110 > allowlist 100 > custom block 50 > blocked 
 
 - **Microsoft Edge Add-ons:** published, https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.3.0, 11 Nov 2026).
 - **Chrome Web Store:** the listing is prepared but not submitted yet, by deliberate decision. What is ready:
-  - `npm run package` builds `dist/anti-ip-logger-1.4.0-cws.zip` (runtime files only; the extracted zip passes all browser checks).
+  - `npm run package` builds `dist/anti-ip-logger-1.4.1-cws.zip` (runtime files only; the extracted zip passes all browser checks).
   - Store kit in `store/`: English and Turkish listings, permission justifications, screenshots, promotional tiles.
   - The privacy policy lives in `PRIVACY.md` and `docs/privacy.html`, served at https://supposedtobescruz.github.io/anti-ip-logger/privacy.html (repository is public, GitHub Pages from `docs/`).
   - A submission checklist is in `store/README.md`; the developer registration fee note is there as well.

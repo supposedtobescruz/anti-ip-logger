@@ -67,6 +67,10 @@
     "message": "Ayarlar",
     "description": "Panel bölümü."
   },
+  "navSectionsLabel": {
+    "message": "Bölümler",
+    "description": "Panel navigasyon işaret alanı etiketi."
+  },
   "eyebrowPanel": {
     "message": "Kontrol paneli",
     "description": "Panel üst metin etiketi."
@@ -150,6 +154,10 @@
   "switchOff": {
     "message": "Kapalı",
     "description": "Koruma kapalıyken anahtar etiketi."
+  },
+  "protectionToggleLabel": {
+    "message": "Korumayı aç veya kapat",
+    "description": "Koruma anahtarı erişilebilir etiketi."
   },
   "protectionStatusEyebrow": {
     "message": "Koruma durumu",
@@ -495,6 +503,14 @@
     "message": "Kaydı temizle",
     "description": "Temizle düğmesi."
   },
+  "eventsClearConfirmText": {
+    "message": "En fazla 500 kayıt silinir. Bu işlem geri alınamaz.",
+    "description": "Olay kaydını temizleme onay metni."
+  },
+  "eventsClearConfirmButton": {
+    "message": "Temizlemeyi onayla",
+    "description": "Olay kaydını temizleme onay düğmesi."
+  },
   "eventCount": {
     "message": "$1 olay",
     "description": "Olay sayacı."
@@ -663,10 +679,6 @@
     "message": "Yerel IP paylaşımını kapat",
     "description": "Seçim seçeneği."
   },
-  "webrtcUdp": {
-    "message": "UDP üzerinden WebRTC bağlantısını kapat",
-    "description": "Seçim seçeneği."
-  },
   "webrtcHint": {
     "message": "Bu ayar tarayıcı genelinde geçerlidir ve uzantı kaldırıldıktan sonra da yerinde kalabilir. Kapatıldığında bazı görüntülü görüşmeler çalışmayabilir.",
     "description": "İpucu metni."
@@ -706,6 +718,10 @@
   "importButton": {
     "message": "Yedekten yükle",
     "description": "Düğme etiketi."
+  },
+  "backupFileLabel": {
+    "message": "Bir yedek dosyası seç",
+    "description": "Yedek dosyası girişinin erişilebilir etiketi."
   },
   "resetButton": {
     "message": "Tüm verileri sıfırla",
@@ -808,7 +824,7 @@
     "description": "Bulgu seviye etiketi."
   },
   "findingLevelWarn": {
-    "message": "süpheli",
+    "message": "şüpheli",
     "description": "Bulgu seviye etiketi."
   },
   "findingLevelInfo": {
@@ -1380,7 +1396,7 @@
     "description": "Engel sayfası not."
   },
   "blockedNote3": {
-    "message": "Kalıcı izin, alan adını tüm sekmelerde engel listesinden çıkarır.",
+    "message": "İzin listesi her sekmede geçerlidir ve engel listesinden önceliklidir.",
     "description": "Engel sayfası not."
   },
   "blockedAllowTab": {

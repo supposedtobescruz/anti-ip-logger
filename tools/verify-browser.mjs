@@ -1,32 +1,61 @@
 import { spawn } from "node:child_process";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, isAbsolute, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
+import { detectBrowsers, resolveBrowser } from "./browser-paths.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const EXTENSION_PATH = process.env.EXTENSION_PATH || ROOT;
-const OUT = join(ROOT, "verify-output");
-const PROFILE = join(tmpdir(), `anti-ip-logger-verify-${Date.now()}`);
-const PORT_FILE = join(PROFILE, "DevToolsActivePort");
-const BROWSER_CANDIDATES = [
-  process.env.BRAVE_PATH,
-  "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe",
-  "C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application\\brave.exe",
-  "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-  "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-  "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
-  "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
-  "/usr/bin/brave-browser",
-  "/opt/brave.com/brave/brave-browser",
-  "/usr/bin/google-chrome",
-  "/usr/bin/google-chrome-stable",
-  "/usr/bin/microsoft-edge",
-  "/usr/bin/chromium",
-  "/usr/bin/chromium-browser",
-  "/snap/bin/chromium",
-].filter(Boolean);
+
+function printUsage() {
+  process.stderr.write(
+    "Usage: node tools/verify-browser.mjs [--browser <id|name|path>] [--list] [--out <dir>]\n" +
+      "Environment: BROWSER_PATH, BRAVE_PATH (legacy), VERIFY_OUT, EXTENSION_PATH, BROWSER_LANG\n",
+  );
+}
+
+function parseArgs(argv) {
+  const args = { browser: null, list: false, out: null };
+  for (let index = 0; index < argv.length; index += 1) {
+    const arg = argv[index];
+    if (arg === "--list") {
+      args.list = true;
+      continue;
+    }
+    if (arg === "--browser" || arg === "--out") {
+      const value = argv[index + 1];
+      if (value === undefined || value.startsWith("--")) {
+        printUsage();
+        process.exit(2);
+      }
+      if (arg === "--browser") args.browser = value;
+      else args.out = value;
+      index += 1;
+      continue;
+    }
+    printUsage();
+    process.exit(2);
+  }
+  return args;
+}
+
+const args = parseArgs(process.argv.slice(2));
+const OUT = process.env.VERIFY_OUT || args.out || join(ROOT, "verify-output");
+
+if (args.list) {
+  const detected = detectBrowsers();
+  if (detected.length === 0) {
+    process.stderr.write("No supported Chromium browser detected. Set BROWSER_PATH to a browser binary.\n");
+    process.exit(1);
+  }
+  for (const entry of detected) {
+    process.stdout.write(`${entry.id}  ${entry.name}  ${entry.path}\n`);
+  }
+  process.stdout.write(`${detected.length} browser${detected.length === 1 ? "" : "s"} detected\n`);
+  process.exit(0);
+}
 
 const failures = [];
 const passed = [];
@@ -37,6 +66,17 @@ function check(name, ok, detail = "") {
   if (ok) passed.push(name);
   else failures.push(`${name}${detail ? `: ${detail}` : ""}`);
   process.stdout.write(`${ok ? "PASS" : "FAIL"}  ${name}${detail ? `  (${detail})` : ""}\n`);
+}
+
+function finalSummary() {
+  const rel = relative(ROOT, OUT);
+  const insideRepo = rel && !rel.startsWith("..") && !isAbsolute(rel);
+  const shown = insideRepo ? `${rel}/` : OUT;
+  process.stdout.write(`\n${passed.length}/${passed.length + failures.length} browser checks passed. Screenshots: ${shown}\n`);
+  if (failures.length > 0) {
+    process.stdout.write(`\nFAILED:\n${failures.map((item) => `- ${item}`).join("\n")}\n`);
+    process.exitCode = 1;
+  }
 }
 
 function sleep(ms) {
@@ -237,9 +277,33 @@ async function run() {
   }, 120_000);
   watchdog.unref();
 
-  const browser = BROWSER_CANDIDATES.find((candidate) => existsSync(candidate));
-  check("browser found", Boolean(browser), browser || "Brave/Chrome not found");
-  if (!browser) return;
+  let selected = null;
+  if (args.browser) {
+    const resolved = resolveBrowser(args.browser);
+    selected = resolved && existsSync(resolved.path) ? resolved : null;
+    check(
+      "browser found",
+      Boolean(selected),
+      selected ? selected.path : `${args.browser} (does not resolve to an existing file)`,
+    );
+  } else {
+    const detected = detectBrowsers();
+    selected = detected[0] || null;
+    check(
+      "browser found",
+      Boolean(selected),
+      selected ? selected.path : "No supported Chromium browser detected",
+    );
+  }
+  if (!selected) {
+    finalSummary();
+    return;
+  }
+
+  const browser = selected.path;
+  const PROFILE = join(tmpdir(), `anti-ip-logger-verify-${selected.id}-${Date.now()}`);
+  const PORT_FILE = join(PROFILE, "DevToolsActivePort");
+  let browserInfo = { id: selected.id, name: selected.name, path: selected.path, product: "", version: "" };
 
   await mkdir(OUT, { recursive: true });
   const child = spawn(
@@ -273,6 +337,13 @@ async function run() {
     );
     port = Number(lines[0]);
     check("browser debug port opened", Number.isFinite(port) && port > 0, String(port));
+
+    const versionResponse = await fetch(`http://127.0.0.1:${port}/json/version`).catch(() => null);
+    const versionPayload = versionResponse && versionResponse.ok ? await versionResponse.json().catch(() => null) : null;
+    const product = versionPayload?.Browser || "";
+    const version = product.includes("/") ? product.slice(product.lastIndexOf("/") + 1) : product;
+    browserInfo = { id: selected.id, name: selected.name, path: selected.path, product, version };
+    process.stdout.write(`Browser: ${selected.name} ${version} (${selected.id})\n`);
 
     const listExtensionWorkers = async () => {
       const response = await fetch(`http://127.0.0.1:${port}/json/list`);
@@ -512,10 +583,19 @@ async function run() {
     ).catch(() => false);
     check("pause state visible after 15 minute action", pauseVisible === true);
 
-    const pauseState = await evaluate(
-      dash,
-      `const settings = (await chrome.storage.local.get('settings')).settings; const rules = await chrome.declarativeNetRequest.getDynamicRules(); const enabled = await chrome.declarativeNetRequest.getEnabledRulesets(); return { pauseUntil: settings.pauseUntil, enabled: settings.enabled, dynamic: rules.length, rulesets: enabled };`,
-    );
+    const readPauseState = () =>
+      evaluate(
+        dash,
+        `const settings = (await chrome.storage.local.get('settings')).settings; const rules = await chrome.declarativeNetRequest.getDynamicRules(); const enabled = await chrome.declarativeNetRequest.getEnabledRulesets(); return { pauseUntil: settings.pauseUntil, enabled: settings.enabled, dynamic: rules.length, rulesets: enabled };`,
+      );
+    const pauseState = await waitFor(
+      async () => {
+        const value = await readPauseState();
+        return value && Number.isFinite(value.pauseUntil) && value.pauseUntil > Date.now() && value.dynamic === 0 && Array.isArray(value.rulesets) && !value.rulesets.includes("core") ? value : null;
+      },
+      8000,
+      "pause enforcement applied",
+    ).catch(() => readPauseState().catch(() => ({ pauseUntil: 0, enabled: false, dynamic: "?", rulesets: [] })));
     check("pause stored with a future deadline", Number(pauseState.pauseUntil) > Date.now(), `pauseUntil ${pauseState.pauseUntil}`);
     check(
       "pause removes dynamic and static rules",
@@ -628,6 +708,108 @@ async function run() {
       check("grabify request redirected to blocked page", false, error.message);
     }
 
+    // Serve the post-allow navigation offline. The allow rule points the tab at
+    // the grabify URL, but the real page and its third-party scripts are not
+    // part of what is being verified. Fulfill the paused request with an empty
+    // 200 so the tab URL changes without any network traffic.
+    test.on("Fetch.requestPaused", (params) => {
+      test.send("Fetch.fulfillRequest", {
+        requestId: params.requestId,
+        responseCode: 200,
+        responseHeaders: [{ name: "Content-Type", value: "text/html" }],
+        body: "",
+      }).catch(() => {});
+    });
+    await test.send("Fetch.enable", {
+      patterns: [{ urlPattern: "*grabify.link*", requestStage: "Request" }],
+    });
+
+    // Regression: Chrome rejects tabIds in dynamic rules, so "allow once in this
+    // tab" must install a session-scoped rule and must not touch dynamic rules.
+    const tabAllowProbe = await evaluate(
+      workerClient,
+      `const tabs = await chrome.tabs.query({});
+       const blocked = tabs.find((tab) => tab.url && tab.url.includes('/blocked/blocked.html'));
+       const session = await chrome.declarativeNetRequest.getSessionRules();
+       const dynamic = await chrome.declarativeNetRequest.getDynamicRules();
+       return { blockedTabId: blocked ? blocked.id : null, session, dynamic };`,
+    );
+    const tabAllowTabId = tabAllowProbe && Number.isFinite(tabAllowProbe.blockedTabId) ? tabAllowProbe.blockedTabId : null;
+    const hasTabScopedRule = (rules) => Array.isArray(rules)
+      && rules.some((rule) => rule.condition && Array.isArray(rule.condition.tabIds) && rule.condition.tabIds.includes(tabAllowTabId));
+    check(
+      "no tab-scoped rule while the blocked page is pending",
+      tabAllowTabId !== null && !hasTabScopedRule(tabAllowProbe.session) && !hasTabScopedRule(tabAllowProbe.dynamic),
+      tabAllowTabId === null
+        ? "blocked tab not found"
+        : `session ${(tabAllowProbe.session || []).length}, dynamic ${(tabAllowProbe.dynamic || []).length}`,
+    );
+    if (tabAllowTabId !== null) {
+      await evaluate(test, "document.getElementById('allow-tab').click(); return true;").catch(() => false);
+      const navigatedTo = await waitFor(
+        async () => {
+          const url = await evaluate(
+            workerClient,
+            `const tab = await chrome.tabs.get(${tabAllowTabId}).catch(() => null); return tab && tab.url ? tab.url : '';`,
+          );
+          return url && !url.includes("/blocked/blocked.html") ? url : null;
+        },
+        12_000,
+        "navigation leaves the blocked page",
+      ).catch(() => null);
+      check(
+        "allow once in this tab leaves the blocked page",
+        Boolean(navigatedTo),
+        navigatedTo || "navigation did not leave blocked.html",
+      );
+      const postAllow = await waitFor(
+        async () => {
+          const value = await evaluate(
+            workerClient,
+            `const session = await chrome.declarativeNetRequest.getSessionRules();
+             const dynamic = await chrome.declarativeNetRequest.getDynamicRules();
+             return { session, dynamic };`,
+          );
+          return hasTabScopedRule(value.session) ? value : null;
+        },
+        8_000,
+        "tab-scoped session rule",
+      ).catch(() => null);
+      check(
+        "tab allow uses a session-scoped rule",
+        Boolean(postAllow),
+        postAllow ? `${postAllow.session.length} session rule(s) with the tab id` : "no session rule with the tab id",
+      );
+      check(
+        "tab allow does not use a dynamic rule",
+        Boolean(postAllow)
+          && !hasTabScopedRule(postAllow.dynamic)
+          && !postAllow.dynamic.some((rule) => rule.action && rule.action.type === "allow"
+            && rule.condition && Array.isArray(rule.condition.requestDomains)
+            && rule.condition.requestDomains.includes("grabify.link")),
+        postAllow ? `${postAllow.dynamic.length} dynamic rule(s)` : "session rule never appeared",
+      );
+      await evaluate(workerClient, `await chrome.tabs.remove(${tabAllowTabId}).catch(() => {}); return true;`);
+      const cleared = await waitFor(
+        async () => {
+          const session = await evaluate(
+            workerClient,
+            "const rules = await chrome.declarativeNetRequest.getSessionRules(); return rules.length;",
+          );
+          return session === 0 ? true : null;
+        },
+        8_000,
+        "session rules cleared after tab close",
+      ).catch(() => null);
+      check(
+        "session rules cleared after the tab closes",
+        cleared === true,
+        cleared === null ? "timed out waiting for an empty session rule set" : "empty session rule set",
+      );
+    }
+
+    await test.send("Fetch.disable").catch(() => {});
+
     const tabState = await evaluate(
       workerClient,
       `const tabs = await chrome.tabs.query({});
@@ -640,7 +822,7 @@ async function run() {
 
     await writeFile(
       join(OUT, "report.json"),
-      `${JSON.stringify({ passed, failures, consoleErrors, extensionId, rules: ruleInfo }, null, 2)}\n`,
+      `${JSON.stringify({ passed, failures, consoleErrors, extensionId, rules: ruleInfo, browser: browserInfo }, null, 2)}\n`,
       "utf8",
     );
 
@@ -654,11 +836,7 @@ async function run() {
     await rm(PROFILE, { recursive: true, force: true }).catch(() => {});
   }
 
-  process.stdout.write(`\n${passed.length}/${passed.length + failures.length} browser checks passed. Screenshots: verify-output/\n`);
-  if (failures.length > 0) {
-    process.stdout.write(`\nFAILED:\n${failures.map((item) => `- ${item}`).join("\n")}\n`);
-    process.exitCode = 1;
-  }
+  finalSummary();
 }
 
 run().catch((error) => {
