@@ -1,6 +1,6 @@
 # Chrome Web Store kit - Anti IP Logger
 
-Everything needed for a Chrome Web Store submission. The Edge Add-ons submission is done and live (1.3.0, 11 Nov 2026); the Chrome Web Store listing itself is deliberately on hold until you decide to submit.
+Everything needed for a Chrome Web Store submission. The Edge Add-ons submission is done and live (1.3.0, 11 Nov 2026); the Chrome Web Store listing itself is deliberately on hold until you decide to submit. An Opera Add-ons kit is also prepared (`opera/`), with the same status: listing prepared, not submitted.
 
 ## What is in this folder
 
@@ -36,7 +36,7 @@ If you ever move hosts, update `docs/privacy.html` and the store listing; keep t
 1. Open the Chrome Web Store Developer Dashboard.
 2. Register a developer account (the one-time fee applies).
 3. New item → upload `dist/anti-ip-logger-1.4.1-cws.zip`.
-4. Fill Store listing (from `listing-en.md`, plus TR under localization), Category = Tools.
+4. Fill Store listing (from `listing-en.md`, plus TR under localization), Category = Tools (Chrome Web Store; the Opera Add-ons kit in `opera/` uses Privacy & Security, since Opera has no Tools category).
 5. Fill Privacy practices: data collection = none; single purpose text from `listing-en.md`; permission justifications from `permission-justifications.md`.
 6. Upload the 6 EN screenshots; optionally upload the TR set under the Turkish localization; upload promo tiles.
 7. Set visibility to Public, submit for review.
@@ -62,6 +62,28 @@ npm run package                          # rebuild the zip
 `manifest.json` is 1.4.1. Bump both the manifest and the tag before any new submission.
 
 `npm run verify:package` builds the zip in a temporary directory, verifies it there and deletes it, so the check never blesses a modified worktree. It fails when `dist/` holds zips for other versions; keep only the current release artifact in `dist/`.
+
+## Opera Add-ons
+
+Opera Add-ons (addons.opera.com) publishing is free. Submission is manual through the Opera developer dashboard; there is no API automation for Opera, so nothing is submitted by this repository. The Opera 97 floor applies: Opera 97 equals Chromium 111, matching `minimum_chrome_version: 111`. The floor is documented in the listing text; `manifest.json` has no Opera-specific key and does not get one.
+
+Kit contents (`store/opera/`):
+
+- `listing-en.md` and `listing-tr.md` - listings mirroring the Chrome Web Store structure, adapted for Opera (Manifest V3 extension for Chromium-based browsers, Opera 97 floor).
+- `submission-notes.md` - checklist, reviewer notes, per-permission rationale (the Opera dashboard has a single notes field, not per-permission fields), and a safe way to trigger the block page.
+- `screenshots/` - six 612x408 store screenshots.
+- `verify-opera-140.0.6074.18.json` - committed evidence snapshot of the Opera run: 45/45 browser checks passed on Opera Stable 140.0.6074.18 (Windows, 2026-11-14). The live `verify-output/` tree is gitignored.
+- `README.md` - manual submission steps in order, what cannot be automated and why, and the Opera verification record.
+
+Status: listing prepared, not submitted. The Opera 45-check browser suite passed on Opera Stable 140.0.6074.18 (Windows, 2026-11-14; the bundled Chromium build reports 157.0.8103.39 over CDP). macOS and Linux were NOT tested. Opera was installed only to run that check and was removed afterwards, so re-running it needs a fresh install: `node tools/verify-browser.mjs --browser opera --out verify-output/opera`.
+
+Regenerate the screenshots with:
+
+```powershell
+python tools/make-store-assets.py opera store/opera/screenshots
+```
+
+Manual submission steps are in `store/opera/README.md`.
 
 ## Automated Edge Add-ons publish (GitHub Actions)
 

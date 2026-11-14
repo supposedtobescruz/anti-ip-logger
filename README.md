@@ -60,7 +60,7 @@ One Manifest V3 package covers the Chromium family. The only hard floor is Chrom
 | Brave | Load unpacked | `brave://extensions` | Brave 157, 45/45 browser checks |
 | Google Chrome | Load unpacked; Chrome Web Store deliberately not submitted | `chrome://extensions` | Not run on this machine |
 | Chromium | Load unpacked | `chrome://extensions` | Not run on this machine |
-| Opera | Load unpacked | `opera://extensions` | Not run on this machine |
+| Opera | Load unpacked; Opera Add-ons listing prepared but not submitted | `opera://extensions` | Opera Stable 140.0.6074.18, 45/45 browser checks (Windows) |
 | Vivaldi | Load unpacked | `vivaldi://extensions` | Not run on this machine |
 | Yandex Browser | Load unpacked | `browser://extensions` | Not run on this machine |
 | Firefox, Safari | Not supported | | Different packaging required (gecko ring for AMO, Xcode conversion for Safari) |
@@ -168,6 +168,12 @@ Rule priority ladder: tab allow 110 > allowlist 100 > custom block 50 > blocked 
   - Store kit in `store/`: English and Turkish listings, permission justifications, screenshots, promotional tiles.
   - The privacy policy lives in `PRIVACY.md` and `docs/privacy.html`, served at https://supposedtobescruz.github.io/anti-ip-logger/privacy.html (repository is public, GitHub Pages from `docs/`).
   - A submission checklist is in `store/README.md`; the developer registration fee note is there as well.
+- **Opera Add-ons:** the listing is prepared but not submitted. Same honest status as the Chrome Web Store:
+  - Kit in `store/opera/`: English and Turkish listings, reviewer notes with per-permission rationale, six 612x408 screenshots.
+  - Publishing on Opera Add-ons is free; submission is manual through the developer dashboard, there is no API automation.
+  - The Opera 97 floor applies (Opera 97 equals Chromium 111, matching `minimum_chrome_version: 111`).
+  - Opera Stable 140.0.6074.18 passed 45/45 browser checks on 2026-11-14 (Windows; its bundled Chromium build reports 157.0.8103.39 over CDP). Evidence snapshot: `store/opera/verify-opera-140.0.6074.18.json`. macOS and Linux were NOT tested.
+  - Opera is not installed anymore (it was installed only for the verification run and removed afterwards); re-running the check needs a fresh install.
 
 ## Adding a language
 

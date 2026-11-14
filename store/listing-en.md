@@ -6,7 +6,7 @@ Anti IP Logger
 ## Short description (132 characters max)
 Blocks IP logger and link grabber domains before they open. No data collection, no telemetry, English and Turkish.
 
-(Character count: 118.)
+(Character count: 114.)
 
 ## Category
 Tools
