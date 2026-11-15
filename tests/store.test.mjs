@@ -103,6 +103,20 @@ test("updateSettings merges a patch and persists it", async () => {
   assert.equal(localArea.map.get("settings").enabled, false);
 });
 
+test("mergeSettings keeps graphite and contrast themes", async () => {
+  assert.equal(mergeSettings({ theme: "graphite" }).theme, "graphite");
+  assert.equal(mergeSettings({ theme: "contrast" }).theme, "contrast");
+  await updateSettings({ theme: "graphite" });
+  assert.equal((await getSettings()).theme, "graphite");
+  await updateSettings({ theme: "contrast" });
+  assert.equal((await getSettings()).theme, "contrast");
+});
+
+test("mergeSettings falls back to system for an unknown theme", () => {
+  assert.equal(mergeSettings({ theme: "sepia" }).theme, "system");
+  assert.equal(mergeSettings({ theme: 42 }).theme, "system");
+});
+
 test("updateSettings keeps previously stored values when patch omits them", async () => {
   await updateSettings({ enabled: false });
   await updateSettings({ theme: "dark" });

@@ -12,6 +12,7 @@ import {
   setBusy,
   toast,
   toggleTheme,
+  themeMode,
 } from "../assets/ui.js";
 import { t, applyI18n, initLanguage } from "../assets/i18n.js";
 
@@ -61,9 +62,9 @@ let loading = false;
 let reloadQueued = false;
 
 function syncThemeButton() {
-  const resolved = resolvedTheme();
-  nodes.themeGlyph.textContent = resolved === "dark" ? "☾" : "☀";
-  const labelKey = resolved === "dark" ? "themeSwitchToLight" : "themeSwitchToDark";
+  const dark = themeMode(resolvedTheme()) === "dark";
+  nodes.themeGlyph.textContent = dark ? "☾" : "☀";
+  const labelKey = dark ? "themeSwitchToLight" : "themeSwitchToDark";
   nodes.themeToggle.setAttribute("aria-label", t(labelKey));
   nodes.themeToggle.title = t(labelKey);
 }

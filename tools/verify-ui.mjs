@@ -45,8 +45,13 @@ function parseTokens(css, selector) {
 }
 
 const baseCss = await readFile(join(ROOT, "assets", "base.css"), "utf8");
-const light = parseTokens(baseCss, ":root {");
-const dark = parseTokens(baseCss, ':root[data-theme="dark"]');
+const THEMES_TO_CHECK = [
+  ["light", ":root {"],
+  ["dark", ':root[data-theme="dark"]'],
+  ["graphite", ':root[data-theme="graphite"]'],
+  ["contrast", ':root[data-theme="contrast"]'],
+];
+const themes = THEMES_TO_CHECK.map(([name, selector]) => [name, parseTokens(baseCss, selector)]);
 
 const PAIRS = [
   ["ink", "paper", "body text"],
@@ -61,7 +66,7 @@ const PAIRS = [
   ["ink", "paper-raised", "card text"],
 ];
 
-for (const [themeName, tokens] of [["light", light], ["dark", dark]]) {
+for (const [themeName, tokens] of themes) {
   check(`${themeName} theme tokens complete`, Object.keys(tokens).length > 15, `${Object.keys(tokens).length} token`);
   for (const [fg, bg, label] of PAIRS) {
     if (!tokens[fg] || !tokens[bg]) {
@@ -124,6 +129,11 @@ check("panel mobile breakpoints", /@media \(max-width: 980px\)/.test(dashboardCs
 check("focus ring defined", /:focus-visible\s*\{[^}]*outline: 2px solid var\(--accent\)/s.test(baseCss));
 check("reduced motion support", /prefers-reduced-motion: reduce/.test(baseCss));
 check("dark theme support", /prefers-color-scheme: dark/.test(baseCss));
+const darkMediaIndex = baseCss.indexOf("@media (prefers-color-scheme: dark)");
+const darkMediaEnd = darkMediaIndex === -1 ? -1 : baseCss.indexOf("\n}\n", darkMediaIndex);
+const darkMediaBlock = darkMediaIndex === -1 || darkMediaEnd === -1 ? "" : baseCss.slice(darkMediaIndex, darkMediaEnd);
+check("dark media query applies only without explicit theme", darkMediaBlock.includes(":root:not([data-theme])"));
+check("dark media query does not override explicit themes", !baseCss.includes(':root:not([data-theme="light"])'));
 check("font is local", /@font-face/.test(await readFile(join(ROOT, "assets", "fonts.css"), "utf8")));
 
 const uiSource = await readFile(join(ROOT, "assets", "ui.js"), "utf8");

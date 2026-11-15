@@ -1,4 +1,4 @@
-import { send, setBusy, toast } from "../assets/ui.js";
+import { send, setBusy, toast, applyTheme } from "../assets/ui.js";
 import { t, applyI18n, initLanguage } from "../assets/i18n.js";
 
 const nodes = {
@@ -92,6 +92,9 @@ async function describeHost() {
 async function init() {
   nodes.caseNumber.textContent = caseNumberFor(new Date());
   nodes.sheet.setAttribute("aria-busy", "true");
+
+  const state = await send({ type: "getState" });
+  applyTheme(state && state.settings ? state.settings.theme : "system");
 
   const pending = await send({ type: "getBlockedTarget" });
   target = pending && pending.ok ? pending.target : "";

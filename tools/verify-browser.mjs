@@ -664,6 +664,35 @@ async function run() {
     await screenshot(dash, "dashboard-dark.png", 1280, 900, "dark");
     await evaluate(dash, "document.documentElement.setAttribute('data-theme','light'); return true;");
 
+    await evaluate(dash, "return new Promise((resolve) => chrome.runtime.sendMessage({ type: 'setSetting', key: 'theme', value: 'graphite' }, resolve));");
+    await dash.send("Page.reload");
+    await waitForLoad(dash);
+    await waitFor(() => evaluate(dash, "return document.documentElement.getAttribute('data-theme') === 'graphite';").catch(() => false), 8000, "graphite theme");
+    const graphiteDash = await evaluate(
+      dash,
+      `const style = getComputedStyle(document.body);
+       return { theme: document.documentElement.getAttribute('data-theme'), background: style.backgroundColor, color: style.color };`,
+    );
+    check("graphite theme applied", graphiteDash.theme === "graphite" && graphiteDash.background === "rgb(15, 17, 21)", JSON.stringify(graphiteDash));
+    await screenshot(dash, "dashboard-graphite.png", 1280, 900, "graphite");
+
+    await evaluate(dash, "return new Promise((resolve) => chrome.runtime.sendMessage({ type: 'setSetting', key: 'theme', value: 'contrast' }, resolve));");
+    await dash.send("Page.reload");
+    await waitForLoad(dash);
+    await waitFor(() => evaluate(dash, "return document.documentElement.getAttribute('data-theme') === 'contrast';").catch(() => false), 8000, "contrast theme");
+    const contrastDash = await evaluate(
+      dash,
+      `const style = getComputedStyle(document.body);
+       return { theme: document.documentElement.getAttribute('data-theme'), background: style.backgroundColor, color: style.color };`,
+    );
+    check("contrast theme applied", contrastDash.theme === "contrast" && contrastDash.background === "rgb(255, 255, 255)" && contrastDash.color === "rgb(0, 0, 0)", JSON.stringify(contrastDash));
+    await screenshot(dash, "dashboard-contrast.png", 1280, 900, "contrast");
+
+    await evaluate(dash, "return new Promise((resolve) => chrome.runtime.sendMessage({ type: 'setSetting', key: 'theme', value: 'system' }, resolve));");
+    await dash.send("Page.reload");
+    await waitForLoad(dash);
+
+    await evaluate(dash, "return new Promise((resolve) => chrome.runtime.sendMessage({ type: 'setSetting', key: 'theme', value: 'graphite' }, resolve));");
     const testTarget = await openTab(port, "https://grabify.link/test-verify");
     const test = await connect(testTarget);
     try {
@@ -695,6 +724,12 @@ async function run() {
       check("grabify request redirected to blocked page", blocked.url.includes("/blocked/blocked.html"), blocked.url);
       check("blocked page shows target address", blocked.target.includes("grabify.link"), blocked.target);
       check("blocked page allow button enabled", blocked.allowEnabled === true);
+      const blockedTheme = await evaluate(
+        test,
+        `const style = getComputedStyle(document.body);
+         return { theme: document.documentElement.getAttribute('data-theme'), background: style.backgroundColor };`,
+      );
+      check("blocked page applies the stored theme", blockedTheme.theme === "graphite" && blockedTheme.background !== "rgb(251, 248, 241)", JSON.stringify(blockedTheme));
       await screenshot(test, "blocked.png", 900, 760, "light");
       await test.send("Emulation.setDeviceMetricsOverride", { width: 360, height: 780, deviceScaleFactor: 2, mobile: true });
       await sleep(350);
@@ -707,6 +742,7 @@ async function run() {
     } catch (error) {
       check("grabify request redirected to blocked page", false, error.message);
     }
+    await evaluate(dash, "return new Promise((resolve) => chrome.runtime.sendMessage({ type: 'setSetting', key: 'theme', value: 'system' }, resolve));");
 
     // Serve the post-allow navigation offline. The allow rule points the tab at
     // the grabify URL, but the real page and its third-party scripts are not
@@ -816,6 +852,21 @@ async function run() {
        return tabs.map((tab) => ({ id: tab.id, url: tab.url || "" }));`,
     );
     check("tab allows cleared on tab close", Array.isArray(tabState), `${tabState.length} sekme`);
+
+    await evaluate(dash, "return new Promise((resolve) => chrome.runtime.sendMessage({ type: 'setSetting', key: 'theme', value: 'contrast' }, resolve));");
+    const welcomeTarget = await openTab(port, `chrome-extension://${extensionId}/welcome/welcome.html`);
+    const welcome = await connect(welcomeTarget);
+    await waitForLoad(welcome);
+    await waitFor(() => evaluate(welcome, "return document.documentElement.getAttribute('data-theme') === 'contrast';").catch(() => false), 8000, "welcome contrast theme");
+    const welcomeTheme = await evaluate(
+      welcome,
+      `const style = getComputedStyle(document.body);
+       return { theme: document.documentElement.getAttribute('data-theme'), background: style.backgroundColor };`,
+    );
+    check("welcome page applies the stored theme", welcomeTheme.theme === "contrast" && welcomeTheme.background === "rgb(255, 255, 255)", JSON.stringify(welcomeTheme));
+    await fetch(`http://127.0.0.1:${port}/json/close/${welcomeTarget.id}`).catch(() => {});
+    welcome.close();
+    await evaluate(dash, "return new Promise((resolve) => chrome.runtime.sendMessage({ type: 'setSetting', key: 'theme', value: 'system' }, resolve));");
 
     const nonFaviconErrors = consoleErrors.filter((text) => !/favicon|net::ERR/i.test(text));
     check("no console errors", nonFaviconErrors.length === 0, nonFaviconErrors.slice(0, 3).join(" | "));

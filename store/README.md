@@ -22,7 +22,7 @@ Everything needed for a Chrome Web Store submission. The Edge Add-ons submission
 - [x] Screenshots 1280×800 (6× EN, 6× TR) and promotional tiles 440×280 / 1400×560.
 - [x] Icons 16/32/48/128 embedded and manifest-declared.
 - [x] No em dash, no fabricated stats, no fake assets; copy is honest about scope ("not a VPN").
-- [x] `npm run package` produces `dist/anti-ip-logger-1.4.1-cws.zip` with runtime files only (verified to load and pass 45/45 browser checks as the extracted copy).
+- [x] `npm run package` produces `dist/anti-ip-logger-1.5.0-cws.zip` with runtime files only (62 runtime files, SHA256 569d07e492a8a5097857f559d68752413c19ddd9febddd4290d736067b0ab707; verified to load and pass 49/49 browser checks as the extracted copy).
 - [ ] Developer account. Chrome Web Store requires a developer registration; there is currently a one-time fee (historically 5 USD). Check the current price in the Chrome Web Store Developer Dashboard. The fee is not paid and nothing is submitted by this repository.
 
 ## Hosting the privacy policy
@@ -35,7 +35,7 @@ If you ever move hosts, update `docs/privacy.html` and the store listing; keep t
 
 1. Open the Chrome Web Store Developer Dashboard.
 2. Register a developer account (the one-time fee applies).
-3. New item → upload `dist/anti-ip-logger-1.4.1-cws.zip`.
+3. New item → upload `dist/anti-ip-logger-1.5.0-cws.zip`.
 4. Fill Store listing (from `listing-en.md`, plus TR under localization), Category = Tools (Chrome Web Store; the Opera Add-ons kit in `opera/` uses Privacy & Security, since Opera has no Tools category).
 5. Fill Privacy practices: data collection = none; single purpose text from `listing-en.md`; permission justifications from `permission-justifications.md`.
 6. Upload the 6 EN screenshots; optionally upload the TR set under the Turkish localization; upload promo tiles.
@@ -59,7 +59,7 @@ npm run package                          # rebuild the zip
 
 ## Versioning note
 
-`manifest.json` is 1.4.1. Bump both the manifest and the tag before any new submission.
+`manifest.json` is 1.5.0. Bump both the manifest and the tag before any new submission.
 
 `npm run verify:package` builds the zip in a temporary directory, verifies it there and deletes it, so the check never blesses a modified worktree. It fails when `dist/` holds zips for other versions; keep only the current release artifact in `dist/`.
 
@@ -72,10 +72,10 @@ Kit contents (`store/opera/`):
 - `listing-en.md` and `listing-tr.md` - listings mirroring the Chrome Web Store structure, adapted for Opera (Manifest V3 extension for Chromium-based browsers, Opera 97 floor).
 - `submission-notes.md` - checklist, reviewer notes, per-permission rationale (the Opera dashboard has a single notes field, not per-permission fields), and a safe way to trigger the block page.
 - `screenshots/` - six 612x408 store screenshots.
-- `verify-opera-140.0.6074.18.json` - committed evidence snapshot of the Opera run: 45/45 browser checks passed on Opera Stable 140.0.6074.18 (Windows, 2026-11-14). The live `verify-output/` tree is gitignored.
+- `verify-opera-140.0.6074.18.json` - committed evidence snapshot of the Opera run: 49/49 browser checks passed on Opera Stable 140.0.6074.18 (Windows, 2026-11-15). The live `verify-output/` tree is gitignored.
 - `README.md` - manual submission steps in order, what cannot be automated and why, and the Opera verification record.
 
-Status: listing prepared, not submitted. The Opera 45-check browser suite passed on Opera Stable 140.0.6074.18 (Windows, 2026-11-14; the bundled Chromium build reports 157.0.8103.39 over CDP). macOS and Linux were NOT tested. Opera was installed only to run that check and was removed afterwards, so re-running it needs a fresh install: `node tools/verify-browser.mjs --browser opera --out verify-output/opera`.
+Status: listing prepared, not submitted. The Opera browser suite passed 49/49 on Opera Stable 140.0.6074.18 (Windows, 2026-11-15; the bundled Chromium build reports 157.0.8103.39 over CDP). macOS and Linux were NOT tested. Opera was installed only to run that check and was removed afterwards, so re-running it needs a fresh install: `node tools/verify-browser.mjs --browser opera --out verify-output/opera`.
 
 Regenerate the screenshots with:
 
@@ -103,7 +103,7 @@ How to enable it:
 2. Find the product ID (a guid) of the existing Edge Add-ons product.
 3. In the GitHub repository, Settings > Secrets and variables > Actions, create three secrets: `EDGE_CLIENT_ID`, `EDGE_API_KEY`, `EDGE_PRODUCT_ID`.
 
-Tag rule: tag must equal the manifest version, e.g. `git tag v1.4.1 && git push origin main --follow-tags`. The workflow has a safety gate: on a tag push, the tag (without the leading `v`) must equal `manifest.json` `version`, otherwise the job fails before uploading. Manual `workflow_dispatch` runs on a non-tag ref skip the gate.
+Tag rule: tag must equal the manifest version, e.g. `git tag v1.5.0 && git push origin main --follow-tags`. The workflow has a safety gate: on a tag push, the tag (without the leading `v`) must equal `manifest.json` `version`, otherwise the job fails before uploading. Manual `workflow_dispatch` runs on a non-tag ref skip the gate.
 
 The update-check gist is NOT synced by this workflow. An earlier gist-sync automation was reverted (6a3381a, df1b40e) for lack of a gist-scoped token; gist sync remains manual.
 

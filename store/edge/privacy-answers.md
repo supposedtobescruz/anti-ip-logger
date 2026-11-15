@@ -1,6 +1,6 @@
 # Microsoft Edge Add-ons privacy answers - Anti IP Logger
 
-Paste these into Partner Center, Privacy section. Accurate for version 1.4.1. Copy each block into its matching field as-is.
+Paste these into Partner Center, Privacy section. Accurate for version 1.5.0. Copy each block into its matching field as-is.
 
 ## Single purpose
 

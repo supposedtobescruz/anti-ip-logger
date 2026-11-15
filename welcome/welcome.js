@@ -1,4 +1,4 @@
-import { send, setBusy } from "../assets/ui.js";
+import { send, setBusy, applyTheme } from "../assets/ui.js";
 import { t, applyI18n, initLanguage } from "../assets/i18n.js";
 
 const TOTAL = 6;
@@ -104,7 +104,9 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-initLanguage().then(() => {
+initLanguage().then(async () => {
   applyI18n();
+  const state = await send({ type: "getState" });
+  applyTheme(state && state.settings ? state.settings.theme : "system");
   render();
 });

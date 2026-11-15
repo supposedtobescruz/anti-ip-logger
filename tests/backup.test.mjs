@@ -204,6 +204,30 @@ test("validateImportSettings rejects an unsupported webrtcPolicy", () => {
   assert.equal(validateImportSettings({ webrtcPolicy: true }), "webrtcPolicy");
 });
 
+test("validateImportSettings accepts graphite and contrast themes", () => {
+  assert.equal(validateImportSettings({ theme: "graphite" }), null);
+  assert.equal(validateImportSettings({ theme: "contrast" }), null);
+  assert.equal(validateImportSettings({
+    enabled: true,
+    showBlockedPage: true,
+    warnings: true,
+    onboardingSeen: false,
+    tiers: { core: true, extended: false },
+    webrtcPolicy: "default",
+    theme: "graphite",
+    language: "tr",
+  }), null);
+  assert.equal(validateImportSettings({
+    theme: "contrast",
+    language: "en",
+  }), null);
+});
+
+test("validateImportSettings rejects an unknown theme", () => {
+  assert.equal(validateImportSettings({ theme: "sepia" }), "theme");
+  assert.equal(validateImportSettings({ theme: "GRAPHITE" }), "theme");
+});
+
 test("validateImportSettings rejects an unsupported theme", () => {
   assert.equal(validateImportSettings({ theme: "blue" }), "theme");
   assert.equal(validateImportSettings({ theme: "DARK" }), "theme");

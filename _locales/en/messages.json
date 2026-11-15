@@ -699,6 +699,14 @@
     "message": "Dark",
     "description": "Select option."
   },
+  "themeGraphite": {
+    "message": "Graphite",
+    "description": "Select option."
+  },
+  "themeContrast": {
+    "message": "High contrast",
+    "description": "Select option."
+  },
   "webrtcNoteDefault": {
     "message": "WebRTC policy is at the browser default. Signal watching still catches local IP leaks.",
     "description": "Note when policy is default."

@@ -7,7 +7,7 @@
 
 Anti IP Logger is a Chrome extension that blocks known IP logger and link grabber domains, then reports IP leak attempts it finds on the page. Manifest V3, vanilla JavaScript, no build step.
 
-Version 1.4.1. The bundled list ships 125 domains in 2 static rules, with 61 exceptions.
+Version 1.5.0. The bundled list ships 125 domains in 2 static rules, with 61 exceptions.
 
 ## What it does
 
@@ -22,6 +22,7 @@ Version 1.4.1. The bundled list ships 125 domains in 2 static rules, with 61 exc
 - Shows a dismissible notice in the panel when a newer version is available.
 - Opens a six-step welcome tour on first install, with Scruize, the mascot. Replay it any time from Settings → About.
 - The interface is in English by default, with full Turkish support. Override it (Same as browser, English, Türkçe) from Settings → Privacy and appearance.
+- System, Light, Dark, Graphite and High contrast themes. Pick one from Settings → Privacy and appearance. The blocked page and the welcome tour follow the chosen theme too.
 
 ## What it does not do
 
@@ -56,11 +57,11 @@ One Manifest V3 package covers the Chromium family. The only hard floor is Chrom
 
 | Browser | Distribution | Install page | Verified |
 |---|---|---|---|
-| Microsoft Edge | Edge Add-ons: 1.3.0 live, 1.4.0 in certification | `edge://extensions` | Edge 157, 45/45 browser checks |
-| Brave | Load unpacked | `brave://extensions` | Brave 157, 45/45 browser checks |
+| Microsoft Edge | Edge Add-ons: 1.3.0 live, 1.4.0 in certification | `edge://extensions` | Edge 157, 49/49 browser checks |
+| Brave | Load unpacked | `brave://extensions` | Brave 157, 49/49 browser checks |
 | Google Chrome | Load unpacked; Chrome Web Store deliberately not submitted | `chrome://extensions` | Not run on this machine |
 | Chromium | Load unpacked | `chrome://extensions` | Not run on this machine |
-| Opera | Load unpacked; Opera Add-ons listing prepared but not submitted | `opera://extensions` | Opera Stable 140.0.6074.18, 45/45 browser checks (Windows) |
+| Opera | Load unpacked; Opera Add-ons listing prepared but not submitted | `opera://extensions` | Opera Stable 140.0.6074.18, 49/49 browser checks (Windows) |
 | Vivaldi | Load unpacked | `vivaldi://extensions` | Not run on this machine |
 | Yandex Browser | Load unpacked | `browser://extensions` | Not run on this machine |
 | Firefox, Safari | Not supported | | Different packaging required (gecko ring for AMO, Xcode conversion for Safari) |
@@ -164,7 +165,7 @@ Rule priority ladder: tab allow 110 > allowlist 100 > custom block 50 > blocked 
 
 - **Microsoft Edge Add-ons:** published, https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.3.0, 11 Nov 2026).
 - **Chrome Web Store:** the listing is prepared but not submitted yet, by deliberate decision. What is ready:
-  - `npm run package` builds `dist/anti-ip-logger-1.4.1-cws.zip` (runtime files only; the extracted zip passes all browser checks).
+  - `npm run package` builds `dist/anti-ip-logger-1.5.0-cws.zip` (runtime files only; the extracted zip passes all browser checks).
   - Store kit in `store/`: English and Turkish listings, permission justifications, screenshots, promotional tiles.
   - The privacy policy lives in `PRIVACY.md` and `docs/privacy.html`, served at https://supposedtobescruz.github.io/anti-ip-logger/privacy.html (repository is public, GitHub Pages from `docs/`).
   - A submission checklist is in `store/README.md`; the developer registration fee note is there as well.
@@ -172,7 +173,7 @@ Rule priority ladder: tab allow 110 > allowlist 100 > custom block 50 > blocked 
   - Kit in `store/opera/`: English and Turkish listings, reviewer notes with per-permission rationale, six 612x408 screenshots.
   - Publishing on Opera Add-ons is free; submission is manual through the developer dashboard, there is no API automation.
   - The Opera 97 floor applies (Opera 97 equals Chromium 111, matching `minimum_chrome_version: 111`).
-  - Opera Stable 140.0.6074.18 passed 45/45 browser checks on 2026-11-14 (Windows; its bundled Chromium build reports 157.0.8103.39 over CDP). Evidence snapshot: `store/opera/verify-opera-140.0.6074.18.json`. macOS and Linux were NOT tested.
+  - Opera Stable 140.0.6074.18 passed 49/49 browser checks on 2026-11-15 (Windows; its bundled Chromium build reports 157.0.8103.39 over CDP). Evidence snapshot: `store/opera/verify-opera-140.0.6074.18.json`. macOS and Linux were NOT tested.
   - Opera is not installed anymore (it was installed only for the verification run and removed afterwards); re-running the check needs a fresh install.
 
 ## Adding a language

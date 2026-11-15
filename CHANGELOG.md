@@ -6,6 +6,24 @@ Versions follow SemVer. The project starts at 1.0.0 and has no earlier history t
 Releases are tagged `v<version>` in git; the dates below are the tag dates.
 The extension has no telemetry. Settings, counters and the event log stay in `chrome.storage.local`. See PRIVACY.md.
 
+## [1.5.0] - 2026-11-15
+
+### Added
+
+- The `graphite` neutral dark theme and the `contrast` high contrast light theme, selectable from Settings. The theme list is centralized in `lib/constants.js` and reused by the settings API, storage normalization and backup import.
+- A palette block per theme with WCAG AA pairs; `tools/verify-ui.mjs` checks each pair.
+- Theme checks on the dashboard, the blocked page and the welcome tour in `tools/verify-browser.mjs` (45 to 49 checks per browser).
+- The dashboard and popup theme action now reports the current mode, so it works from every theme.
+- Unit tests for store normalization and backup import of both new themes.
+
+### Changed
+
+- The quick theme action switches between light and dark modes and leaves the stored theme as an explicit choice. The browser matrix is 49 checks per browser.
+
+### Fixed
+
+- The blocked page and the welcome tour ignored the stored theme and only followed the operating system preference, so an explicit light, graphite or contrast choice was lost on those pages. They now load the stored theme.
+
 ## [1.4.1] - 2026-11-12
 
 ### Added

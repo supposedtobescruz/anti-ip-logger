@@ -4,6 +4,7 @@ import {
   PAGE_STATE_TTL_MS,
   GIST_VERSION_URL,
   MAX_DYNAMIC_RULES,
+  THEMES,
 } from "./lib/constants.js";
 import { restoreLists, normalizeRestoreMode, validateImportSettings } from "./lib/backup.js";
 import { requiresPrivilege, isExtensionPageSender } from "./lib/privilege.js";
@@ -915,7 +916,7 @@ async function setSetting(key, value) {
     showBlockedPage: (v) => typeof v === "boolean",
     warnings: (v) => typeof v === "boolean",
     webrtcPolicy: (v) => ["default", "disable_non_proxied_udp"].includes(v),
-    theme: (v) => ["system", "light", "dark"].includes(v),
+    theme: (v) => THEMES.includes(v),
     onboardingSeen: (v) => typeof v === "boolean",
     language: (v) => ["system", "en", "tr"].includes(v),
   };

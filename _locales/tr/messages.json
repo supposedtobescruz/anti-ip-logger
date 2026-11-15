@@ -699,6 +699,14 @@
     "message": "Koyu",
     "description": "Seçim seçeneği."
   },
+  "themeGraphite": {
+    "message": "Grafit",
+    "description": "Seçim seçeneği."
+  },
+  "themeContrast": {
+    "message": "Yüksek kontrast",
+    "description": "Seçim seçeneği."
+  },
   "webrtcNoteDefault": {
     "message": "WebRTC politikası tarayıcı varsayılanında. Yerel IP sızıntısı için sinyal izleme yine çalışır.",
     "description": "Politika varsayılan iken not."

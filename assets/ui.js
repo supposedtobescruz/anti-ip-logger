@@ -1,4 +1,7 @@
 import { t, isTurkish } from "./i18n.js";
+import { THEMES } from "../lib/constants.js";
+
+const EXPLICIT_THEMES = THEMES.filter((value) => value !== "system");
 
 export async function send(message) {
   try {
@@ -15,7 +18,7 @@ export async function send(message) {
 
 export function applyTheme(theme) {
   const root = document.documentElement;
-  if (theme === "light" || theme === "dark") {
+  if (EXPLICIT_THEMES.includes(theme)) {
     root.setAttribute("data-theme", theme);
   } else {
     root.removeAttribute("data-theme");
@@ -25,8 +28,12 @@ export function applyTheme(theme) {
 
 export function resolvedTheme() {
   const explicit = document.documentElement.getAttribute("data-theme");
-  if (explicit === "light" || explicit === "dark") return explicit;
+  if (EXPLICIT_THEMES.includes(explicit)) return explicit;
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+export function themeMode(theme) {
+  return theme === "dark" || theme === "graphite" ? "dark" : "light";
 }
 
 export function onThemeChange(callback) {
@@ -43,7 +50,7 @@ export function onThemeChange(callback) {
 }
 
 export function toggleTheme(current) {
-  return current === "dark" ? "light" : "dark";
+  return themeMode(current) === "dark" ? "light" : "dark";
 }
 
 export function formatNumber(value) {

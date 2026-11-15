@@ -6,13 +6,13 @@ Checklist and reviewer notes. The package is not submitted; nothing in this file
 
 - [ ] `npm run verify:all` passes.
 - [ ] `npm run verify:package` passes and produces no store/ files inside the package.
-- [ ] `npm run package` produces the upload package (`dist/anti-ip-logger-1.4.1-cws.zip`, 62 runtime files, SHA256 9ca8295231b76249eeff410d6ab222334d62e020f61e45b039cbd2913afef02f).
+- [ ] `npm run package` produces the upload package (`dist/anti-ip-logger-1.5.0-cws.zip`, 62 runtime files, SHA256 569d07e492a8a5097857f559d68752413c19ddd9febddd4290d736067b0ab707).
 - [ ] Listing text taken from `store/opera/listing-en.md` (English) and `store/opera/listing-tr.md` (Turkish).
 - [ ] Screenshots (612x408) from `store/opera/screenshots/` uploaded to the listing.
 - [ ] Category: Privacy & Security. Search terms as listed in the listing files.
 - [ ] Privacy policy URL is public and matches the shipped extension before submission: https://supposedtobescruz.github.io/anti-ip-logger/privacy.html
-- [x] Opera evidence snapshot committed: `store/opera/verify-opera-140.0.6074.18.json` (45/45 browser checks, Opera Stable 140.0.6074.18, Windows, 2026-11-14).
-- [ ] Version in `manifest.json` is 1.4.1; Opera accepts 1 to 4 integer version components.
+- [x] Opera evidence snapshot committed: `store/opera/verify-opera-140.0.6074.18.json` (49/49 browser checks, Opera Stable 140.0.6074.18, Windows, 2026-11-15).
+- [ ] Version in `manifest.json` is 1.5.0; Opera accepts 1 to 4 integer version components.
 - [ ] Do not add `minimum_opera_version` to the manifest; the Opera 97 floor is documented in the listing text instead.
 
 ## Opera 97 floor
@@ -59,7 +59,7 @@ If the reviewer prefers not to visit grabify.link at all, enabling Settings > Da
 
 ## Verification status (honest)
 
-- Windows automation ran on Edge 157, Brave 157 and Opera Stable 140.0.6074.18 (2026-11-14), 45/45 browser checks passed in each. Opera Stable 140.0.6074.18 bundles a Chromium build that reports `157.0.8103.39` over CDP, so `verify-output/opera/report.json` records product `Chrome/157.0.8103.39` and version `157.0.8103.39`. The committed evidence snapshot is `store/opera/verify-opera-140.0.6074.18.json`.
+- Windows automation ran on Edge 157, Brave 157 and Opera Stable 140.0.6074.18 (2026-11-15), 49/49 browser checks passed in each. Opera Stable 140.0.6074.18 bundles a Chromium build that reports `157.0.8103.39` over CDP, so `verify-output/opera/report.json` records product `Chrome/157.0.8103.39` and version `157.0.8103.39`. The committed evidence snapshot is `store/opera/verify-opera-140.0.6074.18.json`.
 - The Opera check was run with `node tools/verify-browser.mjs --browser opera --out verify-output/opera`. Opera was installed only to run this check and was removed afterwards; re-running the Opera check needs a fresh Opera install.
 - macOS and Linux were NOT tested. Opera reviewers test on Windows, macOS and Linux; state this when submitting. The extension uses standard Chromium Manifest V3 APIs only, with no platform-specific code paths.
 - The listing is prepared, not submitted. Nothing in this file means it was submitted.

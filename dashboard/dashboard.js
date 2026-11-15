@@ -11,6 +11,7 @@ import {
   toast,
   toggleTheme,
   resolvedTheme,
+  themeMode,
 } from "../assets/ui.js";
 import { t, applyI18n, initLanguage, uiLanguage } from "../assets/i18n.js";
 import { normalizeBackupList, mergeLists } from "../lib/backup.js";
@@ -264,8 +265,7 @@ function setRailStatus(settings) {
 }
 
 function syncThemeLabel() {
-  const resolved = resolvedTheme();
-  const dark = resolved === "dark";
+  const dark = themeMode(resolvedTheme()) === "dark";
   nodes.themeButton.textContent = t(dark ? "themeSwitchToLight" : "themeSwitchToDark");
   nodes.themeButton.setAttribute("aria-label", t(dark ? "themeSwitchToLight" : "themeSwitchToDark"));
 }

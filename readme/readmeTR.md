@@ -7,7 +7,7 @@
 
 Anti IP Logger, bilinen IP logger ve link grabber alan adlarını engelleyen, ardından sayfada bulduğu IP sızıntısı girişimlerini raporlayan bir Chrome uzantısıdır. Manifest V3, vanilla JavaScript, derleme adımı yok.
 
-Sürüm 1.4.1. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisna içerir.
+Sürüm 1.5.0. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisna içerir.
 
 ## Ne yapar
 
@@ -22,6 +22,7 @@ Sürüm 1.4.1. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisn
 - Yeni sürüm çıktığında panelde kapatılabilir bir bildirim gösterir.
 - İlk kurulumda altı adımlık bir hoşgeldin turu açar; Scruize, maskot. Ayarlar → Hakkında bölümünden istediğinizde yineleyebilirsiniz.
 - Arayüz varsayılanı İngilizcedir, tam Türkçe desteği vardır. Tarayıcıyla aynı / English / Türkçe seçimini Ayarlar → Gizlilik ve görünüm bölümünden yapabilirsiniz.
+- Sistem, Açık, Koyu, Grafit ve Yüksek kontrast temaları. Seçimi Ayarlar → Gizlilik ve görünüm bölümünden yapın. Engel sayfası ve hoş geldin turu da seçilen temayı izler.
 
 ## Ne yapmaz
 
@@ -56,11 +57,11 @@ Tek bir Manifest V3 paketi Chromium ailesini kapsar. Tek zorunlu alt sınır, `w
 
 | Tarayıcı | Dağıtım | Uzantılar sayfası | Doğrulama |
 |---|---|---|---|
-| Microsoft Edge | Edge Add-ons: 1.3.0 yayında, 1.4.0 incelemede | `edge://extensions` | Edge 157, 45/45 tarayıcı kontrolü |
-| Brave | Paketlenmemiş yükleme | `brave://extensions` | Brave 157, 45/45 tarayıcı kontrolü |
+| Microsoft Edge | Edge Add-ons: 1.3.0 yayında, 1.4.0 incelemede | `edge://extensions` | Edge 157, 49/49 tarayıcı kontrolü |
+| Brave | Paketlenmemiş yükleme | `brave://extensions` | Brave 157, 49/49 tarayıcı kontrolü |
 | Google Chrome | Paketlenmemiş yükleme; Chrome Web Store bilinçli olarak gönderilmedi | `chrome://extensions` | Bu makinede çalıştırılmadı |
 | Chromium | Paketlenmemiş yükleme | `chrome://extensions` | Bu makinede çalıştırılmadı |
-| Opera | Paketlenmemiş yükleme; Opera Add-ons listesi hazırlandı ama gönderilmedi | `opera://extensions` | Opera Stable 140.0.6074.18, 45/45 tarayıcı kontrolü (Windows) |
+| Opera | Paketlenmemiş yükleme; Opera Add-ons listesi hazırlandı ama gönderilmedi | `opera://extensions` | Opera Stable 140.0.6074.18, 49/49 tarayıcı kontrolü (Windows) |
 | Vivaldi | Paketlenmemiş yükleme | `vivaldi://extensions` | Bu makinede çalıştırılmadı |
 | Yandex Browser | Paketlenmemiş yükleme | `browser://extensions` | Bu makinede çalıştırılmadı |
 | Firefox, Safari | Desteklenmiyor | | Farklı paketleme gerektirir (AMO için gecko yapısı, Safari için Xcode dönüşümü) |
@@ -164,7 +165,7 @@ Kural öncelik merdiveni: sekme izni 110 > izin listesi 100 > özel engel 50 > e
 
 - **Microsoft Edge Add-ons:** yayında, https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.3.0, 11 Kasım 2026).
 - **Chrome Web Store:** liste hazır ama bilinçli bir kararla henüz gönderilmedi. Hazır olanlar:
-  - `npm run package`, `dist/anti-ip-logger-1.4.1-cws.zip` üretir (yalnızca çalışma zamanı dosyaları; çıkarılan zip tüm tarayıcı kontrollerinden geçer).
+  - `npm run package`, `dist/anti-ip-logger-1.5.0-cws.zip` üretir (yalnızca çalışma zamanı dosyaları; çıkarılan zip tüm tarayıcı kontrollerinden geçer).
   - `store/` klasöründe mağaza kiti: İngilizce ve Türkçe başlık metinleri, izin gerekçeleri, ekran görüntüleri ve tanıtım karoları.
   - Gizlilik politikası `PRIVACY.md` içinde ve bağımsız `docs/privacy.html` sayfasında durur; https://supposedtobescruz.github.io/anti-ip-logger/privacy.html adresinden servis edilir (depo public, GitHub Pages `docs/` klasöründen).
   - Başvuru kontrol listesi ve geliştirici kayıt ücreti notu `store/README.md` içinde.
@@ -172,7 +173,7 @@ Kural öncelik merdiveni: sekme izni 110 > izin listesi 100 > özel engel 50 > e
   - `store/opera/` klasöründe kit: İngilizce ve Türkçe başlık metinleri, izin başına gerekçe içeren inceleyici notları, 612x408 altı ekran görüntüsü.
   - Opera Add-ons'ta yayınlama ücretsizdir; gönderim geliştirici panosu üzerinden elle yapılır, API otomasyonu yoktur.
   - Alt sınır Opera 97'dir (Opera 97, Chromium 111'e karşılık gelir; `minimum_chrome_version: 111` ile aynı).
-  - Opera Stable 140.0.6074.18, 2026-11-14 tarihinde 45/45 tarayıcı kontrolünden geçti (Windows; paketlediği Chromium derlemesi CDP üzerinden 157.0.8103.39 bildiriyor). Kanıt anlık görüntüsü: `store/opera/verify-opera-140.0.6074.18.json`. macOS ve Linux test EDİLMEDİ.
+  - Opera Stable 140.0.6074.18, 2026-11-15 tarihinde 49/49 tarayıcı kontrolünden geçti (Windows; paketlediği Chromium derlemesi CDP üzerinden 157.0.8103.39 bildiriyor). Kanıt anlık görüntüsü: `store/opera/verify-opera-140.0.6074.18.json`. macOS ve Linux test EDİLMEDİ.
   - Opera artık kurulu değil (yalnızca doğrulama çalıştırması için kuruldu ve sonrasında kaldırıldı); kontrolü yeniden çalıştırmak için taze kurulum gerekir.
 
 ## Dil eklemek
