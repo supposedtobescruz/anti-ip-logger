@@ -121,7 +121,7 @@ const blockedCss = await readFile(join(ROOT, "blocked", "blocked.css"), "utf8");
 check("blocked page full width on mobile", /@media \(max-width: 520px\)/.test(blockedCss));
 
 const popupCss = await readFile(join(ROOT, "popup", "popup.css"), "utf8");
-check("popup width bounded", /width: min\(384px, 100vw\)/.test(popupCss));
+check("popup width bounded", /body\s*\{[^}]*width: 384px;/s.test(popupCss));
 
 const dashboardCss = await readFile(join(ROOT, "dashboard", "dashboard.css"), "utf8");
 check("panel mobile breakpoints", /@media \(max-width: 980px\)/.test(dashboardCss) && /@media \(max-width: 760px\)/.test(dashboardCss));

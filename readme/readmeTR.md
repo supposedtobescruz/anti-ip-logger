@@ -7,7 +7,7 @@
 
 Anti IP Logger, bilinen IP logger ve link grabber alan adlarını engelleyen, ardından sayfada bulduğu IP sızıntısı girişimlerini raporlayan bir Chrome uzantısıdır. Manifest V3, vanilla JavaScript, derleme adımı yok.
 
-Sürüm 1.5.0. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisna içerir.
+Sürüm 1.6.0. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisna içerir.
 
 ## Ne yapar
 
@@ -165,7 +165,7 @@ Kural öncelik merdiveni: sekme izni 110 > izin listesi 100 > özel engel 50 > e
 
 - **Microsoft Edge Add-ons:** yayında, https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.3.0, 11 Kasım 2026).
 - **Chrome Web Store:** liste hazır ama bilinçli bir kararla henüz gönderilmedi. Hazır olanlar:
-  - `npm run package`, `dist/anti-ip-logger-1.5.0-cws.zip` üretir (yalnızca çalışma zamanı dosyaları; çıkarılan zip tüm tarayıcı kontrollerinden geçer).
+  - `npm run package`, `dist/anti-ip-logger-1.6.0-cws.zip` üretir (yalnızca çalışma zamanı dosyaları; çıkarılan zip tüm tarayıcı kontrollerinden geçer).
   - `store/` klasöründe mağaza kiti: İngilizce ve Türkçe başlık metinleri, izin gerekçeleri, ekran görüntüleri ve tanıtım karoları.
   - Gizlilik politikası `PRIVACY.md` içinde ve bağımsız `docs/privacy.html` sayfasında durur; https://supposedtobescruz.github.io/anti-ip-logger/privacy.html adresinden servis edilir (depo public, GitHub Pages `docs/` klasöründen).
   - Başvuru kontrol listesi ve geliştirici kayıt ücreti notu `store/README.md` içinde.

@@ -20,8 +20,10 @@ Everything needed for an Opera Add-ons submission. The kit is prepared but not s
 - [x] Screenshots 612x408, non-interlaced, under the 800x600 maximum. Only the popup shot is composited on a white canvas; the other five are full-bleed UI captures at native aspect with no device frame.
 - [x] Icons 16/32/48/128 embedded and manifest-declared.
 - [x] No em dash, no fabricated stats, no fake assets; copy is honest about scope ("not a VPN").
-- [x] `npm run package` produces `dist/anti-ip-logger-1.5.0-cws.zip` with runtime files only (62 runtime files, SHA256 569d07e492a8a5097857f559d68752413c19ddd9febddd4290d736067b0ab707).
-- [x] Opera run of the browser suite: 49/49 passed on Opera Stable 140.0.6074.18 (Windows, 2026-11-15). Evidence: `verify-opera-140.0.6074.18.json`.
+- [x] `npm run package` produces `dist/anti-ip-logger-1.6.0-cws.zip` with runtime files only (62 runtime files, SHA256 a217bc456f9299a34d3814dd504cb0aba7b9eb0388030d0baa5bfb396fb34b1e).
+- [x] Opera run of the browser suite: 49/49 passed on Opera Stable 140.0.6074.18 (Windows, 2026-11-15) for the 1.5.0 build. Evidence: `verify-opera-140.0.6074.18.json`.
+- [ ] Opera rerun for 1.6.0. The 49/49 record above covers 1.5.0; the 1.6.0 UI has been checked on Edge and Brave only. Reinstall Opera and rerun before uploading.
+- [ ] Regenerate the 612x408 screenshots for 1.6.0. The current set shows the 1.5.0 interface.
 - [ ] Opera account. Creating one is free. Nothing is submitted by this repository.
 
 ## Opera verification run (2026-11-15)
@@ -37,7 +39,7 @@ Everything needed for an Opera Add-ons submission. The kit is prepared but not s
 
 1. Create an Opera account at addons.opera.com if you do not have one.
 2. Open the Opera Add-ons developer dashboard on addons.opera.com (sign in, then the developer section).
-3. Choose to add a new extension and upload `dist/anti-ip-logger-1.5.0-cws.zip` (built by `npm run package`).
+3. Choose to add a new extension and upload `dist/anti-ip-logger-1.6.0-cws.zip` (built by `npm run package`).
 4. Paste the listing text from `listing-en.md` into the English fields and `listing-tr.md` into the Turkish localization. Set category to Privacy & Security.
 5. Upload the six screenshots from `screenshots/` (612x408, under the 800x600 maximum). Opera prefers a white background; only the popup shot is composited, the other five are full-bleed UI captures.
 6. Set the privacy policy URL to https://supposedtobescruz.github.io/anti-ip-logger/privacy.html
@@ -62,4 +64,4 @@ python tools/make-store-assets.py opera store/opera/screenshots
 
 ## Version note
 
-`manifest.json` is 1.5.0. Opera accepts a version with 1 to 4 integer components, which 1.5.0 satisfies. Do not add `minimum_opera_version` to the manifest; the Opera 97 floor (Chromium 111, matching `minimum_chrome_version: 111`) is documented in the listing text instead. Bump the manifest and the tag before any new submission.
+`manifest.json` is 1.6.0. Opera accepts a version with 1 to 4 integer components, which 1.6.0 satisfies. Do not add `minimum_opera_version` to the manifest; the Opera 97 floor (Chromium 111, matching `minimum_chrome_version: 111`) is documented in the listing text instead. Bump the manifest and the tag before any new submission.

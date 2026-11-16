@@ -18,11 +18,11 @@
         </div>
 
         <nav class="rail__nav" aria-label="Sections" data-i18n-aria-label="navSectionsLabel" id="rail-nav">
-          <a href="#overview" data-route="overview" class="rail__link" aria-current="page" data-i18n="navOverview">Overview</a>
-          <a href="#lists" data-route="lists" class="rail__link" data-i18n="navLists">Lists</a>
-          <a href="#events" data-route="events" class="rail__link" data-i18n="navEvents">Events</a>
-          <a href="#sources" data-route="sources" class="rail__link" data-i18n="navSources">Sources</a>
-          <a href="#settings" data-route="settings" class="rail__link" data-i18n="navSettings">Settings</a>
+          <a href="#overview" data-route="overview" class="rail__link" aria-current="page"><span class="rail__index mono" aria-hidden="true">01</span><span class="rail__label" data-i18n="navOverview">Overview</span></a>
+          <a href="#lists" data-route="lists" class="rail__link"><span class="rail__index mono" aria-hidden="true">02</span><span class="rail__label" data-i18n="navLists">Lists</span></a>
+          <a href="#events" data-route="events" class="rail__link"><span class="rail__index mono" aria-hidden="true">03</span><span class="rail__label" data-i18n="navEvents">Events</span></a>
+          <a href="#sources" data-route="sources" class="rail__link"><span class="rail__index mono" aria-hidden="true">04</span><span class="rail__label" data-i18n="navSources">Sources</span></a>
+          <a href="#settings" data-route="settings" class="rail__link"><span class="rail__index mono" aria-hidden="true">05</span><span class="rail__label" data-i18n="navSettings">Settings</span></a>
         </nav>
 
         <div class="rail__foot">
@@ -99,7 +99,7 @@
             </div>
           </dl>
 
-          <div class="grid-2">
+          <div class="grid-2 grid-2--overview">
             <div class="card">
               <div class="card__head">
                 <h2 class="card__title" id="overview-events-heading" tabindex="-1" data-i18n="recentEventsTitle">Recent events</h2>
@@ -323,12 +323,12 @@
         </section>
 
         <section id="section-settings" class="view" hidden aria-labelledby="page-title">
-          <div class="grid-2">
+          <div class="grid-2 grid-2--settings">
             <div class="card">
               <div class="card__head">
                 <h2 class="card__title" data-i18n="protectionCardTitle">Protection</h2>
               </div>
-              <div class="card__body stack">
+              <div class="card__body settings-list">
                 <label class="row spread setting-row">
                   <span class="setting-row__text">
                     <span class="setting-row__title" data-i18n="settingEnabledTitle">Protection on</span>

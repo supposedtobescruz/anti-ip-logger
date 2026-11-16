@@ -7,8 +7,8 @@ Everything needed for a Chrome Web Store submission. The Edge Add-ons submission
 - `listing-en.md` - English listing text: title, short description, detailed description, single-purpose statement, category, tags.
 - `listing-tr.md` - Turkish counterpart of the same listing.
 - `permission-justifications.md` - one paragraph per permission, ready to paste into the dashboard's justification fields.
-- `screenshots/` - six 1280×800 store screenshots (English UI), made from real builds of the published version.
-- `screenshots-tr/` - the same six screenshots with the Turkish UI.
+- `screenshots/` - six 1280×800 store screenshots (English UI), made from real builds up to 1.5.0. Regenerate them for 1.6.0 before submitting.
+- `screenshots-tr/` - the same six screenshots with the Turkish UI, same version note.
 - `promo-440x280.png` - small promotional tile.
 - `marquee-1400x560.png` - marquee promotional tile.
 - `../PRIVACY.md` and `../docs/privacy.html` - the privacy policy, in text and in a standalone page.
@@ -22,7 +22,7 @@ Everything needed for a Chrome Web Store submission. The Edge Add-ons submission
 - [x] Screenshots 1280×800 (6× EN, 6× TR) and promotional tiles 440×280 / 1400×560.
 - [x] Icons 16/32/48/128 embedded and manifest-declared.
 - [x] No em dash, no fabricated stats, no fake assets; copy is honest about scope ("not a VPN").
-- [x] `npm run package` produces `dist/anti-ip-logger-1.5.0-cws.zip` with runtime files only (62 runtime files, SHA256 569d07e492a8a5097857f559d68752413c19ddd9febddd4290d736067b0ab707; verified to load and pass 49/49 browser checks as the extracted copy).
+- [x] `npm run package` produces `dist/anti-ip-logger-1.6.0-cws.zip` with runtime files only (62 runtime files, SHA256 a217bc456f9299a34d3814dd504cb0aba7b9eb0388030d0baa5bfb396fb34b1e; verified to load and pass the browser suite as the extracted copy).
 - [ ] Developer account. Chrome Web Store requires a developer registration; there is currently a one-time fee (historically 5 USD). Check the current price in the Chrome Web Store Developer Dashboard. The fee is not paid and nothing is submitted by this repository.
 
 ## Hosting the privacy policy
@@ -35,7 +35,7 @@ If you ever move hosts, update `docs/privacy.html` and the store listing; keep t
 
 1. Open the Chrome Web Store Developer Dashboard.
 2. Register a developer account (the one-time fee applies).
-3. New item → upload `dist/anti-ip-logger-1.5.0-cws.zip`.
+3. New item → upload `dist/anti-ip-logger-1.6.0-cws.zip`.
 4. Fill Store listing (from `listing-en.md`, plus TR under localization), Category = Tools (Chrome Web Store; the Opera Add-ons kit in `opera/` uses Privacy & Security, since Opera has no Tools category).
 5. Fill Privacy practices: data collection = none; single purpose text from `listing-en.md`; permission justifications from `permission-justifications.md`.
 6. Upload the 6 EN screenshots; optionally upload the TR set under the Turkish localization; upload promo tiles.
@@ -59,7 +59,7 @@ npm run package                          # rebuild the zip
 
 ## Versioning note
 
-`manifest.json` is 1.5.0. Bump both the manifest and the tag before any new submission.
+`manifest.json` is 1.6.0. Bump both the manifest and the tag before any new submission.
 
 `npm run verify:package` builds the zip in a temporary directory, verifies it there and deletes it, so the check never blesses a modified worktree. It fails when `dist/` holds zips for other versions; keep only the current release artifact in `dist/`.
 
@@ -103,7 +103,7 @@ How to enable it:
 2. Find the product ID (a guid) of the existing Edge Add-ons product.
 3. In the GitHub repository, Settings > Secrets and variables > Actions, create three secrets: `EDGE_CLIENT_ID`, `EDGE_API_KEY`, `EDGE_PRODUCT_ID`.
 
-Tag rule: tag must equal the manifest version, e.g. `git tag v1.5.0 && git push origin main --follow-tags`. The workflow has a safety gate: on a tag push, the tag (without the leading `v`) must equal `manifest.json` `version`, otherwise the job fails before uploading. Manual `workflow_dispatch` runs on a non-tag ref skip the gate.
+Tag rule: tag must equal the manifest version, e.g. `git tag v1.6.0 && git push origin main --follow-tags`. The workflow has a safety gate: on a tag push, the tag (without the leading `v`) must equal `manifest.json` `version`, otherwise the job fails before uploading. Manual `workflow_dispatch` runs on a non-tag ref skip the gate.
 
 The update-check gist is NOT synced by this workflow. An earlier gist-sync automation was reverted (6a3381a, df1b40e) for lack of a gist-scoped token; gist sync remains manual.
 

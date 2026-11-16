@@ -7,7 +7,7 @@
 
 Anti IP Logger is a Chrome extension that blocks known IP logger and link grabber domains, then reports IP leak attempts it finds on the page. Manifest V3, vanilla JavaScript, no build step.
 
-Version 1.5.0. The bundled list ships 125 domains in 2 static rules, with 61 exceptions.
+Version 1.6.0. The bundled list ships 125 domains in 2 static rules, with 61 exceptions.
 
 ## What it does
 
@@ -165,7 +165,7 @@ Rule priority ladder: tab allow 110 > allowlist 100 > custom block 50 > blocked 
 
 - **Microsoft Edge Add-ons:** published, https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.3.0, 11 Nov 2026).
 - **Chrome Web Store:** the listing is prepared but not submitted yet, by deliberate decision. What is ready:
-  - `npm run package` builds `dist/anti-ip-logger-1.5.0-cws.zip` (runtime files only; the extracted zip passes all browser checks).
+  - `npm run package` builds `dist/anti-ip-logger-1.6.0-cws.zip` (runtime files only; the extracted zip passes all browser checks).
   - Store kit in `store/`: English and Turkish listings, permission justifications, screenshots, promotional tiles.
   - The privacy policy lives in `PRIVACY.md` and `docs/privacy.html`, served at https://supposedtobescruz.github.io/anti-ip-logger/privacy.html (repository is public, GitHub Pages from `docs/`).
   - A submission checklist is in `store/README.md`; the developer registration fee note is there as well.

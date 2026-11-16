@@ -6,6 +6,28 @@ Versions follow SemVer. The project starts at 1.0.0 and has no earlier history t
 Releases are tagged `v<version>` in git; the dates below are the tag dates.
 The extension has no telemetry. Settings, counters and the event log stay in `chrome.storage.local`. See PRIVACY.md.
 
+## [1.6.0] - 2026-11-16
+
+### Added
+
+- The browser suite captures the welcome tour, so all four surfaces now have a screenshot check. The matrix is 49 checks per browser.
+- Shared helpers `.btn--block`, `.section-head` and `.card__meta`, plus spacing and type tokens, in `assets/base.css` for the surfaces to reuse.
+
+### Changed
+
+- Reworked the panel, popup, blocked page and welcome tour around one instrument language: a 4px state spine, numbered mono labels, larger status lines, hairline rules, flat cards with sunken headers and square geometry. No i18n key, element id or behavior changed.
+- Panel: a sunken 248px rail with numbered links and a sticky topbar, a four cell metric strip, a two column overview, a compact list toolbar, an event log with a tone dot and a mono type label per row in place of a badge, and settings split into hairline rows. The rail becomes a horizontal bar at 980px, the layout turns single column at 760px and rows tighten at 560px.
+- Popup: a 30px header, a hero verdict with a state spine and a two column action grid, a four cell counter band, a compact event ticker and a footer status line.
+- Blocked page: an evidence sheet with a case header, a rotated stamp, a target block with an ink spine, numbered notes and dotted fineprint.
+- Welcome tour: a 320px mascot column, a bubble with an accent spine and a desktop speech tail, a six segment progress bar and a centered stage.
+- Buttons, inputs and selects share a 36px control height, cards stay flat, and tables, switches, notices and the toast use the token scale.
+- The panel column centers when the viewport is wider than 1428px, and toasts keep clear of the mascot corner.
+
+### Fixed
+
+- The extension popup opened as a 28px wide strip in a headed browser. The body width used `min(384px, 100vw)`, and inside a popup the initial layout viewport is 28px, so the whole popup shrank to that. The body now has a fixed 384px width, and `tools/verify-ui.mjs` checks for it.
+- The popup theme action rendered the sun as a color emoji on Windows. It now uses the text variation selector, so both theme marks stay monochrome.
+
 ## [1.5.0] - 2026-11-15
 
 ### Added

@@ -16,10 +16,10 @@
           <span class="brand__name">Anti IP Logger</span>
         </div>
         <div class="row">
-          <button class="btn btn--quiet btn--icon" id="theme-toggle" type="button" data-i18n-aria-label="themeToggleLabel" data-i18n-title="themeToggleLabel" aria-label="Switch theme" title="Switch theme">
+          <button class="btn btn--icon popup__icon" id="theme-toggle" type="button" data-i18n-aria-label="themeToggleLabel" data-i18n-title="themeToggleLabel" aria-label="Switch theme" title="Switch theme">
             <span class="mono" aria-hidden="true" id="theme-glyph">A</span>
           </button>
-          <button class="btn btn--quiet btn--icon" id="open-dashboard" type="button" data-i18n-aria-label="openDashboardLabel" data-i18n-title="openDashboardLabel" aria-label="Open panel" title="Open panel">
+          <button class="btn btn--icon popup__icon" id="open-dashboard" type="button" data-i18n-aria-label="openDashboardLabel" data-i18n-title="openDashboardLabel" aria-label="Open panel" title="Open panel">
             <span aria-hidden="true">&#9776;</span>
           </button>
         </div>
@@ -95,16 +95,19 @@
           </div>
           <ul class="events" id="events"></ul>
           <p class="empty empty--mascot" id="events-empty" hidden>
-            <img src="../assets/mascot-scruize.svg" class="empty-mascot" alt="" width="72" height="72" aria-hidden="true" />
+            <img src="../assets/mascot-scruize.svg" class="empty-mascot" alt="" width="56" height="56" aria-hidden="true" />
             <span data-i18n="eventsEmpty">No events yet. Blocked IP logger connections appear here.</span>
           </p>
         </section>
       </main>
 
       <footer class="popup__foot">
-        <span class="mono" id="sync-line" data-i18n="listReady">List ready</span>
+        <span class="foot__status">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span class="mono" id="sync-line" data-i18n="listReady">List ready</span>
+        </span>
         <span class="row">
-          <button class="btn btn--quiet btn--icon popup__tour" id="replay-tour" type="button" data-i18n-aria-label="popupReplayTourLabel" data-i18n-title="popupReplayTourTitle" aria-label="Replay the welcome tour" title="Replay the welcome tour">
+          <button class="btn btn--icon popup__icon popup__tour" id="replay-tour" type="button" data-i18n-aria-label="popupReplayTourLabel" data-i18n-title="popupReplayTourTitle" aria-label="Replay the welcome tour" title="Replay the welcome tour">
             <span class="mono" aria-hidden="true">?</span>
           </button>
           <span class="mono" id="version-line"></span>

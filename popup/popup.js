@@ -63,7 +63,7 @@ let reloadQueued = false;
 
 function syncThemeButton() {
   const dark = themeMode(resolvedTheme()) === "dark";
-  nodes.themeGlyph.textContent = dark ? "☾" : "☀";
+  nodes.themeGlyph.textContent = dark ? "☾" : "☀︎";
   const labelKey = dark ? "themeSwitchToLight" : "themeSwitchToDark";
   nodes.themeToggle.setAttribute("aria-label", t(labelKey));
   nodes.themeToggle.title = t(labelKey);

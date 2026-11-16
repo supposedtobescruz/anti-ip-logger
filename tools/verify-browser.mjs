@@ -251,6 +251,7 @@ async function screenshot(client, name, width, height, theme = "light") {
     mobile: false,
   });
   await evaluate(client, `document.documentElement.setAttribute('data-theme','${theme}'); return true;`).catch(() => {});
+  await evaluate(client, `if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); return true;`).catch(() => {});
   await sleep(350);
   const shot = await client.send("Page.captureScreenshot", { format: "png", captureBeyondViewport: true }, 30_000);
   await writeFile(join(OUT, name), Buffer.from(shot.data, "base64"));
@@ -668,6 +669,7 @@ async function run() {
     await dash.send("Page.reload");
     await waitForLoad(dash);
     await waitFor(() => evaluate(dash, "return document.documentElement.getAttribute('data-theme') === 'graphite';").catch(() => false), 8000, "graphite theme");
+    await waitFor(() => evaluate(dash, "return getComputedStyle(document.body).backgroundColor === 'rgb(15, 17, 21)';").catch(() => false), 5000, "graphite paint").catch(() => {});
     const graphiteDash = await evaluate(
       dash,
       `const style = getComputedStyle(document.body);
@@ -680,6 +682,7 @@ async function run() {
     await dash.send("Page.reload");
     await waitForLoad(dash);
     await waitFor(() => evaluate(dash, "return document.documentElement.getAttribute('data-theme') === 'contrast';").catch(() => false), 8000, "contrast theme");
+    await waitFor(() => evaluate(dash, "return getComputedStyle(document.body).backgroundColor === 'rgb(255, 255, 255)';").catch(() => false), 5000, "contrast paint").catch(() => {});
     const contrastDash = await evaluate(
       dash,
       `const style = getComputedStyle(document.body);
@@ -853,6 +856,9 @@ async function run() {
     );
     check("tab allows cleared on tab close", Array.isArray(tabState), `${tabState.length} sekme`);
 
+    await evaluate(dash, `location.hash = "#overview"; await new Promise((resolve) => setTimeout(resolve, 250)); return location.hash;`);
+    await screenshot(dash, "dashboard-mobile.png", 360, 780, "light");
+
     await evaluate(dash, "return new Promise((resolve) => chrome.runtime.sendMessage({ type: 'setSetting', key: 'theme', value: 'contrast' }, resolve));");
     const welcomeTarget = await openTab(port, `chrome-extension://${extensionId}/welcome/welcome.html`);
     const welcome = await connect(welcomeTarget);
@@ -864,6 +870,8 @@ async function run() {
        return { theme: document.documentElement.getAttribute('data-theme'), background: style.backgroundColor };`,
     );
     check("welcome page applies the stored theme", welcomeTheme.theme === "contrast" && welcomeTheme.background === "rgb(255, 255, 255)", JSON.stringify(welcomeTheme));
+    await screenshot(welcome, "welcome.png", 1000, 760, "light");
+    await screenshot(welcome, "welcome-mobile.png", 360, 780, "light");
     await fetch(`http://127.0.0.1:${port}/json/close/${welcomeTarget.id}`).catch(() => {});
     welcome.close();
     await evaluate(dash, "return new Promise((resolve) => chrome.runtime.sendMessage({ type: 'setSetting', key: 'theme', value: 'system' }, resolve));");

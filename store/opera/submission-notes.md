@@ -6,13 +6,14 @@ Checklist and reviewer notes. The package is not submitted; nothing in this file
 
 - [ ] `npm run verify:all` passes.
 - [ ] `npm run verify:package` passes and produces no store/ files inside the package.
-- [ ] `npm run package` produces the upload package (`dist/anti-ip-logger-1.5.0-cws.zip`, 62 runtime files, SHA256 569d07e492a8a5097857f559d68752413c19ddd9febddd4290d736067b0ab707).
+- [ ] `npm run package` produces the upload package (`dist/anti-ip-logger-1.6.0-cws.zip`, 62 runtime files, SHA256 a217bc456f9299a34d3814dd504cb0aba7b9eb0388030d0baa5bfb396fb34b1e).
 - [ ] Listing text taken from `store/opera/listing-en.md` (English) and `store/opera/listing-tr.md` (Turkish).
 - [ ] Screenshots (612x408) from `store/opera/screenshots/` uploaded to the listing.
 - [ ] Category: Privacy & Security. Search terms as listed in the listing files.
 - [ ] Privacy policy URL is public and matches the shipped extension before submission: https://supposedtobescruz.github.io/anti-ip-logger/privacy.html
-- [x] Opera evidence snapshot committed: `store/opera/verify-opera-140.0.6074.18.json` (49/49 browser checks, Opera Stable 140.0.6074.18, Windows, 2026-11-15).
-- [ ] Version in `manifest.json` is 1.5.0; Opera accepts 1 to 4 integer version components.
+- [x] Opera evidence snapshot committed: `store/opera/verify-opera-140.0.6074.18.json` (49/49 browser checks, Opera Stable 140.0.6074.18, Windows, 2026-11-15) for the 1.5.0 build.
+- [ ] Opera rerun for 1.6.0 and fresh 612x408 screenshots. The 49/49 record above and the current screenshots cover 1.5.0.
+- [ ] Version in `manifest.json` is 1.6.0; Opera accepts 1 to 4 integer version components.
 - [ ] Do not add `minimum_opera_version` to the manifest; the Opera 97 floor is documented in the listing text instead.
 
 ## Opera 97 floor

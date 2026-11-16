@@ -341,7 +341,10 @@ function eventRow(event) {
   main.append(el("p", "event-row__detail truncate", event.detail || ""));
   row.append(main);
   const meta = el("span", "event-row__meta");
-  meta.append(el("span", `badge badge--${EVENT_TONES[event.type] || "plain"}`, t(EVENT_LABEL_KEYS[event.type] || "typeInfo")));
+  const dot = el("span", "event-row__dot");
+  dot.dataset.tone = EVENT_TONES[event.type] || "plain";
+  dot.setAttribute("aria-hidden", "true");
+  meta.append(dot, el("span", "event-row__type mono", t(EVENT_LABEL_KEYS[event.type] || "typeInfo")));
   row.append(meta);
   row.title = `${new Date(event.ts).toLocaleString()} - ${event.detail || ""}`;
   return row;
