@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+﻿import { spawn } from "node:child_process";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { dirname, isAbsolute, join, relative } from "node:path";
@@ -222,11 +222,11 @@ async function isOurExtensionWorker(target) {
     const identity = await ourManifestIdentity();
     probe = new Cdp(target.webSocketDebuggerUrl);
     await probe.ready;
-    await probe.send("Runtime.enable");
+    await probe.send("Runtime.enable", {}, 3000);
     const result = await probe.send("Runtime.evaluate", {
       expression: "JSON.stringify({ name: chrome.runtime.getManifest().name, version: chrome.runtime.getManifest().version })",
       returnByValue: true,
-    });
+    }, 3000);
     const info = JSON.parse(result.result.value);
     ours = info.name === identity.name && info.version === identity.version;
   } catch {
@@ -383,17 +383,23 @@ async function run() {
     const extensionId = new URL(worker.url).host;
     check("extension id read", /^[a-p]{32}$/.test(extensionId), extensionId);
 
-    const workerClient = await connect(worker, { page: false });
-    await waitFor(
-      () => evaluate(workerClient, "return typeof chrome === 'object' && Boolean(chrome.declarativeNetRequest);").catch(() => false),
+    // Service worker targets are not reliably scriptable across Chromium builds
+    // (Chrome 158 on Linux rejects Runtime.evaluate on the worker target), so
+    // privileged API checks run in the dashboard page, which has the same APIs.
+    const dashTarget = await openTab(port, `chrome-extension://${extensionId}/dashboard/dashboard.html#overview`);
+    const dash = await connect(dashTarget);
+    await waitForLoad(dash);
+    const apiContext = await waitFor(
+      () => evaluate(dash, "return typeof chrome === 'object' && Boolean(chrome.declarativeNetRequest);").catch(() => false),
       10_000,
-      "service worker API context",
-    );
+      "extension page API context",
+    ).catch(() => false);
+    if (!apiContext) throw new Error("extension page API context unavailable");
 
     const ruleInfo = await waitFor(
       async () => {
         const info = await evaluate(
-          workerClient,
+          dash,
           `const rules = await chrome.declarativeNetRequest.getDynamicRules();
            const staticRules = await chrome.declarativeNetRequest.getEnabledRulesets();
            return { dynamic: rules.length, staticRules };`,
@@ -404,7 +410,7 @@ async function run() {
       "dynamic rule apply",
     ).catch(async () =>
       evaluate(
-        workerClient,
+        dash,
         `const rules = await chrome.declarativeNetRequest.getDynamicRules();
          const staticRules = await chrome.declarativeNetRequest.getEnabledRulesets();
          return { dynamic: rules.length, staticRules };`,
@@ -416,7 +422,7 @@ async function run() {
     const settings = await waitFor(
       async () => {
         const value = await evaluate(
-          workerClient,
+          dash,
           `const data = await chrome.storage.local.get("settings");
            return data.settings || null;`,
         );
@@ -479,9 +485,6 @@ async function run() {
     await evaluate(popup, "document.documentElement.removeAttribute('data-theme'); return true;");
     await popup.send("Emulation.setEmulatedMedia", { features: [] });
 
-    const dashTarget = await openTab(port, `chrome-extension://${extensionId}/dashboard/dashboard.html#overview`);
-    const dash = await connect(dashTarget);
-    await waitForLoad(dash);
     await waitFor(() => evaluate(dash, "return document.getElementById('tile-domains').textContent.trim() !== '0';"), 8000, "panel data");
     const dashState = await evaluate(
       dash,
@@ -788,7 +791,7 @@ async function run() {
     // Regression: Chrome rejects tabIds in dynamic rules, so "allow once in this
     // tab" must install a session-scoped rule and must not touch dynamic rules.
     const tabAllowProbe = await evaluate(
-      workerClient,
+      dash,
       `const tabs = await chrome.tabs.query({});
        const blocked = tabs.find((tab) => tab.url && tab.url.includes('/blocked/blocked.html'));
        const session = await chrome.declarativeNetRequest.getSessionRules();
@@ -810,7 +813,7 @@ async function run() {
       const navigatedTo = await waitFor(
         async () => {
           const url = await evaluate(
-            workerClient,
+            dash,
             `const tab = await chrome.tabs.get(${tabAllowTabId}).catch(() => null); return tab && tab.url ? tab.url : '';`,
           );
           return url && !url.includes("/blocked/blocked.html") ? url : null;
@@ -826,7 +829,7 @@ async function run() {
       const postAllow = await waitFor(
         async () => {
           const value = await evaluate(
-            workerClient,
+            dash,
             `const session = await chrome.declarativeNetRequest.getSessionRules();
              const dynamic = await chrome.declarativeNetRequest.getDynamicRules();
              return { session, dynamic };`,
@@ -850,11 +853,11 @@ async function run() {
             && rule.condition.requestDomains.includes("grabify.link")),
         postAllow ? `${postAllow.dynamic.length} dynamic rule(s)` : "session rule never appeared",
       );
-      await evaluate(workerClient, `await chrome.tabs.remove(${tabAllowTabId}).catch(() => {}); return true;`);
+      await evaluate(dash, `await chrome.tabs.remove(${tabAllowTabId}).catch(() => {}); return true;`);
       const cleared = await waitFor(
         async () => {
           const session = await evaluate(
-            workerClient,
+            dash,
             "const rules = await chrome.declarativeNetRequest.getSessionRules(); return rules.length;",
           );
           return session === 0 ? true : null;
@@ -872,7 +875,7 @@ async function run() {
     await test.send("Fetch.disable").catch(() => {});
 
     const tabState = await evaluate(
-      workerClient,
+      dash,
       `const tabs = await chrome.tabs.query({});
        return tabs.map((tab) => ({ id: tab.id, url: tab.url || "" }));`,
     );
@@ -910,7 +913,6 @@ async function run() {
     popup.close();
     dash.close();
     test.close();
-    workerClient.close();
   } finally {
     child.kill();
     await sleep(500);
