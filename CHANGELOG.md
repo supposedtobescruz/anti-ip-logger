@@ -12,6 +12,7 @@ The extension has no telemetry. Settings, counters and the event log stay in `ch
 
 - The browser suite captures the welcome tour, so all four surfaces now have a screenshot check. The matrix is 49 checks per browser.
 - Shared helpers `.btn--block`, `.section-head` and `.card__meta`, plus spacing and type tokens, in `assets/base.css` for the surfaces to reuse.
+- The GitHub Actions verify workflow installs Google Chrome stable and runs the suite against it explicitly, instead of relying on the preinstalled runner browser.
 
 ### Changed
 
@@ -25,6 +26,10 @@ The extension has no telemetry. Settings, counters and the event log stay in `ch
 
 ### Fixed
 
+- CI failed at the "service worker API context" step. Chrome 158 on the Linux runner accepts the service worker target but rejects `Runtime.evaluate` on it, so the privileged `chrome.*` checks never ran. Those checks now run in the install-time welcome page, which exposes the same APIs, and the worker target is only used to find the extension id. `connect` also retries `Runtime.enable` and `Page.enable` instead of failing on a single rejection.
+- CI then failed to open extension pages: Chrome 158 on Linux navigates a debugger-created tab to `chrome-extension://` and ends at `chrome-error://chromewebdata/`. The suite now opens the dashboard, popup and welcome tabs with `chrome.tabs.create` from the welcome page and waits for the new target.
+- The popup host check could be skipped when reloading the popup tab made it the active tab before it read the active tab state. The suite now reloads while the site tab is active, retries up to three times and always asserts the host, so the matrix stays at 49 checks.
+- The CI browser check now selects Chrome explicitly (`--browser chrome`). The suite previously picked whatever Chromium browser `detectBrowsers` found first, which on ubuntu-latest could be an older preinstalled Chrome; the workflow now installs current Chrome stable and runs that binary.
 - The extension popup opened as a 28px wide strip in a headed browser. The body width used `min(384px, 100vw)`, and inside a popup the initial layout viewport is 28px, so the whole popup shrank to that. The body now has a fixed 384px width, and `tools/verify-ui.mjs` checks for it.
 - The popup theme action rendered the sun as a color emoji on Windows. It now uses the text variation selector, so both theme marks stay monochrome.
 
