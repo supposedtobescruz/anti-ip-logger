@@ -271,6 +271,35 @@ async function openTab(port, url) {
   return response.json();
 }
 
+// Chrome 158 on Linux refuses to navigate a debugger-created tab to a
+// chrome-extension:// URL, so extension pages are opened through the tabs API
+// from an extension page that already exists (the install-time welcome tab).
+async function openExtensionTab(admin, port, pagePath) {
+  const listTargets = async () => {
+    const response = await fetch(`http://127.0.0.1:${port}/json/list`);
+    return response.json();
+  };
+  const before = new Set(
+    (await listTargets()).filter((target) => target.type === "page" && target.url.includes(pagePath)).map((target) => target.id),
+  );
+  await evaluate(
+    admin,
+    `await chrome.tabs.create({ url: chrome.runtime.getURL(${JSON.stringify(pagePath)}) }); return true;`,
+  );
+  return waitFor(
+    async () => {
+      const targets = await listTargets();
+      return (
+        targets.find(
+          (target) => target.type === "page" && target.url.includes(pagePath) && !before.has(target.id),
+        ) || null
+      );
+    },
+    10_000,
+    `extension tab ${pagePath}`,
+  );
+}
+
 async function waitForLoad(client, timeout = 15_000) {
   await waitFor(
     () => evaluate(client, "return document.readyState === 'complete';"),
@@ -385,26 +414,39 @@ async function run() {
 
     // Service worker targets are not reliably scriptable across Chromium builds
     // (Chrome 158 on Linux rejects Runtime.evaluate on the worker target), so
-    // privileged API checks run in the dashboard page, which has the same APIs.
-    const dashTarget = await openTab(port, `chrome-extension://${extensionId}/dashboard/dashboard.html#overview`);
-    const dash = await connect(dashTarget);
-    await waitForLoad(dash);
+    // privileged API checks run in the welcome page, which has the same APIs.
+    const bootstrapTarget = await waitFor(
+      async () => {
+        const response = await fetch(`http://127.0.0.1:${port}/json/list`);
+        const targets = await response.json();
+        return targets.find(
+          (target) => target.type === "page" && target.url.startsWith(`chrome-extension://${extensionId}/`),
+        ) || null;
+      },
+      15_000,
+      "extension page",
+    );
+    const admin = await connect(bootstrapTarget);
     const apiContext = await waitFor(
-      () => evaluate(dash, "return typeof chrome === 'object' && Boolean(chrome.declarativeNetRequest);").catch(() => false),
+      () => evaluate(admin, "return typeof chrome === 'object' && Boolean(chrome.declarativeNetRequest);").catch(() => false),
       10_000,
       "extension page API context",
     ).catch(() => false);
     if (!apiContext) {
       const diagnostic = await evaluate(
-        dash,
+        admin,
         `return { url: location.href, ready: document.readyState,
            chromeType: typeof chrome,
            keys: typeof chrome === "object" ? Object.keys(chrome).slice(0, 12) : [],
            title: document.title };`,
       ).catch((error) => ({ error: error.message }));
-      process.stdout.write(`DIAG extension page ${JSON.stringify({ target: dashTarget.url, diagnostic })}\n`);
+      process.stdout.write(`DIAG extension page ${JSON.stringify({ target: bootstrapTarget.url, diagnostic })}\n`);
       throw new Error("extension page API context unavailable");
     }
+
+    const dashTarget = await openExtensionTab(admin, port, "dashboard/dashboard.html#overview");
+    const dash = await connect(dashTarget);
+    await waitForLoad(dash);
 
     const ruleInfo = await waitFor(
       async () => {
@@ -444,7 +486,7 @@ async function run() {
     check("default settings written", Boolean(settings && settings.enabled === true));
 
     const siteTarget = await openTab(port, "https://example.com/");
-    const popupTarget = await openTab(port, `chrome-extension://${extensionId}/popup/popup.html`);
+    const popupTarget = await openExtensionTab(admin, port, "popup/popup.html");
     const popup = await connect(popupTarget);
     await waitForLoad(popup);
     await waitFor(() => evaluate(popup, "return document.getElementById('content') && !document.getElementById('content').hidden;"), 8000, "popup content");
@@ -895,7 +937,7 @@ async function run() {
     await screenshot(dash, "dashboard-mobile.png", 360, 780, "light");
 
     await evaluate(dash, "return new Promise((resolve) => chrome.runtime.sendMessage({ type: 'setSetting', key: 'theme', value: 'contrast' }, resolve));");
-    const welcomeTarget = await openTab(port, `chrome-extension://${extensionId}/welcome/welcome.html`);
+    const welcomeTarget = await openExtensionTab(admin, port, "welcome/welcome.html");
     const welcome = await connect(welcomeTarget);
     await waitForLoad(welcome);
     await waitFor(() => evaluate(welcome, "return document.documentElement.getAttribute('data-theme') === 'contrast';").catch(() => false), 8000, "welcome contrast theme");
