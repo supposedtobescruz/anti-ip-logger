@@ -394,7 +394,17 @@ async function run() {
       10_000,
       "extension page API context",
     ).catch(() => false);
-    if (!apiContext) throw new Error("extension page API context unavailable");
+    if (!apiContext) {
+      const diagnostic = await evaluate(
+        dash,
+        `return { url: location.href, ready: document.readyState,
+           chromeType: typeof chrome,
+           keys: typeof chrome === "object" ? Object.keys(chrome).slice(0, 12) : [],
+           title: document.title };`,
+      ).catch((error) => ({ error: error.message }));
+      process.stdout.write(`DIAG extension page ${JSON.stringify({ target: dashTarget.url, diagnostic })}\n`);
+      throw new Error("extension page API context unavailable");
+    }
 
     const ruleInfo = await waitFor(
       async () => {
