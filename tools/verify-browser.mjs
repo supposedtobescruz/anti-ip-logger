@@ -162,10 +162,18 @@ class Cdp {
 async function connect(target, { page = true } = {}) {
   const client = new Cdp(target.webSocketDebuggerUrl);
   await client.ready;
-  await client.send("Runtime.enable");
+  await waitFor(
+    () => client.send("Runtime.enable").then(() => true).catch(() => false),
+    10_000,
+    "Runtime.enable",
+  );
   if (page) {
-    await client.send("Page.enable");
-    await client.send("Log.enable");
+    await waitFor(
+      () => client.send("Page.enable").then(() => true).catch(() => false),
+      10_000,
+      "Page.enable",
+    );
+    await client.send("Log.enable").catch(() => {});
   }
   client.on("Runtime.exceptionThrown", (params) => {
     consoleErrors.push(`${target.type}: ${params.exceptionDetails?.exception?.description || params.exceptionDetails?.text || "exception"}`);
@@ -424,10 +432,24 @@ async function run() {
     const popup = await connect(popupTarget);
     await waitForLoad(popup);
     await waitFor(() => evaluate(popup, "return document.getElementById('content') && !document.getElementById('content').hidden;"), 8000, "popup content");
-    await fetch(`http://127.0.0.1:${port}/json/activate/${siteTarget.id}`);
-    await popup.send("Page.reload");
-    await waitForLoad(popup);
-    await waitFor(() => evaluate(popup, "return document.getElementById('content') && !document.getElementById('content').hidden;"), 8000, "popup content");
+    // The popup is driven by the active tab, and reloading the popup tab can
+    // briefly make it the active tab in headless mode. Retry the load while the
+    // site tab is active until the popup reports its host.
+    let popupHost = "";
+    for (let attempt = 0; attempt < 3 && !popupHost; attempt += 1) {
+      await fetch(`http://127.0.0.1:${port}/json/activate/${siteTarget.id}`).catch(() => {});
+      await popup.send("Page.reload");
+      await waitForLoad(popup);
+      await waitFor(() => evaluate(popup, "return document.getElementById('content') && !document.getElementById('content').hidden;"), 8000, "popup content");
+      popupHost = await waitFor(
+        () =>
+          evaluate(popup, "return document.getElementById('hero-host').textContent.trim();").then((value) =>
+            value ? value : null,
+          ),
+        3000,
+        "popup host",
+      ).catch(() => "");
+    }
     const popupState = await evaluate(
       popup,
       `const headline = document.getElementById('verdict-headline').textContent.trim();
@@ -441,7 +463,7 @@ async function run() {
     check("popup headline present", popupState.headline.length > 8, popupState.headline);
     check("popup badge present", popupState.label.length > 2, popupState.label);
     check("popup action buttons present", popupState.buttons.length >= 2 || popupState.hint, popupState.buttons.join(" | ") || "empty tab hint");
-    if (popupState.host) check("popup shows active tab host", popupState.host.includes("example.com"), popupState.host);
+    check("popup shows active tab host", popupHost.includes("example.com"), popupHost || "empty");
     await screenshot(popup, "popup-light.png", 384, 620, "light");
 
     await popup.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] });
