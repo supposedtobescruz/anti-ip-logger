@@ -277,9 +277,9 @@ async function openTab(port, url) {
 
 // Chrome 158 on Linux navigates a debugger-created tab to a chrome-extension://
 // URL and lands on chrome-error://chromewebdata/, and the install-time welcome
-// tab is not guaranteed to exist (the background opens it after its init work),
-// so the first extension page is opened by asking the background from the
-// isolated content script world on a regular page.
+// tab is not guaranteed to exist (the background opens it after its init work).
+// The first extension page is therefore opened by asking the background from a
+// content script world, with a DNR-blocked navigation as the fallback.
 async function findExtensionPage(port, extensionId) {
   const response = await fetch(`http://127.0.0.1:${port}/json/list`);
   const targets = await response.json();
@@ -290,23 +290,51 @@ async function findExtensionPage(port, extensionId) {
   );
 }
 
+// The isolated world of the extension content script is not labelled the same
+// way across Chromium builds, so every execution context is probed for the
+// extension runtime id instead of trusting origin or auxData.
+async function findExtensionWorld(client, extensionId) {
+  for (const context of [...client.contexts]) {
+    const result = await client
+      .send(
+        "Runtime.evaluate",
+        {
+          expression:
+            "typeof chrome === 'object' && chrome.runtime && chrome.runtime.id ? chrome.runtime.id : ''",
+          contextId: context.id,
+          returnByValue: true,
+        },
+        3000,
+      )
+      .catch(() => null);
+    if (result && result.result && result.result.value === extensionId) return context;
+  }
+  return null;
+}
+
 async function openWelcomeThroughContentScript(port, extensionId) {
   const siteTarget = await openTab(port, "https://example.com/");
   const site = await connect(siteTarget);
-  const findIsolatedWorld = () =>
-    site.contexts.find(
-      (context) =>
-        context.auxData &&
-        context.auxData.isDefault === false &&
-        String(context.origin || "").startsWith("chrome-extension://"),
-    ) || null;
   try {
     await waitForLoad(site);
-    let context = await waitFor(findIsolatedWorld, 5000, "content script context").catch(() => null);
+    let context = await waitFor(() => findExtensionWorld(site, extensionId), 6000, "content script context").catch(() => null);
     if (!context) {
       await site.send("Page.reload");
       await waitForLoad(site);
-      context = await waitFor(findIsolatedWorld, 5000, "content script context after reload");
+      context = await waitFor(() => findExtensionWorld(site, extensionId), 6000, "content script context after reload").catch(async () => {
+        const targets = await fetch(`http://127.0.0.1:${port}/json/list`).then((response) => response.json());
+        const summary = {
+          contexts: site.contexts.map((item) => ({
+            id: item.id,
+            origin: item.origin,
+            name: item.name,
+            aux: item.auxData && { isDefault: item.auxData.isDefault, type: item.auxData.type },
+          })),
+          targets: targets.map((target) => ({ type: target.type, url: target.url })),
+        };
+        process.stdout.write(`DIAG content world ${JSON.stringify(summary).slice(0, 4000)}\n`);
+        throw new Error("content script context unavailable");
+      });
     }
     await site.send(
       "Runtime.evaluate",
@@ -325,9 +353,17 @@ async function openWelcomeThroughContentScript(port, extensionId) {
   }
 }
 
+// The static core ruleset redirects a known IP logger to the packaged blocked
+// page. That navigation is issued by the browser, not by the debugger, so it
+// loads the extension page even where a debugger-created tab cannot.
+async function openExtensionPageThroughBlockedNavigation(port, extensionId) {
+  await openTab(port, "https://grabify.link/verify-bootstrap");
+  return waitFor(() => findExtensionPage(port, extensionId), 15_000, "extension page");
+}
+
 // Extension pages cannot be opened through /json/new on Chrome 158 for Linux,
 // so they are opened from an extension page that is already running.
-async function openExtensionTab(admin, port, pagePath) {
+async function openExtensionTab(opener, port, pagePath) {
   const listTargets = async () => {
     const response = await fetch(`http://127.0.0.1:${port}/json/list`);
     return response.json();
@@ -336,7 +372,7 @@ async function openExtensionTab(admin, port, pagePath) {
     (await listTargets()).filter((target) => target.type === "page" && target.url.includes(pagePath)).map((target) => target.id),
   );
   await evaluate(
-    admin,
+    opener,
     `await chrome.tabs.create({ url: chrome.runtime.getURL(${JSON.stringify(pagePath)}) }); return true;`,
   );
   return waitFor(
@@ -468,7 +504,13 @@ async function run() {
     // Service worker targets are not reliably scriptable across Chromium builds
     // (Chrome 158 on Linux rejects Runtime.evaluate on the worker target), so
     // privileged API checks run in the welcome page, which has the same APIs.
-    const bootstrapTarget = await openWelcomeThroughContentScript(port, extensionId);
+    let bootstrapTarget = null;
+    if (process.env.VERIFY_BOOTSTRAP !== "blocked") {
+      bootstrapTarget = await openWelcomeThroughContentScript(port, extensionId).catch(() => null);
+    }
+    if (!bootstrapTarget) {
+      bootstrapTarget = await openExtensionPageThroughBlockedNavigation(port, extensionId);
+    }
     const admin = await connect(bootstrapTarget);
     await waitForLoad(admin);
     const apiContext = await waitFor(
@@ -491,6 +533,10 @@ async function run() {
     const dashTarget = await openExtensionTab(admin, port, "dashboard/dashboard.html#overview");
     const dash = await connect(dashTarget);
     await waitForLoad(dash);
+    // The bootstrap page exists only to open the first extension tab. Closing it
+    // keeps the tab state checks from seeing a second blocked or welcome page.
+    await fetch(`http://127.0.0.1:${port}/json/close/${bootstrapTarget.id}`).catch(() => {});
+    admin.close();
 
     const ruleInfo = await waitFor(
       async () => {
@@ -530,7 +576,7 @@ async function run() {
     check("default settings written", Boolean(settings && settings.enabled === true));
 
     const siteTarget = await openTab(port, "https://example.com/");
-    const popupTarget = await openExtensionTab(admin, port, "popup/popup.html");
+    const popupTarget = await openExtensionTab(dash, port, "popup/popup.html");
     const popup = await connect(popupTarget);
     await waitForLoad(popup);
     await waitFor(() => evaluate(popup, "return document.getElementById('content') && !document.getElementById('content').hidden;"), 8000, "popup content");
@@ -981,7 +1027,7 @@ async function run() {
     await screenshot(dash, "dashboard-mobile.png", 360, 780, "light");
 
     await evaluate(dash, "return new Promise((resolve) => chrome.runtime.sendMessage({ type: 'setSetting', key: 'theme', value: 'contrast' }, resolve));");
-    const welcomeTarget = await openExtensionTab(admin, port, "welcome/welcome.html");
+    const welcomeTarget = await openExtensionTab(dash, port, "welcome/welcome.html");
     const welcome = await connect(welcomeTarget);
     await waitForLoad(welcome);
     await waitFor(() => evaluate(welcome, "return document.documentElement.getAttribute('data-theme') === 'contrast';").catch(() => false), 8000, "welcome contrast theme");
