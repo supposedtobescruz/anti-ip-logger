@@ -59,7 +59,7 @@ One Manifest V3 package covers the Chromium family. The only hard floor is Chrom
 |---|---|---|---|
 | Microsoft Edge | Edge Add-ons: 1.3.0 live, 1.4.0 in certification | `edge://extensions` | Edge 157, 49/49 browser checks |
 | Brave | Load unpacked | `brave://extensions` | Brave 157, 49/49 browser checks |
-| Google Chrome | Load unpacked; Chrome Web Store deliberately not submitted | `chrome://extensions` | Chrome stable on the GitHub Actions Linux runner (browser suite) |
+| Google Chrome | Load unpacked; Chrome Web Store deliberately not submitted | `chrome://extensions` | Chrome for Testing stable on the GitHub Actions Linux runner (browser suite) |
 | Chromium | Load unpacked | `chrome://extensions` | Not run on this machine |
 | Opera | Load unpacked; Opera Add-ons listing prepared but not submitted | `opera://extensions` | Opera Stable 140.0.6074.18, 49/49 browser checks (Windows) |
 | Vivaldi | Load unpacked | `vivaldi://extensions` | Not run on this machine |
@@ -113,7 +113,7 @@ npm run verify:all      # check + test + verify + verify:ui
 
 `verify:browser` writes screenshots and `report.json` into `verify-output/`. It detects Chrome, Edge, Brave, Opera, Opera GX, Vivaldi, Yandex Browser and Chromium on Windows, macOS and Linux; pick one with `--browser <id|name|path>` or `BROWSER_PATH`, and list what it finds with `--list`. `verify:browsers` runs the suite per browser, writes each run to `verify-output/<browser>/` and a summary matrix to `verify-output/browsers.json`.
 
-Continuous integration (`.github/workflows/verify.yml`) runs `verify:all`, `verify:package` and the browser suite on every push and pull request. The workflow installs Google Chrome stable and runs `verify-browser.mjs --browser chrome` under xvfb, so the browser under test is the current Chrome build instead of whatever the runner image ships.
+Continuous integration (`.github/workflows/verify.yml`) runs `verify:all`, `verify:package` and the browser suite on every push and pull request. The workflow downloads Chrome for Testing stable and runs `verify-browser.mjs --browser <path> --no-sandbox` under xvfb, so the browser under test is the current Chrome build instead of whatever the runner image ships. Branded Chrome ignores `--load-extension` since Chrome 137, so the automation uses the Chrome for Testing build of the same stable version.
 
 ### Architecture
 
