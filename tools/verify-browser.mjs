@@ -103,6 +103,7 @@ class Cdp {
     this.nextId = 1;
     this.pending = new Map();
     this.events = new Map();
+    this.contexts = [];
     this.socket = new WebSocket(url);
     this.ready = new Promise((resolve, reject) => {
       this.socket.addEventListener("open", resolve);
@@ -162,6 +163,9 @@ class Cdp {
 async function connect(target, { page = true } = {}) {
   const client = new Cdp(target.webSocketDebuggerUrl);
   await client.ready;
+  client.on("Runtime.executionContextCreated", (params) => {
+    if (params && params.context) client.contexts.push(params.context);
+  });
   await waitFor(
     () => client.send("Runtime.enable").then(() => true).catch(() => false),
     10_000,
@@ -271,9 +275,58 @@ async function openTab(port, url) {
   return response.json();
 }
 
-// Chrome 158 on Linux refuses to navigate a debugger-created tab to a
-// chrome-extension:// URL, so extension pages are opened through the tabs API
-// from an extension page that already exists (the install-time welcome tab).
+// Chrome 158 on Linux navigates a debugger-created tab to a chrome-extension://
+// URL and lands on chrome-error://chromewebdata/, and the install-time welcome
+// tab is not guaranteed to exist (the background opens it after its init work),
+// so the first extension page is opened by asking the background from the
+// isolated content script world on a regular page.
+async function findExtensionPage(port, extensionId) {
+  const response = await fetch(`http://127.0.0.1:${port}/json/list`);
+  const targets = await response.json();
+  return (
+    targets.find(
+      (target) => target.type === "page" && target.url.startsWith(`chrome-extension://${extensionId}/`),
+    ) || null
+  );
+}
+
+async function openWelcomeThroughContentScript(port, extensionId) {
+  const siteTarget = await openTab(port, "https://example.com/");
+  const site = await connect(siteTarget);
+  const findIsolatedWorld = () =>
+    site.contexts.find(
+      (context) =>
+        context.auxData &&
+        context.auxData.isDefault === false &&
+        String(context.origin || "").startsWith("chrome-extension://"),
+    ) || null;
+  try {
+    await waitForLoad(site);
+    let context = await waitFor(findIsolatedWorld, 5000, "content script context").catch(() => null);
+    if (!context) {
+      await site.send("Page.reload");
+      await waitForLoad(site);
+      context = await waitFor(findIsolatedWorld, 5000, "content script context after reload");
+    }
+    await site.send(
+      "Runtime.evaluate",
+      {
+        expression: 'chrome.runtime.sendMessage({ type: "openWelcome" }).then(() => true, () => false)',
+        contextId: context.id,
+        awaitPromise: true,
+        returnByValue: true,
+      },
+      10_000,
+    );
+    return await waitFor(() => findExtensionPage(port, extensionId), 10_000, "extension page");
+  } finally {
+    await fetch(`http://127.0.0.1:${port}/json/close/${siteTarget.id}`).catch(() => {});
+    site.close();
+  }
+}
+
+// Extension pages cannot be opened through /json/new on Chrome 158 for Linux,
+// so they are opened from an extension page that is already running.
 async function openExtensionTab(admin, port, pagePath) {
   const listTargets = async () => {
     const response = await fetch(`http://127.0.0.1:${port}/json/list`);
@@ -415,18 +468,9 @@ async function run() {
     // Service worker targets are not reliably scriptable across Chromium builds
     // (Chrome 158 on Linux rejects Runtime.evaluate on the worker target), so
     // privileged API checks run in the welcome page, which has the same APIs.
-    const bootstrapTarget = await waitFor(
-      async () => {
-        const response = await fetch(`http://127.0.0.1:${port}/json/list`);
-        const targets = await response.json();
-        return targets.find(
-          (target) => target.type === "page" && target.url.startsWith(`chrome-extension://${extensionId}/`),
-        ) || null;
-      },
-      15_000,
-      "extension page",
-    );
+    const bootstrapTarget = await openWelcomeThroughContentScript(port, extensionId);
     const admin = await connect(bootstrapTarget);
+    await waitForLoad(admin);
     const apiContext = await waitFor(
       () => evaluate(admin, "return typeof chrome === 'object' && Boolean(chrome.declarativeNetRequest);").catch(() => false),
       10_000,
