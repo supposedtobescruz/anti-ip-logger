@@ -20,21 +20,24 @@ jobs:
       - name: Package check
         run: npm run verify:package
 
-      # Chrome is preinstalled on ubuntu-latest but can lag behind the
-      # extension floor, so install the current stable build explicitly.
-      # The published .pub key is ASCII-armored, so dearmor it before apt uses it.
-      - name: Install Google Chrome
+      # Branded Google Chrome ignores --load-extension since Chrome 137, which
+      # leaves the extension without content scripts or dynamic rules under the
+      # test launch flags. Chrome for Testing is the same stable version and
+      # keeps the flag supported for automation.
+      - name: Install Chrome for Testing
         run: |
-          curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor --yes -o /usr/share/keyrings/google-chrome.gpg
-          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
-          sudo apt-get update -y && sudo apt-get install -y google-chrome-stable
+          curl -fsSL "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" -o "$RUNNER_TEMP/cft.json"
+          DOWNLOAD_URL=$(node -e "const data = require(process.argv[1]); const build = data.channels.Stable.downloads.chrome.find((item) => item.platform === 'linux64'); process.stdout.write(build.url);" "$RUNNER_TEMP/cft.json")
+          curl -fsSL "$DOWNLOAD_URL" -o "$RUNNER_TEMP/chrome-linux64.zip"
+          unzip -q "$RUNNER_TEMP/chrome-linux64.zip" -d "$RUNNER_TEMP/chrome"
+          echo "CHROME_PATH=$RUNNER_TEMP/chrome/chrome-linux64/chrome" >> "$GITHUB_ENV"
 
       - name: Browser check (Chrome)
         run: |
           if ! command -v xvfb-run >/dev/null; then
             sudo apt-get update -y && sudo apt-get install -y xvfb
           fi
-          xvfb-run -a node tools/verify-browser.mjs --browser chrome
+          xvfb-run -a node tools/verify-browser.mjs --browser "$CHROME_PATH"
 
       - name: Upload screenshots and report
         if: always()
