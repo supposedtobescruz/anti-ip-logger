@@ -1,6 +1,6 @@
 # Chrome Web Store kit - Anti IP Logger
 
-Everything needed for a Chrome Web Store submission. The Edge Add-ons submission is done and live (1.3.0, 11 Nov 2026); the Chrome Web Store listing itself is deliberately on hold until you decide to submit. An Opera Add-ons kit is also prepared (`opera/`), with the same status: listing prepared, not submitted.
+Everything needed for a Chrome Web Store submission. The Edge Add-ons listing is live at 1.4.0, and the 1.6.0 update is in certification; the Chrome Web Store listing itself is deliberately on hold until you decide to submit. An Opera Add-ons kit is also prepared (`opera/`), with the same status: listing prepared, not submitted.
 
 ## What is in this folder
 

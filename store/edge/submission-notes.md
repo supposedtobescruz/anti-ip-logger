@@ -1,6 +1,6 @@
 # Submission notes - Microsoft Edge Add-ons - Anti IP Logger
 
-Checklist and certification tester notes. The package is not submitted; nothing in this file means it was submitted.
+Checklist and certification tester notes. The 1.6.0 package was submitted on 25 Nov 2026 and is in certification.
 
 ## Checklist
 

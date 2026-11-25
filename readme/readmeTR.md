@@ -45,7 +45,7 @@ Sürüm 1.6.0. Birlikte gelen liste, 2 statik kuralda 125 alan adı ve 61 istisn
 1. Bu depoyu indirin veya klonlayın.
 2. Tarayıcınızın uzantılar sayfasını açın: `chrome://extensions` (Chrome, Chromium), `edge://extensions` (Edge), `brave://extensions` (Brave), `opera://extensions` (Opera), `vivaldi://extensions` (Vivaldi) veya `browser://extensions` (Yandex Browser).
 3. Depodan paketlenmemiş yükleme için **Geliştirici modu**'nu etkinleştirin (sağ üst).
-4. **Yalnızca Microsoft Edge:** Edge Add-ons'tan yükleyin: https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.3.0).
+4. **Yalnızca Microsoft Edge:** Edge Add-ons'tan yükleyin: https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.4.0 yayında, 1.6.0 incelemede).
 5. **Paketlenmemiş yükleme:** **Paketlenmemiş öğe yükle**'ye tıklayın ve depo kökünü seçin.
 6. Panel kurulumda açılır. Araç çubuğu simgesi açılır pencereyi açar.
 
@@ -57,7 +57,7 @@ Tek bir Manifest V3 paketi Chromium ailesini kapsar. Tek zorunlu alt sınır, `w
 
 | Tarayıcı | Dağıtım | Uzantılar sayfası | Doğrulama |
 |---|---|---|---|
-| Microsoft Edge | Edge Add-ons: 1.3.0 yayında, 1.4.0 incelemede | `edge://extensions` | Edge 157, 49/49 tarayıcı kontrolü |
+| Microsoft Edge | Edge Add-ons: 1.4.0 yayında, 1.6.0 incelemede | `edge://extensions` | Edge 158, 49/49 tarayıcı kontrolü |
 | Brave | Paketlenmemiş yükleme | `brave://extensions` | Brave 157, 49/49 tarayıcı kontrolü |
 | Google Chrome | Paketlenmemiş yükleme; Chrome Web Store bilinli olarak gönderilmedi | `chrome://extensions` | GitHub Actions Linux runner'da Chrome for Testing stable (tarayıcı seti) |
 | Chromium | Paketlenmemiş yükleme | `chrome://extensions` | Bu makinede çalıştırılmadı |
@@ -165,7 +165,7 @@ Kural öncelik merdiveni: sekme izni 110 > izin listesi 100 > özel engel 50 > e
 
 ## Mağaza dağıtımı
 
-- **Microsoft Edge Add-ons:** yayında, https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.3.0, 11 Kasım 2026).
+- **Microsoft Edge Add-ons:** yayında, https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.4.0 yayında, 1.6.0 incelemede).
 - **Chrome Web Store:** liste hazır ama bilinçli bir kararla henüz gönderilmedi. Hazır olanlar:
   - `npm run package`, `dist/anti-ip-logger-1.6.0-cws.zip` üretir (yalnızca çalışma zamanı dosyaları; çıkarılan zip tüm tarayıcı kontrollerinden geçer).
   - `store/` klasöründe mağaza kiti: İngilizce ve Türkçe başlık metinleri, izin gerekçeleri, ekran görüntüleri ve tanıtım karoları.

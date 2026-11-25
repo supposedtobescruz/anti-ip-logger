@@ -45,7 +45,7 @@ Version 1.6.0. The bundled list ships 125 domains in 2 static rules, with 61 exc
 1. Download or clone this repository.
 2. Open your browser's extensions page: `chrome://extensions` (Chrome, Chromium), `edge://extensions` (Edge), `brave://extensions` (Brave), `opera://extensions` (Opera), `vivaldi://extensions` (Vivaldi) or `browser://extensions` (Yandex Browser).
 3. Enable **Developer mode** (top right) if you are installing unpacked from the repository.
-4. **Microsoft Edge only:** install from Edge Add-ons at https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.3.0).
+4. **Microsoft Edge only:** install from Edge Add-ons at https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.4.0 live, 1.6.0 in certification).
 5. **Unpacked install:** click **Load unpacked** and pick the repository root.
 6. The panel opens on install. The toolbar icon opens the popup.
 
@@ -57,7 +57,7 @@ One Manifest V3 package covers the Chromium family. The only hard floor is Chrom
 
 | Browser | Distribution | Install page | Verified |
 |---|---|---|---|
-| Microsoft Edge | Edge Add-ons: 1.3.0 live, 1.4.0 in certification | `edge://extensions` | Edge 157, 49/49 browser checks |
+| Microsoft Edge | Edge Add-ons: 1.4.0 live, 1.6.0 in certification | `edge://extensions` | Edge 158, 49/49 browser checks |
 | Brave | Load unpacked | `brave://extensions` | Brave 157, 49/49 browser checks |
 | Google Chrome | Load unpacked; Chrome Web Store deliberately not submitted | `chrome://extensions` | Chrome for Testing stable on the GitHub Actions Linux runner (browser suite) |
 | Chromium | Load unpacked | `chrome://extensions` | Not run on this machine |
@@ -165,7 +165,7 @@ Rule priority ladder: tab allow 110 > allowlist 100 > custom block 50 > blocked 
 
 ## Store distribution
 
-- **Microsoft Edge Add-ons:** published, https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.3.0, 11 Nov 2026).
+- **Microsoft Edge Add-ons:** published, https://microsoftedge.microsoft.com/addons/detail/anti-ip-logger/ikfmjolkbcoghibpiicldoiadhbokpai (1.4.0 live, 1.6.0 in certification).
 - **Chrome Web Store:** the listing is prepared but not submitted yet, by deliberate decision. What is ready:
   - `npm run package` builds `dist/anti-ip-logger-1.6.0-cws.zip` (runtime files only; the extracted zip passes all browser checks).
   - Store kit in `store/`: English and Turkish listings, permission justifications, screenshots, promotional tiles.
