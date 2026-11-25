@@ -1,6 +1,6 @@
-import { spawn } from "node:child_process";
+﻿import { spawn } from "node:child_process";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { existsSync, openSync } from "node:fs";
 import { dirname, isAbsolute, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
@@ -103,6 +103,7 @@ class Cdp {
     this.nextId = 1;
     this.pending = new Map();
     this.events = new Map();
+    this.contexts = [];
     this.socket = new WebSocket(url);
     this.ready = new Promise((resolve, reject) => {
       this.socket.addEventListener("open", resolve);
@@ -162,10 +163,21 @@ class Cdp {
 async function connect(target, { page = true } = {}) {
   const client = new Cdp(target.webSocketDebuggerUrl);
   await client.ready;
-  await client.send("Runtime.enable");
+  client.on("Runtime.executionContextCreated", (params) => {
+    if (params && params.context) client.contexts.push(params.context);
+  });
+  await waitFor(
+    () => client.send("Runtime.enable").then(() => true).catch(() => false),
+    10_000,
+    "Runtime.enable",
+  );
   if (page) {
-    await client.send("Page.enable");
-    await client.send("Log.enable");
+    await waitFor(
+      () => client.send("Page.enable").then(() => true).catch(() => false),
+      10_000,
+      "Page.enable",
+    );
+    await client.send("Log.enable").catch(() => {});
   }
   client.on("Runtime.exceptionThrown", (params) => {
     consoleErrors.push(`${target.type}: ${params.exceptionDetails?.exception?.description || params.exceptionDetails?.text || "exception"}`);
@@ -214,11 +226,11 @@ async function isOurExtensionWorker(target) {
     const identity = await ourManifestIdentity();
     probe = new Cdp(target.webSocketDebuggerUrl);
     await probe.ready;
-    await probe.send("Runtime.enable");
+    await probe.send("Runtime.enable", {}, 3000);
     const result = await probe.send("Runtime.evaluate", {
       expression: "JSON.stringify({ name: chrome.runtime.getManifest().name, version: chrome.runtime.getManifest().version })",
       returnByValue: true,
-    });
+    }, 3000);
     const info = JSON.parse(result.result.value);
     ours = info.name === identity.name && info.version === identity.version;
   } catch {
@@ -263,6 +275,120 @@ async function openTab(port, url) {
   return response.json();
 }
 
+// Chrome 158 on Linux navigates a debugger-created tab to a chrome-extension://
+// URL and lands on chrome-error://chromewebdata/, and the install-time welcome
+// tab is not guaranteed to exist (the background opens it after its init work).
+// The first extension page is therefore opened by asking the background from a
+// content script world, with a DNR-blocked navigation as the fallback.
+async function findExtensionPage(port, extensionId) {
+  const response = await fetch(`http://127.0.0.1:${port}/json/list`);
+  const targets = await response.json();
+  return (
+    targets.find(
+      (target) => target.type === "page" && target.url.startsWith(`chrome-extension://${extensionId}/`),
+    ) || null
+  );
+}
+
+// The isolated world of the extension content script is not labelled the same
+// way across Chromium builds, so every execution context is probed for the
+// extension runtime id instead of trusting origin or auxData.
+async function findExtensionWorld(client, extensionId) {
+  for (const context of [...client.contexts]) {
+    const result = await client
+      .send(
+        "Runtime.evaluate",
+        {
+          expression:
+            "typeof chrome === 'object' && chrome.runtime && chrome.runtime.id ? chrome.runtime.id : ''",
+          contextId: context.id,
+          returnByValue: true,
+        },
+        3000,
+      )
+      .catch(() => null);
+    if (result && result.result && result.result.value === extensionId) return context;
+  }
+  return null;
+}
+
+async function openWelcomeThroughContentScript(port, extensionId) {
+  const siteTarget = await openTab(port, "https://example.com/");
+  const site = await connect(siteTarget);
+  try {
+    await waitForLoad(site);
+    let context = await waitFor(() => findExtensionWorld(site, extensionId), 6000, "content script context").catch(() => null);
+    if (!context) {
+      await site.send("Page.reload");
+      await waitForLoad(site);
+      context = await waitFor(() => findExtensionWorld(site, extensionId), 6000, "content script context after reload").catch(async () => {
+        const targets = await fetch(`http://127.0.0.1:${port}/json/list`).then((response) => response.json());
+        const summary = {
+          contexts: site.contexts.map((item) => ({
+            id: item.id,
+            origin: item.origin,
+            name: item.name,
+            aux: item.auxData && { isDefault: item.auxData.isDefault, type: item.auxData.type },
+          })),
+          targets: targets.map((target) => ({ type: target.type, url: target.url })),
+        };
+        process.stdout.write(`DIAG content world ${JSON.stringify(summary).slice(0, 4000)}\n`);
+        throw new Error("content script context unavailable");
+      });
+    }
+    await site.send(
+      "Runtime.evaluate",
+      {
+        expression: 'chrome.runtime.sendMessage({ type: "openWelcome" }).then(() => true, () => false)',
+        contextId: context.id,
+        awaitPromise: true,
+        returnByValue: true,
+      },
+      10_000,
+    );
+    return await waitFor(() => findExtensionPage(port, extensionId), 10_000, "extension page");
+  } finally {
+    await fetch(`http://127.0.0.1:${port}/json/close/${siteTarget.id}`).catch(() => {});
+    site.close();
+  }
+}
+
+// The static core ruleset redirects a known IP logger to the packaged blocked
+// page. That navigation is issued by the browser, not by the debugger, so it
+// loads the extension page even where a debugger-created tab cannot.
+async function openExtensionPageThroughBlockedNavigation(port, extensionId) {
+  await openTab(port, "https://grabify.link/verify-bootstrap");
+  return waitFor(() => findExtensionPage(port, extensionId), 15_000, "extension page");
+}
+
+// Extension pages cannot be opened through /json/new on Chrome 158 for Linux,
+// so they are opened from an extension page that is already running.
+async function openExtensionTab(opener, port, pagePath) {
+  const listTargets = async () => {
+    const response = await fetch(`http://127.0.0.1:${port}/json/list`);
+    return response.json();
+  };
+  const before = new Set(
+    (await listTargets()).filter((target) => target.type === "page" && target.url.includes(pagePath)).map((target) => target.id),
+  );
+  await evaluate(
+    opener,
+    `await chrome.tabs.create({ url: chrome.runtime.getURL(${JSON.stringify(pagePath)}) }); return true;`,
+  );
+  return waitFor(
+    async () => {
+      const targets = await listTargets();
+      return (
+        targets.find(
+          (target) => target.type === "page" && target.url.includes(pagePath) && !before.has(target.id),
+        ) || null
+      );
+    },
+    10_000,
+    `extension tab ${pagePath}`,
+  );
+}
+
 async function waitForLoad(client, timeout = 15_000) {
   await waitFor(
     () => evaluate(client, "return document.readyState === 'complete';"),
@@ -304,13 +430,18 @@ async function run() {
   const browser = selected.path;
   const PROFILE = join(tmpdir(), `anti-ip-logger-verify-${selected.id}-${Date.now()}`);
   const PORT_FILE = join(PROFILE, "DevToolsActivePort");
+  const LOG_FILE = join(PROFILE, "browser.log");
   let browserInfo = { id: selected.id, name: selected.name, path: selected.path, product: "", version: "" };
 
   await mkdir(OUT, { recursive: true });
+  await mkdir(PROFILE, { recursive: true });
   const child = spawn(
     browser,
     [
       "--headless=new",
+      // Chrome for Testing ships without a setuid sandbox helper, so the
+      // browser dies before opening the debug port unless the sandbox is off.
+      "--no-sandbox",
       "--disable-gpu",
       "--no-first-run",
       "--no-default-browser-check",
@@ -322,7 +453,7 @@ async function run() {
       `--lang=${process.env.BROWSER_LANG || "en-US"}`,
       "about:blank",
     ],
-    { stdio: "ignore", windowsHide: true },
+    { stdio: ["ignore", "ignore", openSync(LOG_FILE, "a")], windowsHide: true },
   );
 
   let port = 0;
@@ -335,7 +466,11 @@ async function run() {
       },
       20_000,
       "DevTools portu",
-    );
+    ).catch(async (error) => {
+      const log = await readFile(LOG_FILE, "utf8").catch(() => "");
+      if (log) process.stderr.write(`DIAG browser log\n${log.trim().split(/\r?\n/).slice(-15).join("\n")}\n`);
+      throw error;
+    });
     port = Number(lines[0]);
     check("browser debug port opened", Number.isFinite(port) && port > 0, String(port));
 
@@ -375,17 +510,47 @@ async function run() {
     const extensionId = new URL(worker.url).host;
     check("extension id read", /^[a-p]{32}$/.test(extensionId), extensionId);
 
-    const workerClient = await connect(worker, { page: false });
-    await waitFor(
-      () => evaluate(workerClient, "return typeof chrome === 'object' && Boolean(chrome.declarativeNetRequest);").catch(() => false),
+    // Service worker targets are not reliably scriptable across Chromium builds
+    // (Chrome 158 on Linux rejects Runtime.evaluate on the worker target), so
+    // privileged API checks run in the welcome page, which has the same APIs.
+    let bootstrapTarget = null;
+    if (process.env.VERIFY_BOOTSTRAP !== "blocked") {
+      bootstrapTarget = await openWelcomeThroughContentScript(port, extensionId).catch(() => null);
+    }
+    if (!bootstrapTarget) {
+      bootstrapTarget = await openExtensionPageThroughBlockedNavigation(port, extensionId);
+    }
+    const admin = await connect(bootstrapTarget);
+    await waitForLoad(admin);
+    const apiContext = await waitFor(
+      () => evaluate(admin, "return typeof chrome === 'object' && Boolean(chrome.declarativeNetRequest);").catch(() => false),
       10_000,
-      "service worker API context",
-    );
+      "extension page API context",
+    ).catch(() => false);
+    if (!apiContext) {
+      const diagnostic = await evaluate(
+        admin,
+        `return { url: location.href, ready: document.readyState,
+           chromeType: typeof chrome,
+           keys: typeof chrome === "object" ? Object.keys(chrome).slice(0, 12) : [],
+           title: document.title };`,
+      ).catch((error) => ({ error: error.message }));
+      process.stdout.write(`DIAG extension page ${JSON.stringify({ target: bootstrapTarget.url, diagnostic })}\n`);
+      throw new Error("extension page API context unavailable");
+    }
+
+    const dashTarget = await openExtensionTab(admin, port, "dashboard/dashboard.html#overview");
+    const dash = await connect(dashTarget);
+    await waitForLoad(dash);
+    // The bootstrap page exists only to open the first extension tab. Closing it
+    // keeps the tab state checks from seeing a second blocked or welcome page.
+    await fetch(`http://127.0.0.1:${port}/json/close/${bootstrapTarget.id}`).catch(() => {});
+    admin.close();
 
     const ruleInfo = await waitFor(
       async () => {
         const info = await evaluate(
-          workerClient,
+          dash,
           `const rules = await chrome.declarativeNetRequest.getDynamicRules();
            const staticRules = await chrome.declarativeNetRequest.getEnabledRulesets();
            return { dynamic: rules.length, staticRules };`,
@@ -396,7 +561,7 @@ async function run() {
       "dynamic rule apply",
     ).catch(async () =>
       evaluate(
-        workerClient,
+        dash,
         `const rules = await chrome.declarativeNetRequest.getDynamicRules();
          const staticRules = await chrome.declarativeNetRequest.getEnabledRulesets();
          return { dynamic: rules.length, staticRules };`,
@@ -408,7 +573,7 @@ async function run() {
     const settings = await waitFor(
       async () => {
         const value = await evaluate(
-          workerClient,
+          dash,
           `const data = await chrome.storage.local.get("settings");
            return data.settings || null;`,
         );
@@ -420,14 +585,28 @@ async function run() {
     check("default settings written", Boolean(settings && settings.enabled === true));
 
     const siteTarget = await openTab(port, "https://example.com/");
-    const popupTarget = await openTab(port, `chrome-extension://${extensionId}/popup/popup.html`);
+    const popupTarget = await openExtensionTab(dash, port, "popup/popup.html");
     const popup = await connect(popupTarget);
     await waitForLoad(popup);
     await waitFor(() => evaluate(popup, "return document.getElementById('content') && !document.getElementById('content').hidden;"), 8000, "popup content");
-    await fetch(`http://127.0.0.1:${port}/json/activate/${siteTarget.id}`);
-    await popup.send("Page.reload");
-    await waitForLoad(popup);
-    await waitFor(() => evaluate(popup, "return document.getElementById('content') && !document.getElementById('content').hidden;"), 8000, "popup content");
+    // The popup is driven by the active tab, and reloading the popup tab can
+    // briefly make it the active tab in headless mode. Retry the load while the
+    // site tab is active until the popup reports its host.
+    let popupHost = "";
+    for (let attempt = 0; attempt < 3 && !popupHost; attempt += 1) {
+      await fetch(`http://127.0.0.1:${port}/json/activate/${siteTarget.id}`).catch(() => {});
+      await popup.send("Page.reload");
+      await waitForLoad(popup);
+      await waitFor(() => evaluate(popup, "return document.getElementById('content') && !document.getElementById('content').hidden;"), 8000, "popup content");
+      popupHost = await waitFor(
+        () =>
+          evaluate(popup, "return document.getElementById('hero-host').textContent.trim();").then((value) =>
+            value ? value : null,
+          ),
+        3000,
+        "popup host",
+      ).catch(() => "");
+    }
     const popupState = await evaluate(
       popup,
       `const headline = document.getElementById('verdict-headline').textContent.trim();
@@ -441,7 +620,7 @@ async function run() {
     check("popup headline present", popupState.headline.length > 8, popupState.headline);
     check("popup badge present", popupState.label.length > 2, popupState.label);
     check("popup action buttons present", popupState.buttons.length >= 2 || popupState.hint, popupState.buttons.join(" | ") || "empty tab hint");
-    if (popupState.host) check("popup shows active tab host", popupState.host.includes("example.com"), popupState.host);
+    check("popup shows active tab host", popupHost.includes("example.com"), popupHost || "empty");
     await screenshot(popup, "popup-light.png", 384, 620, "light");
 
     await popup.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] });
@@ -457,9 +636,6 @@ async function run() {
     await evaluate(popup, "document.documentElement.removeAttribute('data-theme'); return true;");
     await popup.send("Emulation.setEmulatedMedia", { features: [] });
 
-    const dashTarget = await openTab(port, `chrome-extension://${extensionId}/dashboard/dashboard.html#overview`);
-    const dash = await connect(dashTarget);
-    await waitForLoad(dash);
     await waitFor(() => evaluate(dash, "return document.getElementById('tile-domains').textContent.trim() !== '0';"), 8000, "panel data");
     const dashState = await evaluate(
       dash,
@@ -766,7 +942,7 @@ async function run() {
     // Regression: Chrome rejects tabIds in dynamic rules, so "allow once in this
     // tab" must install a session-scoped rule and must not touch dynamic rules.
     const tabAllowProbe = await evaluate(
-      workerClient,
+      dash,
       `const tabs = await chrome.tabs.query({});
        const blocked = tabs.find((tab) => tab.url && tab.url.includes('/blocked/blocked.html'));
        const session = await chrome.declarativeNetRequest.getSessionRules();
@@ -788,7 +964,7 @@ async function run() {
       const navigatedTo = await waitFor(
         async () => {
           const url = await evaluate(
-            workerClient,
+            dash,
             `const tab = await chrome.tabs.get(${tabAllowTabId}).catch(() => null); return tab && tab.url ? tab.url : '';`,
           );
           return url && !url.includes("/blocked/blocked.html") ? url : null;
@@ -804,7 +980,7 @@ async function run() {
       const postAllow = await waitFor(
         async () => {
           const value = await evaluate(
-            workerClient,
+            dash,
             `const session = await chrome.declarativeNetRequest.getSessionRules();
              const dynamic = await chrome.declarativeNetRequest.getDynamicRules();
              return { session, dynamic };`,
@@ -828,11 +1004,11 @@ async function run() {
             && rule.condition.requestDomains.includes("grabify.link")),
         postAllow ? `${postAllow.dynamic.length} dynamic rule(s)` : "session rule never appeared",
       );
-      await evaluate(workerClient, `await chrome.tabs.remove(${tabAllowTabId}).catch(() => {}); return true;`);
+      await evaluate(dash, `await chrome.tabs.remove(${tabAllowTabId}).catch(() => {}); return true;`);
       const cleared = await waitFor(
         async () => {
           const session = await evaluate(
-            workerClient,
+            dash,
             "const rules = await chrome.declarativeNetRequest.getSessionRules(); return rules.length;",
           );
           return session === 0 ? true : null;
@@ -850,7 +1026,7 @@ async function run() {
     await test.send("Fetch.disable").catch(() => {});
 
     const tabState = await evaluate(
-      workerClient,
+      dash,
       `const tabs = await chrome.tabs.query({});
        return tabs.map((tab) => ({ id: tab.id, url: tab.url || "" }));`,
     );
@@ -860,7 +1036,7 @@ async function run() {
     await screenshot(dash, "dashboard-mobile.png", 360, 780, "light");
 
     await evaluate(dash, "return new Promise((resolve) => chrome.runtime.sendMessage({ type: 'setSetting', key: 'theme', value: 'contrast' }, resolve));");
-    const welcomeTarget = await openTab(port, `chrome-extension://${extensionId}/welcome/welcome.html`);
+    const welcomeTarget = await openExtensionTab(dash, port, "welcome/welcome.html");
     const welcome = await connect(welcomeTarget);
     await waitForLoad(welcome);
     await waitFor(() => evaluate(welcome, "return document.documentElement.getAttribute('data-theme') === 'contrast';").catch(() => false), 8000, "welcome contrast theme");
@@ -888,7 +1064,6 @@ async function run() {
     popup.close();
     dash.close();
     test.close();
-    workerClient.close();
   } finally {
     child.kill();
     await sleep(500);

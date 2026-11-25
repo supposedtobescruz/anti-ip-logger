@@ -59,7 +59,7 @@ Tek bir Manifest V3 paketi Chromium ailesini kapsar. Tek zorunlu alt sınır, `w
 |---|---|---|---|
 | Microsoft Edge | Edge Add-ons: 1.3.0 yayında, 1.4.0 incelemede | `edge://extensions` | Edge 157, 49/49 tarayıcı kontrolü |
 | Brave | Paketlenmemiş yükleme | `brave://extensions` | Brave 157, 49/49 tarayıcı kontrolü |
-| Google Chrome | Paketlenmemiş yükleme; Chrome Web Store bilinçli olarak gönderilmedi | `chrome://extensions` | Bu makinede çalıştırılmadı |
+| Google Chrome | Paketlenmemiş yükleme; Chrome Web Store bilinli olarak gönderilmedi | `chrome://extensions` | GitHub Actions Linux runner'da Chrome stable (tarayıcı seti) |
 | Chromium | Paketlenmemiş yükleme | `chrome://extensions` | Bu makinede çalıştırılmadı |
 | Opera | Paketlenmemiş yükleme; Opera Add-ons listesi hazırlandı ama gönderilmedi | `opera://extensions` | Opera Stable 140.0.6074.18, 49/49 tarayıcı kontrolü (Windows) |
 | Vivaldi | Paketlenmemiş yükleme | `vivaldi://extensions` | Bu makinede çalıştırılmadı |
@@ -111,7 +111,9 @@ npm run verify:browsers # aynı kontrol setini algılanan her Chromium tarayıc�
 npm run verify:all      # check + test + verify + verify:ui
 ```
 
-`verify:browser`, ekran görüntülerini ve `report.json` dosyasını `verify-output/` klasörüne yazar. Windows, macOS ve Linux üzerinde Chrome, Edge, Brave, Opera, Opera GX, Vivaldi, Yandex Browser ve Chromium'u algılar; `--browser <kimlik|ad|yol>` veya `BROWSER_PATH` ile birini seçin, `--list` ile bulunanları listeleyin. `verify:browsers` kontrol setini her tarayıcı için çalıştırır, her çalışmayı `verify-output/<tarayıcı>/` altına ve özet matrisi `verify-output/browsers.json` dosyasına yazar.
+`verify:browser`, ekran görüntülerini ve `report.json` dosyasını `verify-output/` klasörüne yazar. Windows, macOS ve Linux üzerinde Chrome, Edge, Brave, Opera, Opera GX, Vivaldi, Yandex Browser ve Chromium algılar; `--browser <kimlik|ad|yol>` veya `BROWSER_PATH` ile birini seçin, `--list` ile bulunanları listeleyin. `verify:browsers` kontrol setini her tarayıcı için çalıştırır, her çalışmayı `verify-output/<tarayıcı>/` altına ve özet matrisi `verify-output/browsers.json` dosyasına yazar.
+
+Sürekli entegrasyon (`.github/workflows/verify.yml`) her push ve pull request'te `verify:all`, `verify:package` ve tarayıcı setini çalıştırır. İş akışı Google Chrome stable kurar ve `verify-browser.mjs --browser chrome` komutunu xvfb altında çalıştırır; böylece test edilen tarayıcı, runner imajının varsayılanı yerine güncel Chrome olur.
 
 ## Mimari
 
