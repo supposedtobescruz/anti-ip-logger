@@ -1,6 +1,6 @@
 ﻿import { spawn } from "node:child_process";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { existsSync, openSync } from "node:fs";
 import { dirname, isAbsolute, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
@@ -430,13 +430,18 @@ async function run() {
   const browser = selected.path;
   const PROFILE = join(tmpdir(), `anti-ip-logger-verify-${selected.id}-${Date.now()}`);
   const PORT_FILE = join(PROFILE, "DevToolsActivePort");
+  const LOG_FILE = join(PROFILE, "browser.log");
   let browserInfo = { id: selected.id, name: selected.name, path: selected.path, product: "", version: "" };
 
   await mkdir(OUT, { recursive: true });
+  await mkdir(PROFILE, { recursive: true });
   const child = spawn(
     browser,
     [
       "--headless=new",
+      // Chrome for Testing ships without a setuid sandbox helper, so the
+      // browser dies before opening the debug port unless the sandbox is off.
+      "--no-sandbox",
       "--disable-gpu",
       "--no-first-run",
       "--no-default-browser-check",
@@ -448,7 +453,7 @@ async function run() {
       `--lang=${process.env.BROWSER_LANG || "en-US"}`,
       "about:blank",
     ],
-    { stdio: "ignore", windowsHide: true },
+    { stdio: ["ignore", "ignore", openSync(LOG_FILE, "a")], windowsHide: true },
   );
 
   let port = 0;
@@ -461,7 +466,11 @@ async function run() {
       },
       20_000,
       "DevTools portu",
-    );
+    ).catch(async (error) => {
+      const log = await readFile(LOG_FILE, "utf8").catch(() => "");
+      if (log) process.stderr.write(`DIAG browser log\n${log.trim().split(/\r?\n/).slice(-15).join("\n")}\n`);
+      throw error;
+    });
     port = Number(lines[0]);
     check("browser debug port opened", Number.isFinite(port) && port > 0, String(port));
 
